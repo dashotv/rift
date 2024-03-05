@@ -26,7 +26,7 @@ func (s *jobService) Index(c echo.Context, req *Request) (*Response, error) {
 		return nil, err
 	}
 
-	list, err := s.db.Job.Query().Limit(limit).Run()
+	list, err := s.db.Job.Query().Limit(limit).Desc("created_at").Run()
 	if err != nil {
 		return nil, err
 	}
