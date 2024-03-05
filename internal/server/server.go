@@ -54,12 +54,12 @@ func New() (*Server, error) {
 
 	page := &pageService{db: s.db, log: logger.Named("services.page"), bg: s.bg}
 	video := &videoService{db: s.db, log: logger.Named("services.video")}
-	minion := &minionService{db: s.db, log: logger.Named("services.minion"), bg: s.bg}
+	job := &jobService{db: s.db, log: logger.Named("services.job"), bg: s.bg}
 
 	g := s.Router.Group("/api")
 	RegisterPageService(g, page)
 	RegisterVideoService(g, video)
-	RegisterJobService(g, minion)
+	RegisterJobService(g, job)
 
 	return s, nil
 }

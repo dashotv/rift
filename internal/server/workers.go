@@ -31,7 +31,7 @@ func setupWorkers(s *Server) error {
 		BufferSize:  s.Config.MinionBufferSize,
 		DatabaseURI: s.Config.Mongo,
 		Database:    dbname,
-		Collection:  "jobs",
+		Collection:  "job",
 	}
 
 	ctx = context.WithValue(ctx, "server", s)
@@ -51,14 +51,26 @@ func setupWorkers(s *Server) error {
 	if err := minion.Register(m, &ScrapePages{}); err != nil {
 		return errors.Wrap(err, "registering worker: scrape_pages (ScrapePages)")
 	}
-	if _, err := m.Schedule("0 * * * * *", &ScrapePages{}); err != nil {
-		return errors.Wrap(err, "scheduling worker: scrape_pages (ScrapePages)")
-	}
 	if err := minion.Register(m, &ScrapePage{}); err != nil {
 		return errors.Wrap(err, "registering worker: scrape_page (ScrapePage)")
 	}
 	if err := minion.Register(m, &ScrapePageURL{}); err != nil {
 		return errors.Wrap(err, "registering worker: scrape_page_url (ScrapePageURL)")
+	}
+	if err := minion.Register(m, &YtdlpInfoJob{}); err != nil {
+		return errors.Wrap(err, "registering worker: ytdlp_info (YtdlpInfoJob)")
+	}
+	if err := minion.Register(m, &YtdlpListJob{}); err != nil {
+		return errors.Wrap(err, "registering worker: ytdlp_list (YtdlpListJob)")
+	}
+	if err := minion.Register(m, &YtdlpParseJob{}); err != nil {
+		return errors.Wrap(err, "registering worker: ytdlp_parse (YtdlpParseJob)")
+	}
+
+	if s.Config.Production {
+		if _, err := m.Schedule("0 */15 * * * *", &ScrapePages{}); err != nil {
+			return errors.Wrap(err, "scheduling worker: scrape_pages (ScrapePages)")
+		}
 	}
 
 	s.bg = m

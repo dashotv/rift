@@ -1037,8 +1037,8 @@ func (s *VisitService) Update(ctx context.Context, r *Visit) (*Response, error) 
 	return &response.Response, nil
 }
 
-// Minion tracks jobs in the system
-type Minion struct {
+// Job tracks jobs in the system
+type Job struct {
 	Kind string `json:"kind"`
 
 	Args string `json:"args"`
@@ -1047,11 +1047,11 @@ type Minion struct {
 
 	Queue string `json:"queue"`
 
-	Attempts []*MinionAttempt `json:"attempts"`
+	Attempts []*JobAttempt `json:"attempts"`
 }
 
-// MinionAttempt tracks the attempts made to process a job
-type MinionAttempt struct {
+// JobAttempt tracks the attempts made to process a job
+type JobAttempt struct {
 	StartedAt string `json:"started_at"`
 
 	Duration float64 `json:"duration"`

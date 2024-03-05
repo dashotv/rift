@@ -5,19 +5,18 @@ type JobService interface {
 	Create(Request) Response
 }
 
-// Minion tracks jobs in the system
+// Job tracks jobs in the system
 // model: true
-type Minion struct {
-	Kind     string           `json:"kind" bson:"kind"`
-	Args     string           `json:"args" bson:"args"`
-	Status   string           `json:"status" bson:"status"`
-	Queue    string           `json:"queue" bson:"queue"`
-	Attempts []*MinionAttempt `bson:"attempts" json:"attempts"`
+type Job struct {
+	Kind     string        `json:"kind" bson:"kind"`
+	Args     string        `json:"args" bson:"args"`
+	Status   string        `json:"status" bson:"status"`
+	Queue    string        `json:"queue" bson:"queue"`
+	Attempts []*JobAttempt `bson:"attempts" json:"attempts"`
 }
 
-// MinionAttempt tracks the attempts made to process a job
-// model: true
-type MinionAttempt struct { // struct
+// JobAttempt tracks the attempts made to process a job
+type JobAttempt struct { // struct
 	StartedAt  string   `bson:"started_at" json:"started_at"`
 	Duration   float64  `bson:"duration" json:"duration"`
 	Status     string   `bson:"status" json:"status"`

@@ -1,5 +1,132 @@
 package server
 
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"os/exec"
+
+	"github.com/dashotv/minion"
+)
+
+type YtdlpListJob struct {
+	minion.WorkerDefaults[*YtdlpListJob]
+	Name string
+	URL  string
+}
+
+func (j *YtdlpListJob) Kind() string { return "ytdlp_list" }
+func (j *YtdlpListJob) Work(ctx context.Context, job *minion.Job[*YtdlpListJob]) error {
+	s := getServer(ctx)
+	l := s.Logger.Named("ytdlp.list")
+	name := job.Args.Name
+	url := job.Args.URL
+
+	l.Warn(url)
+	cmd := exec.Command("yt-dlp", "--skip-download", "--no-warning", "--flat-playlist", "--dump-single-json", url)
+	out, err := cmd.Output()
+	if err != nil {
+		return fmt.Errorf("ytdlp-list: %s", err)
+	}
+
+	// l.Warn(out)
+	list := &YtdlpList{}
+	if err = json.Unmarshal(out, list); err != nil {
+		return fmt.Errorf("ytdlp-list: %s", err)
+	}
+
+	if len(list.Entries) == 0 {
+		return fmt.Errorf("ytdlp-list: no entries")
+	}
+
+	for _, e := range list.Entries {
+		s.bg.Enqueue(&YtdlpInfoJob{Name: name, Source: url, URL: e.URL})
+	}
+	return nil
+}
+
+type YtdlpInfoJob struct {
+	minion.WorkerDefaults[*YtdlpInfoJob]
+	Name   string
+	Source string
+	URL    string
+}
+
+func (j *YtdlpInfoJob) Kind() string { return "ytdlp_info" }
+func (j *YtdlpInfoJob) Work(ctx context.Context, job *minion.Job[*YtdlpInfoJob]) error {
+	s := getServer(ctx)
+	l := s.Logger.Named("ytdlp.info")
+
+	name := job.Args.Name
+	url := job.Args.URL
+
+	l.Warn(url)
+	cmd := exec.Command("yt-dlp", "--skip-download", "--no-warning", "--dump-single-json", url)
+	out, err := cmd.Output()
+	if err != nil {
+		return fmt.Errorf("ytdlp-info: %s", err)
+	}
+
+	// c.logger.Warnf("yt-dlp info: %s", out)
+	info := &YtdlpInfo{}
+	if err = json.Unmarshal(out, info); err != nil {
+		return fmt.Errorf("ytdlp-info: %s", err)
+	}
+
+	s.bg.Enqueue(&YtdlpParseJob{Name: name, Source: url, Info: info})
+	return nil
+}
+
+type YtdlpParseJob struct {
+	minion.WorkerDefaults[*YtdlpParseJob]
+	Name   string
+	Source string
+	Info   *YtdlpInfo
+}
+
+func (j *YtdlpParseJob) Kind() string { return "ytdlp_parse" }
+func (j *YtdlpParseJob) Work(ctx context.Context, job *minion.Job[*YtdlpParseJob]) error {
+	s := getServer(ctx)
+	l := s.Logger.Named("ytdlp.info")
+	name := job.Args.Name
+	source := job.Args.Source
+	info := job.Args.Info
+
+	l.Warnf("yt-dlp parse: %s %d %s [%s] %s", info.Fulltitle, info.Height, info.EXT, info.DisplayID, info.URL)
+
+	count, err := s.db.Video.Query().Where("display_id", info.DisplayID).Count()
+	if err != nil {
+		return fmt.Errorf("ytdlp-parse: %s", err)
+	}
+	if count > 0 {
+		return nil
+	}
+
+	_, season, episode, err := ParseFulltitle(info.Fulltitle)
+	if err != nil {
+		return fmt.Errorf("ytdlp-parse: %s", err)
+	}
+
+	video := &Video{}
+	video.Title = name
+	video.Season = season
+	video.Episode = episode
+	video.Raw = info.Fulltitle
+	video.Resolution = int(info.Height)
+	video.Extension = info.EXT
+	video.DisplayID = info.DisplayID
+	video.Download = info.URL
+	video.View = info.WebpageURL
+	video.Size = info.FilesizeApprox
+	video.Source = source
+
+	if err := s.db.Video.Save(video); err != nil {
+		return fmt.Errorf("ytdlp-parse: %s", err)
+	}
+
+	return nil
+}
+
 // func (c *Workers) YtdlpListJob(name, url string) JobFunc {
 // 	return func() error {
 // 		cmd := exec.Command("yt-dlp", "--skip-download", "--no-warning", "--flat-playlist", "--dump-single-json", url)

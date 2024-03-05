@@ -70,6 +70,6 @@ func (j *ScrapePageURL) Work(ctx context.Context, job *minion.Job[*ScrapePageURL
 	}
 
 	l.Debugf("scrape: %s %s", p.Name, u)
-	// s.bg.Enqueue(&YtdlpList{Page: p, URL: u})
+	s.bg.Enqueue(&YtdlpListJob{Name: p.Name, URL: u})
 	return nil
 }

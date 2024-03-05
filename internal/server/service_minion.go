@@ -9,24 +9,24 @@ import (
 	"github.com/dashotv/minion"
 )
 
-type minionService struct {
+type jobService struct {
 	db  *Connection
 	log *zap.SugaredLogger
 	bg  *minion.Minion
 }
 
-func (s *minionService) Index(c echo.Context, req *Request) (*Response, error) {
+func (s *jobService) Index(c echo.Context, req *Request) (*Response, error) {
 	limit := req.Limit
 	if limit == 0 {
 		limit = 100
 	}
 
-	count, err := s.db.Minion.Query().Count()
+	count, err := s.db.Job.Query().Count()
 	if err != nil {
 		return nil, err
 	}
 
-	list, err := s.db.Minion.Query().Limit(limit).Run()
+	list, err := s.db.Job.Query().Limit(limit).Run()
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ func (s *minionService) Index(c echo.Context, req *Request) (*Response, error) {
 	return &Response{Total: count, Results: list}, nil
 }
 
-func (s *minionService) Create(c echo.Context, req *Request) (*Response, error) {
+func (s *jobService) Create(c echo.Context, req *Request) (*Response, error) {
 	id := req.ID
 	switch id {
 	case "scrape_pages":
@@ -45,6 +45,6 @@ func (s *minionService) Create(c echo.Context, req *Request) (*Response, error) 
 	return &Response{Results: true}, nil
 }
 
-func (s *minionService) Update(c echo.Context, req *Minion) (*Response, error) {
+func (s *jobService) Update(c echo.Context, req *Job) (*Response, error) {
 	return nil, errors.New("not implemented")
 }
