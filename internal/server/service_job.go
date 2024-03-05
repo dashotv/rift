@@ -41,6 +41,8 @@ func (s *jobService) Create(c echo.Context, req *Request) (*Response, error) {
 		if err := s.bg.Enqueue(&ScrapePages{}); err != nil {
 			return nil, err
 		}
+	default:
+		return nil, errors.New("unknown job")
 	}
 	return &Response{Results: true}, nil
 }
