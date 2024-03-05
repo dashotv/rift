@@ -19,12 +19,17 @@ type pageService struct {
 
 func (s *pageService) Index(c echo.Context, req *Request) (*Response, error) {
 	// TODO: limit and offset
+	count, err := s.db.Page.Query().Count()
+	if err != nil {
+		return nil, err
+	}
+
 	list, err := s.dbList()
 	if err != nil {
 		return nil, err
 	}
 
-	return &Response{Results: list}, nil
+	return &Response{Total: count, Results: list}, nil
 }
 func (s *pageService) Show(c echo.Context, req *Request) (*Response, error) {
 	page, err := s.dbGet(req.ID)
@@ -43,12 +48,9 @@ func (s *pageService) Update(c echo.Context, req *Page) (*Response, error) {
 		return nil, err
 	}
 
-	// scr := scraper.NewMyAnime()
-	// urls := scr.Read(req.URL)
-	// if len(urls) == 0 {
-	// 	return &Response{Results: req}, nil
-	// }
-	// s.bg.Enqueue(s.bg.YtdlpListJob(req.Name, urls[0]))
+	if err := s.bg.Enqueue(&ScrapePage{Page: req}); err != nil {
+		return nil, err
+	}
 
 	return &Response{Results: req}, nil
 }
@@ -63,13 +65,9 @@ func (s *pageService) Create(c echo.Context, req *Page) (*Response, error) {
 		return nil, err
 	}
 
-	// 	scr := scraper.NewMyAnime()
-	// 	urls := scr.Read(req.URL)
-	// 	if len(urls) == 0 {
-	// 		return &Response{Results: req}, nil
-	// 	}
-	//
-	// 	s.bg.Enqueue(s.bg.YtdlpListJob(req.Name, urls[0]))
+	if err := s.bg.Enqueue(&ScrapePage{Page: req}); err != nil {
+		return nil, err
+	}
 
 	return &Response{Results: req}, nil
 }
