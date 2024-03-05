@@ -1,0 +1,73 @@
+version: "3"
+
+dotenv:
+  - .env
+
+tasks:
+  deps:
+    desc: "install all dependencies"
+    cmds:
+      - go install github.com/pacedotdev/oto@latest
+      - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+
+  build:
+    desc: "build the compiled binary"
+    deps:
+      - gen
+    cmds:
+      - go build .
+
+  test:
+    desc: "run all unit tests"
+    cmds:
+      - go test -v ./...
+
+  lint:
+    desc: "lint the code"
+    cmds:
+      - golangci-lint run
+
+  run:
+    desc: "runs our app and any dependencies defined within the docker-compose.yml"
+    cmds:
+      - go run .
+
+  mod:
+    desc: "update the dependencies"
+    cmds:
+      - go get -u
+      - go mod tidy
+
+  gen:
+    desc: "generate the code"
+    cmds:
+      - scripts/generate.sh
+
+  pages:
+    desc: "list pages from database"
+    cmds:
+      - |
+        curl -s -X POST -H "Content-Type: application/json" -H "Accept: application/json" "http://localhost:9006/api/PageService.Index" -d '{}' | jq
+
+  clean:
+    desc: "remove the database"
+    cmds:
+      - rm -f tmp/rift.db rift
+
+  seed:
+    desc: "seed the database"
+    cmds:
+      - scripts/seed.sh
+
+  sleep_5:
+    desc: "sleep for 5 seconds"
+    cmds:
+      - sleep 5
+
+  reset:
+    desc: "w/e"
+    cmds:
+      - task: clean
+      - task: gen
+      - task: sleep_5
+      - task: seed

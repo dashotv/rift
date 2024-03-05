@@ -1,0 +1,24 @@
+version: "3.8"
+services:
+  rift:
+    working_dir: /app
+    command: server
+    container_name: rift
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM cosmtrek/air:latest
+        RUN apt update && \
+          apt install -y python3-launchpadlib software-properties-common && \
+          add-apt-repository ppa:tomtomtom/yt-dlp && \
+          apt update && \
+          apt install -y ffmpeg yt-dlp
+        CMD ["air", "-c", ".air.toml"]
+    ports:
+      - "9006:9006"
+    volumes:
+      - ./:/app
+      - /Users/shawn/Downloads/rift:/downloads
+      - /tmp/rift:/intermediate
+    env_file:
+      - .env
