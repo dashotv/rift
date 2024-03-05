@@ -50,10 +50,12 @@ func New() (*Server, error) {
 
 	page := &pageService{db: s.db, log: logger.Named("services.page"), bg: s.bg}
 	video := &videoService{db: s.db, log: logger.Named("services.video")}
+	worker := &workerService{bg: s.bg}
 
 	g := s.Router.Group("/api")
 	RegisterPageService(g, page)
 	RegisterVideoService(g, video)
+	RegisterWorkerService(g, worker)
 
 	return s, nil
 }

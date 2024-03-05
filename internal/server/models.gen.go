@@ -35,6 +35,13 @@ func setupDatabase(s *Server) error {
 		grimoire.Indexes(col, &Video{})
 	}
 
+	if col, err := grimoire.New[*Visit](s.Config.Mongo, dbname, strings.ToLower("Visit")); err != nil {
+		return fmt.Errorf("failed to create Visit collection: %w", err)
+	} else {
+		db.Visit = col
+		grimoire.Indexes(col, &Visit{})
+	}
+
 	s.db = db
 	return nil
 }
@@ -45,6 +52,8 @@ type Connection struct {
 	Page *grimoire.Store[*Page]
 
 	Video *grimoire.Store[*Video]
+
+	Visit *grimoire.Store[*Visit]
 }
 
 // Page represents a web page to be scraped and downloaded
@@ -89,4 +98,14 @@ type Video struct { // model
 	Download   string `json:"download" `
 	View       string `json:"view" `
 	Source     string `json:"source" `
+}
+
+// Visit represents a web page to be scraped and downloaded
+type Visit struct { // model
+	grimoire.Document `bson:",inline"` // includes default model settings
+	//ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	//CreatedAt time.Time          `bson:"created_at" json:"created_at"`
+	//UpdatedAt time.Time          `bson:"updated_at" json:"updated_at"`
+	PageID string `json:"page_id" `
+	URL    string `json:"url" `
 }

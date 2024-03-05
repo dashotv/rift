@@ -623,6 +623,364 @@ func (s *VideoService) Update(ctx context.Context, r *Video) (*Response, error) 
 	return &response.Response, nil
 }
 
+type VisitService struct {
+	client *Client
+}
+
+// NewVisitService makes a new client for accessing VisitService services.
+func NewVisitService(client *Client) *VisitService {
+	return &VisitService{
+		client: client,
+	}
+}
+
+func (s *VisitService) Create(ctx context.Context, r *Visit) (*Response, error) {
+	requestBodyBytes, err := json.Marshal(r)
+	if err != nil {
+		return nil, errors.Wrap(err, "VisitService.Create: marshal Visit")
+	}
+	url := s.client.RemoteHost + "VisitService.Create"
+	s.client.Debug(fmt.Sprintf("POST %s", url))
+	s.client.Debug(fmt.Sprintf(">> %s", string(requestBodyBytes)))
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestBodyBytes))
+	if err != nil {
+		return nil, errors.Wrap(err, "VisitService.Create: NewRequest")
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept-Encoding", "gzip")
+	req = req.WithContext(ctx)
+	if s.client.BeforeRequest != nil {
+		err = s.client.BeforeRequest(req)
+		if err != nil {
+			// don't wrap this error, it belongs to the user
+			return nil, err
+		}
+	}
+	resp, err := s.client.HTTPClient.Do(req)
+	if err != nil {
+		return nil, errors.Wrap(err, "VisitService.Create")
+	}
+	defer resp.Body.Close()
+	var response struct {
+		Response
+		Error string
+	}
+	var bodyReader io.Reader = resp.Body
+	if strings.Contains(resp.Header.Get("Content-Encoding"), "gzip") {
+		decodedBody, err := gzip.NewReader(resp.Body)
+		if err != nil {
+			return nil, errors.Wrap(err, "VisitService.Create: new gzip reader")
+		}
+		defer decodedBody.Close()
+		bodyReader = decodedBody
+	}
+	respBodyBytes, err := io.ReadAll(bodyReader)
+	if err != nil {
+		return nil, errors.Wrap(err, "VisitService.Create: read response body")
+	}
+	if err := json.Unmarshal(respBodyBytes, &response); err != nil {
+		if resp.StatusCode != http.StatusOK {
+			return nil, errors.Errorf("VisitService.Create: (%d) %v", resp.StatusCode, string(respBodyBytes))
+		}
+		return nil, err
+	}
+	if response.Error != "" {
+		return nil, errors.New(response.Error)
+	}
+	return &response.Response, nil
+}
+
+func (s *VisitService) Delete(ctx context.Context, r *Request) (*Response, error) {
+	requestBodyBytes, err := json.Marshal(r)
+	if err != nil {
+		return nil, errors.Wrap(err, "VisitService.Delete: marshal Request")
+	}
+	url := s.client.RemoteHost + "VisitService.Delete"
+	s.client.Debug(fmt.Sprintf("POST %s", url))
+	s.client.Debug(fmt.Sprintf(">> %s", string(requestBodyBytes)))
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestBodyBytes))
+	if err != nil {
+		return nil, errors.Wrap(err, "VisitService.Delete: NewRequest")
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept-Encoding", "gzip")
+	req = req.WithContext(ctx)
+	if s.client.BeforeRequest != nil {
+		err = s.client.BeforeRequest(req)
+		if err != nil {
+			// don't wrap this error, it belongs to the user
+			return nil, err
+		}
+	}
+	resp, err := s.client.HTTPClient.Do(req)
+	if err != nil {
+		return nil, errors.Wrap(err, "VisitService.Delete")
+	}
+	defer resp.Body.Close()
+	var response struct {
+		Response
+		Error string
+	}
+	var bodyReader io.Reader = resp.Body
+	if strings.Contains(resp.Header.Get("Content-Encoding"), "gzip") {
+		decodedBody, err := gzip.NewReader(resp.Body)
+		if err != nil {
+			return nil, errors.Wrap(err, "VisitService.Delete: new gzip reader")
+		}
+		defer decodedBody.Close()
+		bodyReader = decodedBody
+	}
+	respBodyBytes, err := io.ReadAll(bodyReader)
+	if err != nil {
+		return nil, errors.Wrap(err, "VisitService.Delete: read response body")
+	}
+	if err := json.Unmarshal(respBodyBytes, &response); err != nil {
+		if resp.StatusCode != http.StatusOK {
+			return nil, errors.Errorf("VisitService.Delete: (%d) %v", resp.StatusCode, string(respBodyBytes))
+		}
+		return nil, err
+	}
+	if response.Error != "" {
+		return nil, errors.New(response.Error)
+	}
+	return &response.Response, nil
+}
+
+func (s *VisitService) Index(ctx context.Context, r *Request) (*Response, error) {
+	requestBodyBytes, err := json.Marshal(r)
+	if err != nil {
+		return nil, errors.Wrap(err, "VisitService.Index: marshal Request")
+	}
+	url := s.client.RemoteHost + "VisitService.Index"
+	s.client.Debug(fmt.Sprintf("POST %s", url))
+	s.client.Debug(fmt.Sprintf(">> %s", string(requestBodyBytes)))
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestBodyBytes))
+	if err != nil {
+		return nil, errors.Wrap(err, "VisitService.Index: NewRequest")
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept-Encoding", "gzip")
+	req = req.WithContext(ctx)
+	if s.client.BeforeRequest != nil {
+		err = s.client.BeforeRequest(req)
+		if err != nil {
+			// don't wrap this error, it belongs to the user
+			return nil, err
+		}
+	}
+	resp, err := s.client.HTTPClient.Do(req)
+	if err != nil {
+		return nil, errors.Wrap(err, "VisitService.Index")
+	}
+	defer resp.Body.Close()
+	var response struct {
+		Response
+		Error string
+	}
+	var bodyReader io.Reader = resp.Body
+	if strings.Contains(resp.Header.Get("Content-Encoding"), "gzip") {
+		decodedBody, err := gzip.NewReader(resp.Body)
+		if err != nil {
+			return nil, errors.Wrap(err, "VisitService.Index: new gzip reader")
+		}
+		defer decodedBody.Close()
+		bodyReader = decodedBody
+	}
+	respBodyBytes, err := io.ReadAll(bodyReader)
+	if err != nil {
+		return nil, errors.Wrap(err, "VisitService.Index: read response body")
+	}
+	if err := json.Unmarshal(respBodyBytes, &response); err != nil {
+		if resp.StatusCode != http.StatusOK {
+			return nil, errors.Errorf("VisitService.Index: (%d) %v", resp.StatusCode, string(respBodyBytes))
+		}
+		return nil, err
+	}
+	if response.Error != "" {
+		return nil, errors.New(response.Error)
+	}
+	return &response.Response, nil
+}
+
+func (s *VisitService) Show(ctx context.Context, r *Request) (*Response, error) {
+	requestBodyBytes, err := json.Marshal(r)
+	if err != nil {
+		return nil, errors.Wrap(err, "VisitService.Show: marshal Request")
+	}
+	url := s.client.RemoteHost + "VisitService.Show"
+	s.client.Debug(fmt.Sprintf("POST %s", url))
+	s.client.Debug(fmt.Sprintf(">> %s", string(requestBodyBytes)))
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestBodyBytes))
+	if err != nil {
+		return nil, errors.Wrap(err, "VisitService.Show: NewRequest")
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept-Encoding", "gzip")
+	req = req.WithContext(ctx)
+	if s.client.BeforeRequest != nil {
+		err = s.client.BeforeRequest(req)
+		if err != nil {
+			// don't wrap this error, it belongs to the user
+			return nil, err
+		}
+	}
+	resp, err := s.client.HTTPClient.Do(req)
+	if err != nil {
+		return nil, errors.Wrap(err, "VisitService.Show")
+	}
+	defer resp.Body.Close()
+	var response struct {
+		Response
+		Error string
+	}
+	var bodyReader io.Reader = resp.Body
+	if strings.Contains(resp.Header.Get("Content-Encoding"), "gzip") {
+		decodedBody, err := gzip.NewReader(resp.Body)
+		if err != nil {
+			return nil, errors.Wrap(err, "VisitService.Show: new gzip reader")
+		}
+		defer decodedBody.Close()
+		bodyReader = decodedBody
+	}
+	respBodyBytes, err := io.ReadAll(bodyReader)
+	if err != nil {
+		return nil, errors.Wrap(err, "VisitService.Show: read response body")
+	}
+	if err := json.Unmarshal(respBodyBytes, &response); err != nil {
+		if resp.StatusCode != http.StatusOK {
+			return nil, errors.Errorf("VisitService.Show: (%d) %v", resp.StatusCode, string(respBodyBytes))
+		}
+		return nil, err
+	}
+	if response.Error != "" {
+		return nil, errors.New(response.Error)
+	}
+	return &response.Response, nil
+}
+
+func (s *VisitService) Update(ctx context.Context, r *Visit) (*Response, error) {
+	requestBodyBytes, err := json.Marshal(r)
+	if err != nil {
+		return nil, errors.Wrap(err, "VisitService.Update: marshal Visit")
+	}
+	url := s.client.RemoteHost + "VisitService.Update"
+	s.client.Debug(fmt.Sprintf("POST %s", url))
+	s.client.Debug(fmt.Sprintf(">> %s", string(requestBodyBytes)))
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestBodyBytes))
+	if err != nil {
+		return nil, errors.Wrap(err, "VisitService.Update: NewRequest")
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept-Encoding", "gzip")
+	req = req.WithContext(ctx)
+	if s.client.BeforeRequest != nil {
+		err = s.client.BeforeRequest(req)
+		if err != nil {
+			// don't wrap this error, it belongs to the user
+			return nil, err
+		}
+	}
+	resp, err := s.client.HTTPClient.Do(req)
+	if err != nil {
+		return nil, errors.Wrap(err, "VisitService.Update")
+	}
+	defer resp.Body.Close()
+	var response struct {
+		Response
+		Error string
+	}
+	var bodyReader io.Reader = resp.Body
+	if strings.Contains(resp.Header.Get("Content-Encoding"), "gzip") {
+		decodedBody, err := gzip.NewReader(resp.Body)
+		if err != nil {
+			return nil, errors.Wrap(err, "VisitService.Update: new gzip reader")
+		}
+		defer decodedBody.Close()
+		bodyReader = decodedBody
+	}
+	respBodyBytes, err := io.ReadAll(bodyReader)
+	if err != nil {
+		return nil, errors.Wrap(err, "VisitService.Update: read response body")
+	}
+	if err := json.Unmarshal(respBodyBytes, &response); err != nil {
+		if resp.StatusCode != http.StatusOK {
+			return nil, errors.Errorf("VisitService.Update: (%d) %v", resp.StatusCode, string(respBodyBytes))
+		}
+		return nil, err
+	}
+	if response.Error != "" {
+		return nil, errors.New(response.Error)
+	}
+	return &response.Response, nil
+}
+
+type WorkerService struct {
+	client *Client
+}
+
+// NewWorkerService makes a new client for accessing WorkerService services.
+func NewWorkerService(client *Client) *WorkerService {
+	return &WorkerService{
+		client: client,
+	}
+}
+
+func (s *WorkerService) Enqueue(ctx context.Context, r *Request) (*Response, error) {
+	requestBodyBytes, err := json.Marshal(r)
+	if err != nil {
+		return nil, errors.Wrap(err, "WorkerService.Enqueue: marshal Request")
+	}
+	url := s.client.RemoteHost + "WorkerService.Enqueue"
+	s.client.Debug(fmt.Sprintf("POST %s", url))
+	s.client.Debug(fmt.Sprintf(">> %s", string(requestBodyBytes)))
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestBodyBytes))
+	if err != nil {
+		return nil, errors.Wrap(err, "WorkerService.Enqueue: NewRequest")
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept-Encoding", "gzip")
+	req = req.WithContext(ctx)
+	if s.client.BeforeRequest != nil {
+		err = s.client.BeforeRequest(req)
+		if err != nil {
+			// don't wrap this error, it belongs to the user
+			return nil, err
+		}
+	}
+	resp, err := s.client.HTTPClient.Do(req)
+	if err != nil {
+		return nil, errors.Wrap(err, "WorkerService.Enqueue")
+	}
+	defer resp.Body.Close()
+	var response struct {
+		Response
+		Error string
+	}
+	var bodyReader io.Reader = resp.Body
+	if strings.Contains(resp.Header.Get("Content-Encoding"), "gzip") {
+		decodedBody, err := gzip.NewReader(resp.Body)
+		if err != nil {
+			return nil, errors.Wrap(err, "WorkerService.Enqueue: new gzip reader")
+		}
+		defer decodedBody.Close()
+		bodyReader = decodedBody
+	}
+	respBodyBytes, err := io.ReadAll(bodyReader)
+	if err != nil {
+		return nil, errors.Wrap(err, "WorkerService.Enqueue: read response body")
+	}
+	if err := json.Unmarshal(respBodyBytes, &response); err != nil {
+		if resp.StatusCode != http.StatusOK {
+			return nil, errors.Errorf("WorkerService.Enqueue: (%d) %v", resp.StatusCode, string(respBodyBytes))
+		}
+		return nil, err
+	}
+	if response.Error != "" {
+		return nil, errors.New(response.Error)
+	}
+	return &response.Response, nil
+}
+
 // Page represents a web page to be scraped and downloaded
 type Page struct {
 	Name string `json:"name"`
@@ -671,4 +1029,11 @@ type Video struct {
 	View string `json:"view"`
 
 	Source string `json:"source"`
+}
+
+// Visit represents a web page to be scraped and downloaded
+type Visit struct {
+	PageID string `json:"page_id"`
+
+	URL string `json:"url"`
 }

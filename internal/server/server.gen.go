@@ -25,6 +25,18 @@ type VideoService interface {
 	Update(echo.Context, *Video) (*Response, error)
 }
 
+type VisitService interface {
+	Create(echo.Context, *Visit) (*Response, error)
+	Delete(echo.Context, *Request) (*Response, error)
+	Index(echo.Context, *Request) (*Response, error)
+	Show(echo.Context, *Request) (*Response, error)
+	Update(echo.Context, *Visit) (*Response, error)
+}
+
+type WorkerService interface {
+	Enqueue(echo.Context, *Request) (*Response, error)
+}
+
 type pageServiceServer struct {
 	pageService PageService
 }
@@ -190,6 +202,118 @@ func (s *videoServiceServer) handleUpdate(c echo.Context) error {
 	}
 
 	response, err := s.videoService.Update(c, request)
+	if err != nil {
+		return fmt.Errorf("handling request: %w", err)
+	}
+
+	return c.JSON(http.StatusOK, response)
+}
+
+type visitServiceServer struct {
+	visitService VisitService
+}
+
+// Register adds the VisitService to the otohttp.Server.
+func RegisterVisitService(e *echo.Group, visitService VisitService) {
+	handler := &visitServiceServer{
+		visitService: visitService,
+	}
+	e.POST("/VisitService.Create", handler.handleCreate)
+	e.POST("/VisitService.Delete", handler.handleDelete)
+	e.POST("/VisitService.Index", handler.handleIndex)
+	e.POST("/VisitService.Show", handler.handleShow)
+	e.POST("/VisitService.Update", handler.handleUpdate)
+}
+
+func (s *visitServiceServer) handleCreate(c echo.Context) error {
+	request := &Visit{}
+	if err := c.Bind(request); err != nil {
+		return fmt.Errorf("binding request: %w", err)
+	}
+
+	response, err := s.visitService.Create(c, request)
+	if err != nil {
+		return fmt.Errorf("handling request: %w", err)
+	}
+
+	return c.JSON(http.StatusOK, response)
+}
+
+func (s *visitServiceServer) handleDelete(c echo.Context) error {
+	request := &Request{}
+	if err := c.Bind(request); err != nil {
+		return fmt.Errorf("binding request: %w", err)
+	}
+
+	response, err := s.visitService.Delete(c, request)
+	if err != nil {
+		return fmt.Errorf("handling request: %w", err)
+	}
+
+	return c.JSON(http.StatusOK, response)
+}
+
+func (s *visitServiceServer) handleIndex(c echo.Context) error {
+	request := &Request{}
+	if err := c.Bind(request); err != nil {
+		return fmt.Errorf("binding request: %w", err)
+	}
+
+	response, err := s.visitService.Index(c, request)
+	if err != nil {
+		return fmt.Errorf("handling request: %w", err)
+	}
+
+	return c.JSON(http.StatusOK, response)
+}
+
+func (s *visitServiceServer) handleShow(c echo.Context) error {
+	request := &Request{}
+	if err := c.Bind(request); err != nil {
+		return fmt.Errorf("binding request: %w", err)
+	}
+
+	response, err := s.visitService.Show(c, request)
+	if err != nil {
+		return fmt.Errorf("handling request: %w", err)
+	}
+
+	return c.JSON(http.StatusOK, response)
+}
+
+func (s *visitServiceServer) handleUpdate(c echo.Context) error {
+	request := &Visit{}
+	if err := c.Bind(request); err != nil {
+		return fmt.Errorf("binding request: %w", err)
+	}
+
+	response, err := s.visitService.Update(c, request)
+	if err != nil {
+		return fmt.Errorf("handling request: %w", err)
+	}
+
+	return c.JSON(http.StatusOK, response)
+}
+
+type workerServiceServer struct {
+	workerService WorkerService
+}
+
+// Register adds the WorkerService to the otohttp.Server.
+func RegisterWorkerService(e *echo.Group, workerService WorkerService) {
+	handler := &workerServiceServer{
+		workerService: workerService,
+	}
+	e.POST("/WorkerService.Enqueue", handler.handleEnqueue)
+}
+
+func (s *workerServiceServer) handleEnqueue(c echo.Context) error {
+	request := &Request{}
+	if err := c.Bind(request); err != nil {
+		return fmt.Errorf("binding request: %w", err)
+	}
+
+	response, err := s.workerService.Enqueue(c, request)
 	if err != nil {
 		return fmt.Errorf("handling request: %w", err)
 	}
