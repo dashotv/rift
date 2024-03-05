@@ -8,11 +8,11 @@ import (
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 
-	"github.com/dashotv/rift/internal/scraper"
+	"github.com/dashotv/minion"
 )
 
 type pageService struct {
-	bg  *Workers
+	bg  *minion.Minion
 	db  *Connection
 	log *zap.SugaredLogger
 }
@@ -43,12 +43,12 @@ func (s *pageService) Update(c echo.Context, req *Page) (*Response, error) {
 		return nil, err
 	}
 
-	scr := scraper.NewMyAnime()
-	urls := scr.Read(req.URL)
-	if len(urls) == 0 {
-		return &Response{Results: req}, nil
-	}
-	s.bg.Enqueue(s.bg.YtdlpListJob(req.Name, urls[0]))
+	// scr := scraper.NewMyAnime()
+	// urls := scr.Read(req.URL)
+	// if len(urls) == 0 {
+	// 	return &Response{Results: req}, nil
+	// }
+	// s.bg.Enqueue(s.bg.YtdlpListJob(req.Name, urls[0]))
 
 	return &Response{Results: req}, nil
 }
@@ -63,13 +63,13 @@ func (s *pageService) Create(c echo.Context, req *Page) (*Response, error) {
 		return nil, err
 	}
 
-	scr := scraper.NewMyAnime()
-	urls := scr.Read(req.URL)
-	if len(urls) == 0 {
-		return &Response{Results: req}, nil
-	}
-
-	s.bg.Enqueue(s.bg.YtdlpListJob(req.Name, urls[0]))
+	// 	scr := scraper.NewMyAnime()
+	// 	urls := scr.Read(req.URL)
+	// 	if len(urls) == 0 {
+	// 		return &Response{Results: req}, nil
+	// 	}
+	//
+	// 	s.bg.Enqueue(s.bg.YtdlpListJob(req.Name, urls[0]))
 
 	return &Response{Results: req}, nil
 }

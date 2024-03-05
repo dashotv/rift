@@ -41,6 +41,129 @@ func New(remoteHost string) *Client {
 	return c
 }
 
+type JobService struct {
+	client *Client
+}
+
+// NewJobService makes a new client for accessing JobService services.
+func NewJobService(client *Client) *JobService {
+	return &JobService{
+		client: client,
+	}
+}
+
+func (s *JobService) Create(ctx context.Context, r *Request) (*Response, error) {
+	requestBodyBytes, err := json.Marshal(r)
+	if err != nil {
+		return nil, errors.Wrap(err, "JobService.Create: marshal Request")
+	}
+	url := s.client.RemoteHost + "JobService.Create"
+	s.client.Debug(fmt.Sprintf("POST %s", url))
+	s.client.Debug(fmt.Sprintf(">> %s", string(requestBodyBytes)))
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestBodyBytes))
+	if err != nil {
+		return nil, errors.Wrap(err, "JobService.Create: NewRequest")
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept-Encoding", "gzip")
+	req = req.WithContext(ctx)
+	if s.client.BeforeRequest != nil {
+		err = s.client.BeforeRequest(req)
+		if err != nil {
+			// don't wrap this error, it belongs to the user
+			return nil, err
+		}
+	}
+	resp, err := s.client.HTTPClient.Do(req)
+	if err != nil {
+		return nil, errors.Wrap(err, "JobService.Create")
+	}
+	defer resp.Body.Close()
+	var response struct {
+		Response
+		Error string
+	}
+	var bodyReader io.Reader = resp.Body
+	if strings.Contains(resp.Header.Get("Content-Encoding"), "gzip") {
+		decodedBody, err := gzip.NewReader(resp.Body)
+		if err != nil {
+			return nil, errors.Wrap(err, "JobService.Create: new gzip reader")
+		}
+		defer decodedBody.Close()
+		bodyReader = decodedBody
+	}
+	respBodyBytes, err := io.ReadAll(bodyReader)
+	if err != nil {
+		return nil, errors.Wrap(err, "JobService.Create: read response body")
+	}
+	if err := json.Unmarshal(respBodyBytes, &response); err != nil {
+		if resp.StatusCode != http.StatusOK {
+			return nil, errors.Errorf("JobService.Create: (%d) %v", resp.StatusCode, string(respBodyBytes))
+		}
+		return nil, err
+	}
+	if response.Error != "" {
+		return nil, errors.New(response.Error)
+	}
+	return &response.Response, nil
+}
+
+func (s *JobService) Index(ctx context.Context, r *Request) (*Response, error) {
+	requestBodyBytes, err := json.Marshal(r)
+	if err != nil {
+		return nil, errors.Wrap(err, "JobService.Index: marshal Request")
+	}
+	url := s.client.RemoteHost + "JobService.Index"
+	s.client.Debug(fmt.Sprintf("POST %s", url))
+	s.client.Debug(fmt.Sprintf(">> %s", string(requestBodyBytes)))
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestBodyBytes))
+	if err != nil {
+		return nil, errors.Wrap(err, "JobService.Index: NewRequest")
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept-Encoding", "gzip")
+	req = req.WithContext(ctx)
+	if s.client.BeforeRequest != nil {
+		err = s.client.BeforeRequest(req)
+		if err != nil {
+			// don't wrap this error, it belongs to the user
+			return nil, err
+		}
+	}
+	resp, err := s.client.HTTPClient.Do(req)
+	if err != nil {
+		return nil, errors.Wrap(err, "JobService.Index")
+	}
+	defer resp.Body.Close()
+	var response struct {
+		Response
+		Error string
+	}
+	var bodyReader io.Reader = resp.Body
+	if strings.Contains(resp.Header.Get("Content-Encoding"), "gzip") {
+		decodedBody, err := gzip.NewReader(resp.Body)
+		if err != nil {
+			return nil, errors.Wrap(err, "JobService.Index: new gzip reader")
+		}
+		defer decodedBody.Close()
+		bodyReader = decodedBody
+	}
+	respBodyBytes, err := io.ReadAll(bodyReader)
+	if err != nil {
+		return nil, errors.Wrap(err, "JobService.Index: read response body")
+	}
+	if err := json.Unmarshal(respBodyBytes, &response); err != nil {
+		if resp.StatusCode != http.StatusOK {
+			return nil, errors.Errorf("JobService.Index: (%d) %v", resp.StatusCode, string(respBodyBytes))
+		}
+		return nil, err
+	}
+	if response.Error != "" {
+		return nil, errors.New(response.Error)
+	}
+	return &response.Response, nil
+}
+
 type PageService struct {
 	client *Client
 }
@@ -914,71 +1037,28 @@ func (s *VisitService) Update(ctx context.Context, r *Visit) (*Response, error) 
 	return &response.Response, nil
 }
 
-type WorkerService struct {
-	client *Client
+// Minion tracks jobs in the system
+type Minion struct {
+	Kind string `json:"kind"`
+
+	Args string `json:"args"`
+
+	Status string `json:"status"`
+
+	Queue string `json:"queue"`
+
+	Attempts []*MinionAttempt `json:"attempts"`
 }
 
-// NewWorkerService makes a new client for accessing WorkerService services.
-func NewWorkerService(client *Client) *WorkerService {
-	return &WorkerService{
-		client: client,
-	}
-}
+// MinionAttempt tracks the attempts made to process a job
+type MinionAttempt struct {
+	StartedAt string `json:"started_at"`
 
-func (s *WorkerService) Enqueue(ctx context.Context, r *Request) (*Response, error) {
-	requestBodyBytes, err := json.Marshal(r)
-	if err != nil {
-		return nil, errors.Wrap(err, "WorkerService.Enqueue: marshal Request")
-	}
-	url := s.client.RemoteHost + "WorkerService.Enqueue"
-	s.client.Debug(fmt.Sprintf("POST %s", url))
-	s.client.Debug(fmt.Sprintf(">> %s", string(requestBodyBytes)))
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestBodyBytes))
-	if err != nil {
-		return nil, errors.Wrap(err, "WorkerService.Enqueue: NewRequest")
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept-Encoding", "gzip")
-	req = req.WithContext(ctx)
-	if s.client.BeforeRequest != nil {
-		err = s.client.BeforeRequest(req)
-		if err != nil {
-			// don't wrap this error, it belongs to the user
-			return nil, err
-		}
-	}
-	resp, err := s.client.HTTPClient.Do(req)
-	if err != nil {
-		return nil, errors.Wrap(err, "WorkerService.Enqueue")
-	}
-	defer resp.Body.Close()
-	var response struct {
-		Response
-		Error string
-	}
-	var bodyReader io.Reader = resp.Body
-	if strings.Contains(resp.Header.Get("Content-Encoding"), "gzip") {
-		decodedBody, err := gzip.NewReader(resp.Body)
-		if err != nil {
-			return nil, errors.Wrap(err, "WorkerService.Enqueue: new gzip reader")
-		}
-		defer decodedBody.Close()
-		bodyReader = decodedBody
-	}
-	respBodyBytes, err := io.ReadAll(bodyReader)
-	if err != nil {
-		return nil, errors.Wrap(err, "WorkerService.Enqueue: read response body")
-	}
-	if err := json.Unmarshal(respBodyBytes, &response); err != nil {
-		if resp.StatusCode != http.StatusOK {
-			return nil, errors.Errorf("WorkerService.Enqueue: (%d) %v", resp.StatusCode, string(respBodyBytes))
-		}
-		return nil, err
-	}
-	if response.Error != "" {
-		return nil, errors.New(response.Error)
-	}
-	return &response.Response, nil
+	Duration float64 `json:"duration"`
+
+	Status string `json:"status"`
+
+	Stacktrace []string `json:"stacktrace"`
 }
 
 // Page represents a web page to be scraped and downloaded

@@ -1,37 +1,99 @@
 package server
 
-import "go.uber.org/zap"
+import (
+	"context"
 
-type JobFunc func() error
+	"github.com/pkg/errors"
 
-func setupWorkers(s *Server) error {
-	s.bg = &Workers{
-		logger: s.Logger.Named("workers"),
-		queue:  make(chan JobFunc),
-		db:     s.db,
-	}
+	"github.com/dashotv/minion"
+)
+
+func startWorkers(_ context.Context, s *Server) error {
+	go func() {
+		// s.Logger.Infof("starting workers (%d)...", s.Config.MinionConcurrency)
+		s.bg.Start()
+	}()
 	return nil
 }
 
-type Workers struct {
-	logger *zap.SugaredLogger
-	queue  chan JobFunc
-	db     *Connection
-}
+func setupWorkers(s *Server) error {
+	ctx := context.Background()
 
-func (c *Workers) Enqueue(f JobFunc) {
-	c.queue <- f
-}
-
-func (c *Workers) Start() {
-	for {
-		select {
-		case f := <-c.queue:
-			go func() {
-				if err := f(); err != nil {
-					c.logger.Errorf("job failed: %s", err)
-				}
-			}()
-		}
+	dbname := s.Config.Name + "_development"
+	if s.Config.Production {
+		dbname = s.Config.Name + "_production"
 	}
+
+	mcfg := &minion.Config{
+		Logger:      s.Logger.Named("minion"),
+		Debug:       s.Config.MinionDebug,
+		Concurrency: s.Config.MinionConcurrency,
+		BufferSize:  s.Config.MinionBufferSize,
+		DatabaseURI: s.Config.Mongo,
+		Database:    dbname,
+		Collection:  "jobs",
+	}
+
+	ctx = context.WithValue(ctx, "server", s)
+
+	m, err := minion.New(ctx, mcfg)
+	if err != nil {
+		return errors.Wrap(err, "creating minion")
+	}
+
+	// add something like the below line in app.Start() (before the workers are
+	// started) to subscribe to job notifications.
+	// minion sends notifications as jobs are processed and change status
+	// m.Subscribe(app.MinionNotification)
+	// an example of the subscription function and the basic setup instructions
+	// are included at the end of this file.
+
+	if err := minion.Register(m, &ScrapePages{}); err != nil {
+		return errors.Wrap(err, "registering worker: scrape_pages (ScrapePages)")
+	}
+	if _, err := m.Schedule("0 * * * * *", &ScrapePages{}); err != nil {
+		return errors.Wrap(err, "scheduling worker: scrape_pages (ScrapePages)")
+	}
+	if err := minion.Register(m, &ScrapePage{}); err != nil {
+		return errors.Wrap(err, "registering worker: scrape_page (ScrapePage)")
+	}
+	if err := minion.Register(m, &ScrapePageURL{}); err != nil {
+		return errors.Wrap(err, "registering worker: scrape_page_url (ScrapePageURL)")
+	}
+
+	s.bg = m
+	return nil
 }
+
+func getServer(ctx context.Context) *Server {
+	return ctx.Value("server").(*Server)
+}
+
+// run the following commands to create the events channel and add the necessary models.
+//
+// > golem add event jobs event id job:*Minion
+// > golem add model minion_attempt --struct started_at:time.Time duration:float64 status error 'stacktrace:[]string'
+// > golem add model minion queue kind args status 'attempts:[]*MinionAttempt'
+//
+// then add a Connection configuration that points to the same database connection information
+// as the minion database.
+
+// // This allows you to notify other services as jobs change status.
+//func (a *Application) MinionNotification(n *minion.Notification) {
+//	if n.JobID == "-" {
+//		return
+//	}
+//
+//	j := &Minion{}
+//	err := app.DB.Minion.Find(n.JobID, j)
+//	if err != nil {
+//		log.Errorf("finding job: %s", err)
+//		return
+//	}
+//
+//	if n.Event == "job:created" {
+//		events.Send("runic.jobs", &EventJob{"created", j.ID.Hex(), j})
+//		return
+//	}
+//	events.Send("runic.jobs", &EventJob{"updated", j.ID.Hex(), j})
+//}

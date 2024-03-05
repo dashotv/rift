@@ -9,6 +9,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+type JobService interface {
+	Create(echo.Context, *Request) (*Response, error)
+	Index(echo.Context, *Request) (*Response, error)
+}
+
 type PageService interface {
 	Create(echo.Context, *Page) (*Response, error)
 	Delete(echo.Context, *Request) (*Response, error)
@@ -33,8 +38,45 @@ type VisitService interface {
 	Update(echo.Context, *Visit) (*Response, error)
 }
 
-type WorkerService interface {
-	Enqueue(echo.Context, *Request) (*Response, error)
+type jobServiceServer struct {
+	jobService JobService
+}
+
+// Register adds the JobService to the otohttp.Server.
+func RegisterJobService(e *echo.Group, jobService JobService) {
+	handler := &jobServiceServer{
+		jobService: jobService,
+	}
+	e.POST("/JobService.Create", handler.handleCreate)
+	e.POST("/JobService.Index", handler.handleIndex)
+}
+
+func (s *jobServiceServer) handleCreate(c echo.Context) error {
+	request := &Request{}
+	if err := c.Bind(request); err != nil {
+		return fmt.Errorf("binding request: %w", err)
+	}
+
+	response, err := s.jobService.Create(c, request)
+	if err != nil {
+		return fmt.Errorf("handling request: %w", err)
+	}
+
+	return c.JSON(http.StatusOK, response)
+}
+
+func (s *jobServiceServer) handleIndex(c echo.Context) error {
+	request := &Request{}
+	if err := c.Bind(request); err != nil {
+		return fmt.Errorf("binding request: %w", err)
+	}
+
+	response, err := s.jobService.Index(c, request)
+	if err != nil {
+		return fmt.Errorf("handling request: %w", err)
+	}
+
+	return c.JSON(http.StatusOK, response)
 }
 
 type pageServiceServer struct {
@@ -288,32 +330,6 @@ func (s *visitServiceServer) handleUpdate(c echo.Context) error {
 	}
 
 	response, err := s.visitService.Update(c, request)
-	if err != nil {
-		return fmt.Errorf("handling request: %w", err)
-	}
-
-	return c.JSON(http.StatusOK, response)
-}
-
-type workerServiceServer struct {
-	workerService WorkerService
-}
-
-// Register adds the WorkerService to the otohttp.Server.
-func RegisterWorkerService(e *echo.Group, workerService WorkerService) {
-	handler := &workerServiceServer{
-		workerService: workerService,
-	}
-	e.POST("/WorkerService.Enqueue", handler.handleEnqueue)
-}
-
-func (s *workerServiceServer) handleEnqueue(c echo.Context) error {
-	request := &Request{}
-	if err := c.Bind(request); err != nil {
-		return fmt.Errorf("binding request: %w", err)
-	}
-
-	response, err := s.workerService.Enqueue(c, request)
 	if err != nil {
 		return fmt.Errorf("handling request: %w", err)
 	}

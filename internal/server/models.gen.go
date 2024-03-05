@@ -21,6 +21,20 @@ func setupDatabase(s *Server) error {
 		dbname = s.Config.Name + "_production"
 	}
 
+	if col, err := grimoire.New[*Minion](s.Config.Mongo, dbname, strings.ToLower("Minion")); err != nil {
+		return fmt.Errorf("failed to create Minion collection: %w", err)
+	} else {
+		db.Minion = col
+		grimoire.Indexes(col, &Minion{})
+	}
+
+	if col, err := grimoire.New[*MinionAttempt](s.Config.Mongo, dbname, strings.ToLower("MinionAttempt")); err != nil {
+		return fmt.Errorf("failed to create MinionAttempt collection: %w", err)
+	} else {
+		db.MinionAttempt = col
+		grimoire.Indexes(col, &MinionAttempt{})
+	}
+
 	if col, err := grimoire.New[*Page](s.Config.Mongo, dbname, strings.ToLower("Page")); err != nil {
 		return fmt.Errorf("failed to create Page collection: %w", err)
 	} else {
@@ -49,11 +63,41 @@ func setupDatabase(s *Server) error {
 type Connection struct {
 	log *zap.SugaredLogger
 
+	Minion *grimoire.Store[*Minion]
+
+	MinionAttempt *grimoire.Store[*MinionAttempt]
+
 	Page *grimoire.Store[*Page]
 
 	Video *grimoire.Store[*Video]
 
 	Visit *grimoire.Store[*Visit]
+}
+
+// Minion tracks jobs in the system
+type Minion struct { // model
+	grimoire.Document `bson:",inline"` // includes default model settings
+	//ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	//CreatedAt time.Time          `bson:"created_at" json:"created_at"`
+	//UpdatedAt time.Time          `bson:"updated_at" json:"updated_at"`
+	Kind     string           `bson:"kind" json:"kind" `
+	Args     string           `json:"args" bson:"args" `
+	Status   string           `json:"status" bson:"status" `
+	Queue    string           `json:"queue" bson:"queue" `
+	Attempts []*MinionAttempt `bson:"attempts" json:"attempts" `
+}
+
+// MinionAttempt tracks the attempts made to process a job
+type MinionAttempt struct { // model
+	grimoire.Document `bson:",inline"` // includes default model settings
+	//ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	//CreatedAt time.Time          `bson:"created_at" json:"created_at"`
+	//UpdatedAt time.Time          `bson:"updated_at" json:"updated_at"`
+	StartedAt  string   `bson:"started_at" json:"started_at" `
+	Duration   float64  `json:"duration" bson:"duration" `
+	Status     string   `bson:"status" json:"status" `
+	Error      string   `bson:"error" json:"error" `
+	Stacktrace []string `json:"stacktrace" bson:"stacktrace" `
 }
 
 // Page represents a web page to be scraped and downloaded

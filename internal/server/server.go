@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"os"
 
 	"github.com/labstack/echo/v4"
@@ -10,6 +11,7 @@ import (
 	"go.uber.org/zap/zapcore"
 	"golang.org/x/term"
 
+	"github.com/dashotv/minion"
 	"github.com/dashotv/rift/internal/scraper"
 )
 
@@ -20,7 +22,7 @@ type Server struct {
 	Config *Config
 
 	db      *Connection
-	bg      *Workers
+	bg      *minion.Minion
 	myanime *scraper.MyAnime
 
 	// Services
@@ -44,30 +46,26 @@ func New() (*Server, error) {
 	if err := setupWorkers(s); err != nil {
 		return nil, err
 	}
+	if err := setupWorkers(s); err != nil {
+		return nil, err
+	}
 
 	setupRouter(s)
-	setupCron(s)
 
 	page := &pageService{db: s.db, log: logger.Named("services.page"), bg: s.bg}
 	video := &videoService{db: s.db, log: logger.Named("services.video")}
-	worker := &workerService{bg: s.bg}
+	minion := &minionService{db: s.db, log: logger.Named("services.minion"), bg: s.bg}
 
 	g := s.Router.Group("/api")
 	RegisterPageService(g, page)
 	RegisterVideoService(g, video)
-	RegisterWorkerService(g, worker)
+	RegisterJobService(g, minion)
 
 	return s, nil
 }
 
 func (s *Server) Start() error {
-	if s.Cron != nil {
-		go s.Cron.Run()
-	}
-
-	if s.bg != nil {
-		go s.bg.Start()
-	}
+	startWorkers(context.Background(), s)
 
 	return s.Router.Start(":" + s.Config.Port)
 }

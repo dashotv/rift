@@ -1,93 +1,87 @@
 package server
 
-import (
-	"encoding/json"
-	"fmt"
-	"os/exec"
-)
-
-func (c *Workers) YtdlpListJob(name, url string) JobFunc {
-	return func() error {
-		cmd := exec.Command("yt-dlp", "--skip-download", "--no-warning", "--flat-playlist", "--dump-single-json", url)
-		out, err := cmd.Output()
-		if err != nil {
-			return fmt.Errorf("ytdlp-list: %s", err)
-		}
-
-		// c.logger.Warnf("yt-dlp list: %s", out)
-		list := &YtdlpList{}
-		if err = json.Unmarshal(out, list); err != nil {
-			return fmt.Errorf("ytdlp-list: %s", err)
-		}
-
-		if len(list.Entries) == 0 {
-			return fmt.Errorf("ytdlp-list: no entries")
-		}
-
-		for _, e := range list.Entries {
-			c.logger.Debugf("ytdlp-list: %s", e.URL)
-			c.Enqueue(c.YtdlpInfoJob(name, url, e.URL))
-		}
-		return nil
-	}
-}
-
-func (c *Workers) YtdlpInfoJob(name, source, url string) JobFunc {
-	return func() error {
-		cmd := exec.Command("yt-dlp", "--skip-download", "--no-warning", "--dump-single-json", url)
-		out, err := cmd.Output()
-		if err != nil {
-			return fmt.Errorf("ytdlp-info: %s", err)
-		}
-
-		// c.logger.Warnf("yt-dlp info: %s", out)
-		info := &YtdlpInfo{}
-		if err = json.Unmarshal(out, info); err != nil {
-			return fmt.Errorf("ytdlp-info: %s", err)
-		}
-
-		c.Enqueue(c.YtdlpParseJob(name, source, info))
-		return nil
-	}
-}
-
-func (c *Workers) YtdlpParseJob(name, source string, info *YtdlpInfo) JobFunc {
-	return func() error {
-		c.logger.Warnf("yt-dlp parse: %s %d %s [%s] %s", info.Fulltitle, info.Height, info.EXT, info.DisplayID, info.URL)
-
-		count, err := c.db.Video.Query().Where("display_id", info.DisplayID).Count()
-		if err != nil {
-			return fmt.Errorf("ytdlp-parse: %s", err)
-		}
-		if count > 0 {
-			return nil
-		}
-
-		_, season, episode, err := ParseFulltitle(info.Fulltitle)
-		if err != nil {
-			return fmt.Errorf("ytdlp-parse: %s", err)
-		}
-
-		video := &Video{}
-		video.Title = name
-		video.Season = season
-		video.Episode = episode
-		video.Raw = info.Fulltitle
-		video.Resolution = int(info.Height)
-		video.Extension = info.EXT
-		video.DisplayID = info.DisplayID
-		video.Download = info.URL
-		video.View = info.WebpageURL
-		video.Size = info.FilesizeApprox
-		video.Source = source
-
-		if err := c.db.Video.Save(video); err != nil {
-			return fmt.Errorf("ytdlp-parse: %s", err)
-		}
-
-		return nil
-	}
-}
+// func (c *Workers) YtdlpListJob(name, url string) JobFunc {
+// 	return func() error {
+// 		cmd := exec.Command("yt-dlp", "--skip-download", "--no-warning", "--flat-playlist", "--dump-single-json", url)
+// 		out, err := cmd.Output()
+// 		if err != nil {
+// 			return fmt.Errorf("ytdlp-list: %s", err)
+// 		}
+//
+// 		// c.logger.Warnf("yt-dlp list: %s", out)
+// 		list := &YtdlpList{}
+// 		if err = json.Unmarshal(out, list); err != nil {
+// 			return fmt.Errorf("ytdlp-list: %s", err)
+// 		}
+//
+// 		if len(list.Entries) == 0 {
+// 			return fmt.Errorf("ytdlp-list: no entries")
+// 		}
+//
+// 		for _, e := range list.Entries {
+// 			c.logger.Debugf("ytdlp-list: %s", e.URL)
+// 			c.Enqueue(c.YtdlpInfoJob(name, url, e.URL))
+// 		}
+// 		return nil
+// 	}
+// }
+//
+// func (c *Workers) YtdlpInfoJob(name, source, url string) JobFunc {
+// 	return func() error {
+// 		cmd := exec.Command("yt-dlp", "--skip-download", "--no-warning", "--dump-single-json", url)
+// 		out, err := cmd.Output()
+// 		if err != nil {
+// 			return fmt.Errorf("ytdlp-info: %s", err)
+// 		}
+//
+// 		// c.logger.Warnf("yt-dlp info: %s", out)
+// 		info := &YtdlpInfo{}
+// 		if err = json.Unmarshal(out, info); err != nil {
+// 			return fmt.Errorf("ytdlp-info: %s", err)
+// 		}
+//
+// 		c.Enqueue(c.YtdlpParseJob(name, source, info))
+// 		return nil
+// 	}
+// }
+//
+// func (c *Workers) YtdlpParseJob(name, source string, info *YtdlpInfo) JobFunc {
+// 	return func() error {
+// 		c.logger.Warnf("yt-dlp parse: %s %d %s [%s] %s", info.Fulltitle, info.Height, info.EXT, info.DisplayID, info.URL)
+//
+// 		count, err := c.db.Video.Query().Where("display_id", info.DisplayID).Count()
+// 		if err != nil {
+// 			return fmt.Errorf("ytdlp-parse: %s", err)
+// 		}
+// 		if count > 0 {
+// 			return nil
+// 		}
+//
+// 		_, season, episode, err := ParseFulltitle(info.Fulltitle)
+// 		if err != nil {
+// 			return fmt.Errorf("ytdlp-parse: %s", err)
+// 		}
+//
+// 		video := &Video{}
+// 		video.Title = name
+// 		video.Season = season
+// 		video.Episode = episode
+// 		video.Raw = info.Fulltitle
+// 		video.Resolution = int(info.Height)
+// 		video.Extension = info.EXT
+// 		video.DisplayID = info.DisplayID
+// 		video.Download = info.URL
+// 		video.View = info.WebpageURL
+// 		video.Size = info.FilesizeApprox
+// 		video.Source = source
+//
+// 		if err := c.db.Video.Save(video); err != nil {
+// 			return fmt.Errorf("ytdlp-parse: %s", err)
+// 		}
+//
+// 		return nil
+// 	}
+// }
 
 // YtdlpJob runs a yt-dlp and wraps the output in a job
 // func (c *Workers) YtdlpJob(url string) JobFunc {
