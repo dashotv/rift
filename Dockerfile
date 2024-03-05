@@ -19,7 +19,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 FROM alpine
 # Copy our static executable.
 WORKDIR /root/
-RUN apk add --no-cache ffmpeg
+RUN apk add --no-cache ffmpeg yt-dlp
 COPY --from=builder /go/bin/rift .
 COPY .env.vault .
 CMD ["./rift", "server"]
