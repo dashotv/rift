@@ -43,6 +43,11 @@ tasks:
     cmds:
       - scripts/generate.sh
 
+  dotenv:
+    desc: "generate the .env.vault file"
+    cmds:
+      - npx @dotenvx/dotenvx encrypt
+
   pages:
     desc: "list pages from database"
     cmds:
