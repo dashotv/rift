@@ -15,13 +15,14 @@ type ScrapeAll struct {
 func (j *ScrapeAll) Kind() string { return "scrape_all" }
 func (j *ScrapeAll) Work(ctx context.Context, job *minion.Job[*ScrapeAll]) error {
 	s := getServer(ctx)
-	// l := s.Logger.Named("scrape")
+	l := s.Logger.Named("scrape")
 
 	pages, err := s.db.Page.Query().Run()
 	if err != nil {
 		return fmt.Errorf("scrape: %s", err)
 	}
 
+	l.Debugf("scraping all %d pages", len(pages))
 	for _, p := range pages {
 		// l.Debugf("page: %s", p.Name)
 		if err := s.bg.Enqueue(&ScrapePage{Page: p}); err != nil {
