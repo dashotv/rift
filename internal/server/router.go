@@ -7,8 +7,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"go.infratographer.com/x/echox/echozap"
-
-	"github.com/dashotv/rift/internal/static"
 )
 
 func setupRouter(s *Server) {
@@ -16,16 +14,13 @@ func setupRouter(s *Server) {
 	e.HideBanner = true
 	e.Use(middleware.Recover())
 	e.Use(echozap.Middleware(s.Logger.Named("router").Desugar()))
-	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
-		Index:      "index.html", // This is the default html page for your SPA
-		Browse:     false,
-		HTML5:      true,
-		Filesystem: http.FS(static.FS),
-	})) // https://echo.labstack.com/docs/middleware/static
+	// e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
+	// 	Index:      "index.html", // This is the default html page for your SPA
+	// 	Browse:     false,
+	// 	HTML5:      true,
+	// 	Filesystem: http.FS(static.FS),
+	// })) // https://echo.labstack.com/docs/middleware/static
 	e.HTTPErrorHandler = customHTTPErrorHandler
-	// e.GET("/", func(c echo.Context) error {
-	// 	return c.String(200, "Hello, World!")
-	// })
 
 	s.Router = e
 }

@@ -37,8 +37,8 @@ func (s *jobService) Index(c echo.Context, req *Request) (*Response, error) {
 func (s *jobService) Create(c echo.Context, req *Request) (*Response, error) {
 	id := req.ID
 	switch id {
-	case "scrape_pages":
-		if err := s.bg.Enqueue(&ScrapePages{}); err != nil {
+	case "scrape_all":
+		if err := s.bg.Enqueue(&ScrapeAll{}); err != nil {
 			return nil, err
 		}
 	default:

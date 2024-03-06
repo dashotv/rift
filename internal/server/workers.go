@@ -48,27 +48,25 @@ func setupWorkers(s *Server) error {
 	// an example of the subscription function and the basic setup instructions
 	// are included at the end of this file.
 
-	if err := minion.Register(m, &ScrapePages{}); err != nil {
-		return errors.Wrap(err, "registering worker: scrape_pages (ScrapePages)")
+	m.Queue("scraper", 1, 1, 60)
+	if err := minion.Register(m, &ScrapeAll{}); err != nil {
+		return errors.Wrap(err, "registering worker: scrape_all (ScrapeAll)")
 	}
-	if err := minion.Register(m, &ScrapePage{}); err != nil {
+	if err := minion.RegisterWithQueue(m, &ScrapePage{}, "scraper"); err != nil {
 		return errors.Wrap(err, "registering worker: scrape_page (ScrapePage)")
 	}
-	if err := minion.Register(m, &ScrapePageURL{}); err != nil {
-		return errors.Wrap(err, "registering worker: scrape_page_url (ScrapePageURL)")
+	if err := minion.RegisterWithQueue(m, &YtdlpListJob{}, "scraper"); err != nil {
+		return errors.Wrap(err, "registering worker: ytdlp_list (YtdlpListJob)")
 	}
 	if err := minion.Register(m, &YtdlpInfoJob{}); err != nil {
 		return errors.Wrap(err, "registering worker: ytdlp_info (YtdlpInfoJob)")
-	}
-	if err := minion.Register(m, &YtdlpListJob{}); err != nil {
-		return errors.Wrap(err, "registering worker: ytdlp_list (YtdlpListJob)")
 	}
 	if err := minion.Register(m, &YtdlpParseJob{}); err != nil {
 		return errors.Wrap(err, "registering worker: ytdlp_parse (YtdlpParseJob)")
 	}
 
 	if s.Config.Production {
-		if _, err := m.Schedule("0 */15 * * * *", &ScrapePages{}); err != nil {
+		if _, err := m.Schedule("0 */15 * * * *", &ScrapeAll{}); err != nil {
 			return errors.Wrap(err, "scheduling worker: scrape_pages (ScrapePages)")
 		}
 	}
