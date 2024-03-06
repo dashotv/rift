@@ -14,7 +14,17 @@ type visitService struct {
 }
 
 func (s *visitService) Index(c echo.Context, req *Request) (*Response, error) {
-	return nil, errors.New("not implemented")
+	count, err := s.db.Visit.Query().Count()
+	if err != nil {
+		return nil, err
+	}
+
+	list, err := s.db.Visit.Query().Desc("created_at").Run()
+	if err != nil {
+		return nil, err
+	}
+
+	return &Response{Total: count, Results: list}, nil
 }
 func (s *visitService) Show(c echo.Context, req *Request) (*Response, error) {
 	return nil, errors.New("not implemented")
