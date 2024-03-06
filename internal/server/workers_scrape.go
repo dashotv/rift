@@ -46,12 +46,12 @@ func (j *ScrapePage) Work(ctx context.Context, job *minion.Job[*ScrapePage]) err
 	urls := scr.Read(p.URL)
 
 	for _, url := range urls {
-		l.Debugf("scrape: %s %s", p.Name, url)
 		if ok, err := s.db.IsVisited(p, url); err != nil {
 			return fmt.Errorf("scrape_page: is_visited: %w", err)
 		} else if ok {
 			continue
 		}
+		l.Debugf("scrape: %s %s", p.Name, url)
 		if err := s.bg.Enqueue(&YtdlpListJob{Name: p.Name, URL: url}); err != nil {
 			return fmt.Errorf("scrape_page_url: enqueuing ytdlp_list: %w", err)
 		}
