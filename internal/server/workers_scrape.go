@@ -23,7 +23,7 @@ func (j *ScrapeAll) Work(ctx context.Context, job *minion.Job[*ScrapeAll]) error
 	}
 
 	for _, p := range pages {
-		l.Debugf("scrape: %s", p.Name)
+		l.Debugf("page: %s", p.Name)
 		if err := s.bg.Enqueue(&ScrapePage{Page: p}); err != nil {
 			return fmt.Errorf("scrape_pages: enqueuing scrape_page: %w", err)
 		}

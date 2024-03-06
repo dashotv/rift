@@ -35,12 +35,25 @@ func (j *YtdlpListJob) Work(ctx context.Context, job *minion.Job[*YtdlpListJob])
 		return fmt.Errorf("ytdlp-list: %s", err)
 	}
 
+	if list.Type == "video" {
+		info := &YtdlpInfo{}
+		if err = json.Unmarshal(out, info); err != nil {
+			return fmt.Errorf("ytdlp-list: %s", err)
+		}
+		if err := s.bg.Enqueue(&YtdlpParseJob{Name: name, Source: url, Info: info}); err != nil {
+			return fmt.Errorf("ytdlp-list: enqueuing ytdlp_parse: %w", err)
+		}
+		return nil
+	}
+
 	if len(list.Entries) == 0 {
 		return fmt.Errorf("ytdlp-list: no entries")
 	}
 
 	for _, e := range list.Entries {
-		s.bg.Enqueue(&YtdlpInfoJob{Name: name, Source: url, URL: e.URL})
+		if err := s.bg.Enqueue(&YtdlpInfoJob{Name: name, Source: url, URL: e.URL}); err != nil {
+			return fmt.Errorf("ytdlp-list: enqueuing ytdlp_info: %w", err)
+		}
 	}
 	return nil
 }
@@ -59,6 +72,7 @@ func (j *YtdlpInfoJob) Work(ctx context.Context, job *minion.Job[*YtdlpInfoJob])
 
 	name := job.Args.Name
 	url := job.Args.URL
+	source := job.Args.Source
 
 	l.Warn(url)
 	cmd := exec.Command("yt-dlp", "--skip-download", "--no-warning", "--dump-single-json", url)
@@ -73,7 +87,9 @@ func (j *YtdlpInfoJob) Work(ctx context.Context, job *minion.Job[*YtdlpInfoJob])
 		return fmt.Errorf("ytdlp-info: %s", err)
 	}
 
-	s.bg.Enqueue(&YtdlpParseJob{Name: name, Source: url, Info: info})
+	if err := s.bg.Enqueue(&YtdlpParseJob{Name: name, Source: source, Info: info}); err != nil {
+		return fmt.Errorf("ytdlp-info: enqueuing ytdlp_parse: %w", err)
+	}
 	return nil
 }
 
@@ -217,10 +233,48 @@ func (j *YtdlpParseJob) Work(ctx context.Context, job *minion.Job[*YtdlpParseJob
 // }
 
 // YtdlpWithOptionsJob runs a yt-dlp with additional command line options and wraps the output in a job
-// func (c *Workers) YtdlpWithOptionsJob(url string) JobFunc {
-// 	// TODO: handle custom options
-// 	c.logger.Debugf("yt-dlp: %s", url)
-// 	return c.CommandJob("yt-dlp", url)
+//
+//	func (c *Workers) YtdlpWithOptionsJob(url string) JobFunc {
+//		// TODO: handle custom options
+//		c.logger.Debugf("yt-dlp: %s", url)
+//		return c.CommandJob("yt-dlp", url)
+//	}
+// type YtdlpList struct {
+// 	ID                 string      `json:"id"`
+// 	Title              string      `json:"title"`
+// 	Thumbnail          string      `json:"thumbnail"`
+// 	Duration           int64       `json:"duration"`
+// 	Uploader           string      `json:"uploader"`
+// 	UploaderID         string      `json:"uploader_id"`
+// 	LikeCount          int64       `json:"like_count"`
+// 	Formats            []Format    `json:"formats"`
+// 	OriginalURL        string      `json:"original_url"`
+// 	WebpageURL         string      `json:"webpage_url"`
+// 	WebpageURLBasename string      `json:"webpage_url_basename"`
+// 	WebpageURLDomain   string      `json:"webpage_url_domain"`
+// 	Extractor          string      `json:"extractor"`
+// 	ExtractorKey       string      `json:"extractor_key"`
+// 	Thumbnails         []Thumbnail `json:"thumbnails"`
+// 	DisplayID          string      `json:"display_id"`
+// 	Fulltitle          string      `json:"fulltitle"`
+// 	DurationString     string      `json:"duration_string"`
+// 	Epoch              int64       `json:"epoch"`
+// 	RequestedDownloads []Format    `json:"requested_downloads"`
+// 	FormatID           string      `json:"format_id"`
+// 	URL                string      `json:"url"`
+// 	ManifestURL        string      `json:"manifest_url"`
+// 	Tbr                float64     `json:"tbr"`
+// 	EXT                string      `json:"ext"`
+// 	FPS                float64     `json:"fps"`
+// 	Quality            int64       `json:"quality"`
+// 	JSONHasDRM         bool        `json:"has_drm"`
+// 	Width              int64       `json:"width"`
+// 	Height             int64       `json:"height"`
+// 	Resolution         string      `json:"resolution"`
+// 	AspectRatio        float64     `json:"aspect_ratio"`
+// 	Format             string      `json:"format"`
+// 	Type               string      `json:"_type"`
+// 	Version            Version     `json:"_version"`
 // }
 
 type YtdlpList struct {
@@ -243,14 +297,6 @@ type YtdlpList struct {
 	PlaylistCount      int64       `json:"playlist_count"`
 	Epoch              int64       `json:"epoch"`
 	Version            Version     `json:"_version"`
-}
-
-type Entry struct {
-	IeKey        string `json:"ie_key"`
-	Type         string `json:"_type"`
-	URL          string `json:"url"`
-	Extractor    string `json:"extractor"`
-	ExtractorKey string `json:"extractor_key"`
 }
 
 type Thumbnail struct {
@@ -313,6 +359,13 @@ type YtdlpInfo struct {
 	Version            Version     `json:"_version"`
 }
 
+type Entry struct {
+	IeKey        string `json:"ie_key"`
+	Type         string `json:"_type"`
+	URL          string `json:"url"`
+	Extractor    string `json:"extractor"`
+	ExtractorKey string `json:"extractor_key"`
+}
 type Format struct {
 	FormatID             string      `json:"format_id"`
 	FormatIndex          interface{} `json:"format_index,omitempty"`
