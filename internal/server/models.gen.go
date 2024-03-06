@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	primitive "go.mongodb.org/mongo-driver/bson/primitive"
 	"go.uber.org/zap"
 
 	"github.com/dashotv/grimoire"
@@ -71,7 +72,7 @@ type Job struct { // model
 	//ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	//CreatedAt time.Time          `bson:"created_at" json:"created_at"`
 	//UpdatedAt time.Time          `bson:"updated_at" json:"updated_at"`
-	Kind     string        `bson:"kind" json:"kind" `
+	Kind     string        `json:"kind" bson:"kind" `
 	Args     string        `json:"args" bson:"args" `
 	Status   string        `json:"status" bson:"status" `
 	Queue    string        `json:"queue" bson:"queue" `
@@ -93,10 +94,10 @@ type Page struct { // model
 	//ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	//CreatedAt time.Time          `bson:"created_at" json:"created_at"`
 	//UpdatedAt time.Time          `bson:"updated_at" json:"updated_at"`
-	Name       string `json:"name" `
-	URL        string `json:"url" `
-	Scraper    string `json:"scraper" `
-	Downloader string `json:"downloader" `
+	Name       string `json:"name" bson:"name" grimoire:"index" `
+	URL        string `json:"url" bson:"url" `
+	Scraper    string `json:"scraper" bson:"scraper" `
+	Downloader string `json:"downloader" bson:"downloader" `
 }
 
 type Request struct {
@@ -120,15 +121,15 @@ type Video struct { // model
 	//UpdatedAt time.Time          `bson:"updated_at" json:"updated_at"`
 	Title      string `json:"title" bson:"title" grimoire:"index" `
 	Season     int    `json:"season" bson:"season" grimoire:"index" `
-	Episode    int    `grimoire:"index" json:"episode" bson:"episode" `
+	Episode    int    `json:"episode" bson:"episode" grimoire:"index" `
 	Raw        string `json:"raw" bson:"raw" `
-	DisplayID  string `json:"display_id" bson:"display_id" grimoire:"index" `
+	DisplayID  string `bson:"display_id" grimoire:"index" json:"display_id" `
 	Extension  string `json:"extension" bson:"extension" `
 	Resolution int    `json:"resolution" bson:"resolution" `
 	Size       int64  `json:"size" bson:"size" `
 	Download   string `json:"download" bson:"download" `
 	View       string `json:"view" bson:"view" `
-	Source     string `bson:"source" json:"source" `
+	Source     string `json:"source" bson:"source" `
 }
 
 // Visit represents a web page to be scraped and downloaded
@@ -137,6 +138,6 @@ type Visit struct { // model
 	//ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	//CreatedAt time.Time          `bson:"created_at" json:"created_at"`
 	//UpdatedAt time.Time          `bson:"updated_at" json:"updated_at"`
-	PageID string `grimoire:"index" json:"page_id" bson:"page_id" `
-	URL    string `json:"url" bson:"url" `
+	PageID primitive.ObjectID `json:"page_id" bson:"page_id" grimoire:"index" `
+	URL    string             `json:"url" bson:"url" `
 }

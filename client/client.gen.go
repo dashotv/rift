@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	primitive "go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // Client is used to access Pace services.
@@ -1113,7 +1114,7 @@ type Video struct {
 
 // Visit represents a web page to be scraped and downloaded
 type Visit struct {
-	PageID string `json:"page_id"`
+	PageID primitive.ObjectID `json:"page_id"`
 
 	URL string `json:"url"`
 }
