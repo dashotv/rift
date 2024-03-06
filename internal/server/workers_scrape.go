@@ -15,7 +15,7 @@ type ScrapeAll struct {
 func (j *ScrapeAll) Kind() string { return "scrape_all" }
 func (j *ScrapeAll) Work(ctx context.Context, job *minion.Job[*ScrapeAll]) error {
 	s := getServer(ctx)
-	l := s.Logger.Named("scrape")
+	// l := s.Logger.Named("scrape")
 
 	pages, err := s.db.Page.Query().Run()
 	if err != nil {
@@ -23,7 +23,7 @@ func (j *ScrapeAll) Work(ctx context.Context, job *minion.Job[*ScrapeAll]) error
 	}
 
 	for _, p := range pages {
-		l.Debugf("page: %s", p.Name)
+		// l.Debugf("page: %s", p.Name)
 		if err := s.bg.Enqueue(&ScrapePage{Page: p}); err != nil {
 			return fmt.Errorf("scrape_pages: enqueuing scrape_page: %w", err)
 		}
@@ -51,7 +51,7 @@ func (j *ScrapePage) Work(ctx context.Context, job *minion.Job[*ScrapePage]) err
 		} else if ok {
 			continue
 		}
-		l.Debugf("scrape: %s %s", p.Name, url)
+		l.Debugf("'%s' %s", p.Name, url)
 		if err := s.bg.Enqueue(&YtdlpListJob{Name: p.Name, URL: url}); err != nil {
 			return fmt.Errorf("scrape_page_url: enqueuing ytdlp_list: %w", err)
 		}
