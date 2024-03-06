@@ -87,16 +87,16 @@ type YtdlpParseJob struct {
 func (j *YtdlpParseJob) Kind() string { return "ytdlp_parse" }
 func (j *YtdlpParseJob) Work(ctx context.Context, job *minion.Job[*YtdlpParseJob]) error {
 	s := getServer(ctx)
-	l := s.Logger.Named("ytdlp.info")
+	l := s.Logger.Named("ytdlp.parse")
 	name := job.Args.Name
 	source := job.Args.Source
 	info := job.Args.Info
 
-	l.Warnf("yt-dlp parse: %s %d %s [%s] %s", info.Fulltitle, info.Height, info.EXT, info.DisplayID, info.URL)
+	l.Warnf("%s %d %s [%s] %s", info.Fulltitle, info.Height, info.EXT, info.DisplayID, info.URL)
 
 	count, err := s.db.Video.Query().Where("display_id", info.DisplayID).Count()
 	if err != nil {
-		return fmt.Errorf("ytdlp-parse: %s", err)
+		return fmt.Errorf("couting: %w", err)
 	}
 	if count > 0 {
 		return nil
@@ -104,7 +104,7 @@ func (j *YtdlpParseJob) Work(ctx context.Context, job *minion.Job[*YtdlpParseJob
 
 	_, season, episode, err := ParseFulltitle(info.Fulltitle)
 	if err != nil {
-		return fmt.Errorf("ytdlp-parse: %s", err)
+		return fmt.Errorf("parsing: %w", err)
 	}
 
 	video := &Video{}
@@ -121,7 +121,7 @@ func (j *YtdlpParseJob) Work(ctx context.Context, job *minion.Job[*YtdlpParseJob
 	video.Source = source
 
 	if err := s.db.Video.Save(video); err != nil {
-		return fmt.Errorf("ytdlp-parse: %s", err)
+		return fmt.Errorf("saving: %w", err)
 	}
 
 	return nil
