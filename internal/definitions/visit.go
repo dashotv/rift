@@ -11,6 +11,6 @@ type VisitService interface {
 // Visit represents a web page to be scraped and downloaded
 // model: true
 type Visit struct {
-	PageID string `json:"page_id"`
-	URL    string `json:"url"`
+	PageID string `json:"page_id" bson:"page_id" grimoire:"index"`
+	URL    string `json:"url" bson:"url"`
 }

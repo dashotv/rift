@@ -11,15 +11,15 @@ type VideoService interface {
 // Video represents a video to be downloaded
 // model: true
 type Video struct {
-	Title      string `json:"title"`
-	Season     int    `json:"season"`
-	Episode    int    `json:"episode"`
-	Raw        string `json:"raw"`
-	DisplayID  string `json:"display_id"`
-	Extension  string `json:"extension"`
-	Resolution int    `json:"resolution"`
-	Size       int64  `json:"size"`
-	Download   string `json:"download"`
-	View       string `json:"view"`
-	Source     string `json:"source"`
+	Title      string `json:"title" bson:"title" grimoire:"index"`
+	Season     int    `json:"season" bson:"season" grimoire:"index"`
+	Episode    int    `json:"episode" bson:"episode" grimoire:"index"`
+	Raw        string `json:"raw" bson:"raw"`
+	DisplayID  string `json:"display_id" bson:"display_id" grimoire:"index"`
+	Extension  string `json:"extension" bson:"extension"`
+	Resolution int    `json:"resolution" bson:"resolution"`
+	Size       int64  `json:"size" bson:"size"`
+	Download   string `json:"download" bson:"download"`
+	View       string `json:"view" bson:"view"`
+	Source     string `json:"source" bson:"source"`
 }

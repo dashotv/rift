@@ -11,8 +11,8 @@ type PageService interface {
 // Page represents a web page to be scraped and downloaded
 // model: true
 type Page struct {
-	Name       string `json:"name"`
-	URL        string `json:"url"`
-	Scraper    string `json:"scraper"`
-	Downloader string `json:"downloader"`
+	Name       string `json:"name" bson:"name" grimoire:"index"`
+	URL        string `json:"url" bson:"url"`
+	Scraper    string `json:"scraper" bson:"scraper"`
+	Downloader string `json:"downloader" bson:"downloader"`
 }

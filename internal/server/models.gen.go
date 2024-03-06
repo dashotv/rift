@@ -71,10 +71,10 @@ type Job struct { // model
 	//ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	//CreatedAt time.Time          `bson:"created_at" json:"created_at"`
 	//UpdatedAt time.Time          `bson:"updated_at" json:"updated_at"`
-	Kind     string        `json:"kind" bson:"kind" `
+	Kind     string        `bson:"kind" json:"kind" `
 	Args     string        `json:"args" bson:"args" `
-	Status   string        `bson:"status" json:"status" `
-	Queue    string        `bson:"queue" json:"queue" `
+	Status   string        `json:"status" bson:"status" `
+	Queue    string        `json:"queue" bson:"queue" `
 	Attempts []*JobAttempt `bson:"attempts" json:"attempts" `
 }
 
@@ -118,17 +118,17 @@ type Video struct { // model
 	//ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	//CreatedAt time.Time          `bson:"created_at" json:"created_at"`
 	//UpdatedAt time.Time          `bson:"updated_at" json:"updated_at"`
-	Title      string `json:"title" `
-	Season     int    `json:"season" `
-	Episode    int    `json:"episode" `
-	Raw        string `json:"raw" `
-	DisplayID  string `json:"display_id" `
-	Extension  string `json:"extension" `
-	Resolution int    `json:"resolution" `
-	Size       int64  `json:"size" `
-	Download   string `json:"download" `
-	View       string `json:"view" `
-	Source     string `json:"source" `
+	Title      string `json:"title" bson:"title" grimoire:"index" `
+	Season     int    `json:"season" bson:"season" grimoire:"index" `
+	Episode    int    `grimoire:"index" json:"episode" bson:"episode" `
+	Raw        string `json:"raw" bson:"raw" `
+	DisplayID  string `json:"display_id" bson:"display_id" grimoire:"index" `
+	Extension  string `json:"extension" bson:"extension" `
+	Resolution int    `json:"resolution" bson:"resolution" `
+	Size       int64  `json:"size" bson:"size" `
+	Download   string `json:"download" bson:"download" `
+	View       string `json:"view" bson:"view" `
+	Source     string `bson:"source" json:"source" `
 }
 
 // Visit represents a web page to be scraped and downloaded
@@ -137,6 +137,6 @@ type Visit struct { // model
 	//ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	//CreatedAt time.Time          `bson:"created_at" json:"created_at"`
 	//UpdatedAt time.Time          `bson:"updated_at" json:"updated_at"`
-	PageID string `json:"page_id" `
-	URL    string `json:"url" `
+	PageID string `grimoire:"index" json:"page_id" bson:"page_id" `
+	URL    string `json:"url" bson:"url" `
 }
