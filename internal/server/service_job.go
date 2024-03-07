@@ -16,17 +16,14 @@ type jobService struct {
 }
 
 func (s *jobService) Index(c echo.Context, req *Request) (*JobsResponse, error) {
-	limit := req.Limit
-	if limit == 0 {
-		limit = 100
-	}
+	limit, skip := reqLimitSkip(req)
 
 	count, err := s.db.Job.Query().Count()
 	if err != nil {
 		return nil, err
 	}
 
-	list, err := s.db.Job.Query().Limit(limit).Desc("created_at").Run()
+	list, err := s.db.Job.Query().Limit(limit).Skip(skip).Desc("created_at").Run()
 	if err != nil {
 		return nil, err
 	}

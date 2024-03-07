@@ -13,12 +13,14 @@ type videoService struct {
 }
 
 func (s *videoService) Index(c echo.Context, req *Request) (*VideosResponse, error) {
+	limit, skip := reqLimitSkip(req)
+
 	count, err := s.db.Video.Query().Count()
 	if err != nil {
 		return nil, err
 	}
 
-	list, err := s.db.Video.Query().Desc("created_at").Run()
+	list, err := s.db.Video.Query().Desc("created_at").Limit(limit).Skip(skip).Run()
 	if err != nil {
 		return nil, err
 	}

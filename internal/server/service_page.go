@@ -18,13 +18,15 @@ type pageService struct {
 }
 
 func (s *pageService) Index(c echo.Context, req *Request) (*PagesResponse, error) {
+	limit, skip := reqLimitSkip(req)
+
 	// TODO: limit and offset
 	count, err := s.db.Page.Query().Count()
 	if err != nil {
 		return nil, err
 	}
 
-	list, err := s.dbList()
+	list, err := s.db.Page.Query().Desc("created_at").Limit(limit).Skip(skip).Run()
 	if err != nil {
 		return nil, err
 	}

@@ -14,12 +14,14 @@ type visitService struct {
 }
 
 func (s *visitService) Index(c echo.Context, req *Request) (*VisitsResponse, error) {
+	limit, skip := reqLimitSkip(req)
+
 	count, err := s.db.Visit.Query().Count()
 	if err != nil {
 		return nil, err
 	}
 
-	list, err := s.db.Visit.Query().Desc("created_at").Run()
+	list, err := s.db.Visit.Query().Desc("created_at").Limit(limit).Skip(skip).Run()
 	if err != nil {
 		return nil, err
 	}

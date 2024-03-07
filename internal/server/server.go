@@ -15,6 +15,8 @@ import (
 	"github.com/dashotv/rift/internal/scraper"
 )
 
+var pageSize = 100
+
 type Server struct {
 	Router *echo.Echo
 	Cron   *cron.Cron
@@ -78,4 +80,13 @@ func setupLogger() *zap.SugaredLogger {
 	logStdoutWriter := zapcore.Lock(os.Stderr)
 	log := zap.New(zapcore.NewCore(logging.NewEncoder(verbosity, isTTY), logStdoutWriter, zapcore.DebugLevel))
 	return log.Named("rift").Sugar()
+}
+
+func reqLimitSkip(req *Request) (int, int) {
+	limit := pageSize
+	if req.Limit > 0 {
+		limit = req.Limit
+	}
+
+	return limit, req.Skip
 }
