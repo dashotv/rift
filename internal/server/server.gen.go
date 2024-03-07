@@ -10,32 +10,32 @@ import (
 )
 
 type JobService interface {
-	Create(echo.Context, *Request) (*Response, error)
-	Index(echo.Context, *Request) (*Response, error)
+	Create(echo.Context, *Request) (*JobResponse, error)
+	Index(echo.Context, *Request) (*JobsResponse, error)
 }
 
 type PageService interface {
-	Create(echo.Context, *Page) (*Response, error)
-	Delete(echo.Context, *Request) (*Response, error)
-	Index(echo.Context, *Request) (*Response, error)
-	Show(echo.Context, *Request) (*Response, error)
-	Update(echo.Context, *Page) (*Response, error)
+	Create(echo.Context, *Page) (*PageResponse, error)
+	Delete(echo.Context, *Request) (*PageResponse, error)
+	Index(echo.Context, *Request) (*PagesResponse, error)
+	Show(echo.Context, *Request) (*PageResponse, error)
+	Update(echo.Context, *Page) (*PageResponse, error)
 }
 
 type VideoService interface {
-	Create(echo.Context, *Video) (*Response, error)
-	Delete(echo.Context, *Request) (*Response, error)
-	Index(echo.Context, *Request) (*Response, error)
-	Show(echo.Context, *Request) (*Response, error)
-	Update(echo.Context, *Video) (*Response, error)
+	Create(echo.Context, *Video) (*VideoResponse, error)
+	Delete(echo.Context, *Request) (*VideoResponse, error)
+	Index(echo.Context, *Request) (*VideosResponse, error)
+	Show(echo.Context, *Request) (*VideoResponse, error)
+	Update(echo.Context, *Video) (*VideoResponse, error)
 }
 
 type VisitService interface {
-	Create(echo.Context, *Visit) (*Response, error)
-	Delete(echo.Context, *Request) (*Response, error)
-	Index(echo.Context, *Request) (*Response, error)
-	Show(echo.Context, *Request) (*Response, error)
-	Update(echo.Context, *Visit) (*Response, error)
+	Create(echo.Context, *Visit) (*VisitResponse, error)
+	Delete(echo.Context, *Request) (*VisitResponse, error)
+	Index(echo.Context, *Request) (*VisitsResponse, error)
+	Show(echo.Context, *Request) (*VisitResponse, error)
+	Update(echo.Context, *Visit) (*VisitResponse, error)
 }
 
 type jobServiceServer struct {

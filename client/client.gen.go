@@ -59,9 +59,9 @@ func NewJobService(client *Client) *JobService {
 	}
 }
 
-func (s *JobService) Create(ctx context.Context, r *Request) (*Response, error) {
+func (s *JobService) Create(ctx context.Context, r *Request) (*JobResponse, error) {
 	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "JobService", "Create")
-	result := &Response{}
+	result := &JobResponse{}
 	resp, err := s.client.Resty.R().
 		SetBody(r).
 		SetResult(result).
@@ -80,9 +80,9 @@ func (s *JobService) Create(ctx context.Context, r *Request) (*Response, error) 
 	return result, nil
 }
 
-func (s *JobService) Index(ctx context.Context, r *Request) (*Response, error) {
+func (s *JobService) Index(ctx context.Context, r *Request) (*JobsResponse, error) {
 	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "JobService", "Index")
-	result := &Response{}
+	result := &JobsResponse{}
 	resp, err := s.client.Resty.R().
 		SetBody(r).
 		SetResult(result).
@@ -112,9 +112,9 @@ func NewPageService(client *Client) *PageService {
 	}
 }
 
-func (s *PageService) Create(ctx context.Context, r *Page) (*Response, error) {
+func (s *PageService) Create(ctx context.Context, r *Page) (*PageResponse, error) {
 	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "PageService", "Create")
-	result := &Response{}
+	result := &PageResponse{}
 	resp, err := s.client.Resty.R().
 		SetBody(r).
 		SetResult(result).
@@ -133,9 +133,9 @@ func (s *PageService) Create(ctx context.Context, r *Page) (*Response, error) {
 	return result, nil
 }
 
-func (s *PageService) Delete(ctx context.Context, r *Request) (*Response, error) {
+func (s *PageService) Delete(ctx context.Context, r *Request) (*PageResponse, error) {
 	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "PageService", "Delete")
-	result := &Response{}
+	result := &PageResponse{}
 	resp, err := s.client.Resty.R().
 		SetBody(r).
 		SetResult(result).
@@ -154,9 +154,9 @@ func (s *PageService) Delete(ctx context.Context, r *Request) (*Response, error)
 	return result, nil
 }
 
-func (s *PageService) Index(ctx context.Context, r *Request) (*Response, error) {
+func (s *PageService) Index(ctx context.Context, r *Request) (*PagesResponse, error) {
 	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "PageService", "Index")
-	result := &Response{}
+	result := &PagesResponse{}
 	resp, err := s.client.Resty.R().
 		SetBody(r).
 		SetResult(result).
@@ -175,9 +175,9 @@ func (s *PageService) Index(ctx context.Context, r *Request) (*Response, error) 
 	return result, nil
 }
 
-func (s *PageService) Show(ctx context.Context, r *Request) (*Response, error) {
+func (s *PageService) Show(ctx context.Context, r *Request) (*PageResponse, error) {
 	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "PageService", "Show")
-	result := &Response{}
+	result := &PageResponse{}
 	resp, err := s.client.Resty.R().
 		SetBody(r).
 		SetResult(result).
@@ -196,9 +196,9 @@ func (s *PageService) Show(ctx context.Context, r *Request) (*Response, error) {
 	return result, nil
 }
 
-func (s *PageService) Update(ctx context.Context, r *Page) (*Response, error) {
+func (s *PageService) Update(ctx context.Context, r *Page) (*PageResponse, error) {
 	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "PageService", "Update")
-	result := &Response{}
+	result := &PageResponse{}
 	resp, err := s.client.Resty.R().
 		SetBody(r).
 		SetResult(result).
@@ -228,9 +228,9 @@ func NewVideoService(client *Client) *VideoService {
 	}
 }
 
-func (s *VideoService) Create(ctx context.Context, r *Video) (*Response, error) {
+func (s *VideoService) Create(ctx context.Context, r *Video) (*VideoResponse, error) {
 	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "VideoService", "Create")
-	result := &Response{}
+	result := &VideoResponse{}
 	resp, err := s.client.Resty.R().
 		SetBody(r).
 		SetResult(result).
@@ -249,9 +249,9 @@ func (s *VideoService) Create(ctx context.Context, r *Video) (*Response, error) 
 	return result, nil
 }
 
-func (s *VideoService) Delete(ctx context.Context, r *Request) (*Response, error) {
+func (s *VideoService) Delete(ctx context.Context, r *Request) (*VideoResponse, error) {
 	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "VideoService", "Delete")
-	result := &Response{}
+	result := &VideoResponse{}
 	resp, err := s.client.Resty.R().
 		SetBody(r).
 		SetResult(result).
@@ -270,9 +270,9 @@ func (s *VideoService) Delete(ctx context.Context, r *Request) (*Response, error
 	return result, nil
 }
 
-func (s *VideoService) Index(ctx context.Context, r *Request) (*Response, error) {
+func (s *VideoService) Index(ctx context.Context, r *Request) (*VideosResponse, error) {
 	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "VideoService", "Index")
-	result := &Response{}
+	result := &VideosResponse{}
 	resp, err := s.client.Resty.R().
 		SetBody(r).
 		SetResult(result).
@@ -291,9 +291,9 @@ func (s *VideoService) Index(ctx context.Context, r *Request) (*Response, error)
 	return result, nil
 }
 
-func (s *VideoService) Show(ctx context.Context, r *Request) (*Response, error) {
+func (s *VideoService) Show(ctx context.Context, r *Request) (*VideoResponse, error) {
 	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "VideoService", "Show")
-	result := &Response{}
+	result := &VideoResponse{}
 	resp, err := s.client.Resty.R().
 		SetBody(r).
 		SetResult(result).
@@ -312,9 +312,9 @@ func (s *VideoService) Show(ctx context.Context, r *Request) (*Response, error) 
 	return result, nil
 }
 
-func (s *VideoService) Update(ctx context.Context, r *Video) (*Response, error) {
+func (s *VideoService) Update(ctx context.Context, r *Video) (*VideoResponse, error) {
 	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "VideoService", "Update")
-	result := &Response{}
+	result := &VideoResponse{}
 	resp, err := s.client.Resty.R().
 		SetBody(r).
 		SetResult(result).
@@ -344,9 +344,9 @@ func NewVisitService(client *Client) *VisitService {
 	}
 }
 
-func (s *VisitService) Create(ctx context.Context, r *Visit) (*Response, error) {
+func (s *VisitService) Create(ctx context.Context, r *Visit) (*VisitResponse, error) {
 	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "VisitService", "Create")
-	result := &Response{}
+	result := &VisitResponse{}
 	resp, err := s.client.Resty.R().
 		SetBody(r).
 		SetResult(result).
@@ -365,9 +365,9 @@ func (s *VisitService) Create(ctx context.Context, r *Visit) (*Response, error) 
 	return result, nil
 }
 
-func (s *VisitService) Delete(ctx context.Context, r *Request) (*Response, error) {
+func (s *VisitService) Delete(ctx context.Context, r *Request) (*VisitResponse, error) {
 	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "VisitService", "Delete")
-	result := &Response{}
+	result := &VisitResponse{}
 	resp, err := s.client.Resty.R().
 		SetBody(r).
 		SetResult(result).
@@ -386,9 +386,9 @@ func (s *VisitService) Delete(ctx context.Context, r *Request) (*Response, error
 	return result, nil
 }
 
-func (s *VisitService) Index(ctx context.Context, r *Request) (*Response, error) {
+func (s *VisitService) Index(ctx context.Context, r *Request) (*VisitsResponse, error) {
 	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "VisitService", "Index")
-	result := &Response{}
+	result := &VisitsResponse{}
 	resp, err := s.client.Resty.R().
 		SetBody(r).
 		SetResult(result).
@@ -407,9 +407,9 @@ func (s *VisitService) Index(ctx context.Context, r *Request) (*Response, error)
 	return result, nil
 }
 
-func (s *VisitService) Show(ctx context.Context, r *Request) (*Response, error) {
+func (s *VisitService) Show(ctx context.Context, r *Request) (*VisitResponse, error) {
 	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "VisitService", "Show")
-	result := &Response{}
+	result := &VisitResponse{}
 	resp, err := s.client.Resty.R().
 		SetBody(r).
 		SetResult(result).
@@ -428,9 +428,9 @@ func (s *VisitService) Show(ctx context.Context, r *Request) (*Response, error) 
 	return result, nil
 }
 
-func (s *VisitService) Update(ctx context.Context, r *Visit) (*Response, error) {
+func (s *VisitService) Update(ctx context.Context, r *Visit) (*VisitResponse, error) {
 	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "VisitService", "Update")
-	result := &Response{}
+	result := &VisitResponse{}
 	resp, err := s.client.Resty.R().
 		SetBody(r).
 		SetResult(result).
@@ -475,6 +475,22 @@ type JobAttempt struct {
 	Stacktrace []string `json:"stacktrace"`
 }
 
+type JobResponse struct {
+	Job *Job `json:"job"`
+
+	// Error is string explaining what went wrong. Empty if everything was fine.
+	error string `json:"-"`
+}
+
+type JobsResponse struct {
+	Total int64 `json:"total"`
+
+	Results []*Job `json:"results"`
+
+	// Error is string explaining what went wrong. Empty if everything was fine.
+	error string `json:"-"`
+}
+
 // Page represents a web page to be scraped and downloaded
 type Page struct {
 	Name string `json:"name"`
@@ -486,21 +502,28 @@ type Page struct {
 	Downloader string `json:"downloader"`
 }
 
+type PageResponse struct {
+	Page *Page `json:"page"`
+
+	// Error is string explaining what went wrong. Empty if everything was fine.
+	error string `json:"-"`
+}
+
+type PagesResponse struct {
+	Total int64 `json:"total"`
+
+	Results []*Page `json:"results"`
+
+	// Error is string explaining what went wrong. Empty if everything was fine.
+	error string `json:"-"`
+}
+
 type Request struct {
 	ID string `json:"id"`
 
 	Limit int `json:"limit"`
 
 	Skip int `json:"skip"`
-}
-
-type Response struct {
-	Total int64 `json:"total"`
-
-	Results interface{} `json:"results"`
-
-	// Error is string explaining what went wrong. Empty if everything was fine.
-	error string `json:"-"`
 }
 
 // Video represents a video to be downloaded
@@ -528,9 +551,41 @@ type Video struct {
 	Source string `json:"source"`
 }
 
+type VideoResponse struct {
+	Video *Video `json:"video"`
+
+	// Error is string explaining what went wrong. Empty if everything was fine.
+	error string `json:"-"`
+}
+
+type VideosResponse struct {
+	Total int64 `json:"total"`
+
+	Results []*Video `json:"results"`
+
+	// Error is string explaining what went wrong. Empty if everything was fine.
+	error string `json:"-"`
+}
+
 // Visit represents a web page to be scraped and downloaded
 type Visit struct {
 	PageID primitive.ObjectID `json:"page_id"`
 
 	URL string `json:"url"`
+}
+
+type VisitResponse struct {
+	Visit *Visit `json:"visit"`
+
+	// Error is string explaining what went wrong. Empty if everything was fine.
+	error string `json:"-"`
+}
+
+type VisitsResponse struct {
+	Total int64 `json:"total"`
+
+	Results []*Visit `json:"results"`
+
+	// Error is string explaining what went wrong. Empty if everything was fine.
+	error string `json:"-"`
 }

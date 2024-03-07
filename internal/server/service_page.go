@@ -17,7 +17,7 @@ type pageService struct {
 	log *zap.SugaredLogger
 }
 
-func (s *pageService) Index(c echo.Context, req *Request) (*Response, error) {
+func (s *pageService) Index(c echo.Context, req *Request) (*PagesResponse, error) {
 	// TODO: limit and offset
 	count, err := s.db.Page.Query().Count()
 	if err != nil {
@@ -29,17 +29,17 @@ func (s *pageService) Index(c echo.Context, req *Request) (*Response, error) {
 		return nil, err
 	}
 
-	return &Response{Total: count, Results: list}, nil
+	return &PagesResponse{Total: count, Results: list}, nil
 }
-func (s *pageService) Show(c echo.Context, req *Request) (*Response, error) {
+func (s *pageService) Show(c echo.Context, req *Request) (*PageResponse, error) {
 	page, err := s.dbGet(req.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Response{Results: page}, nil
+	return &PageResponse{Page: page}, nil
 }
-func (s *pageService) Update(c echo.Context, req *Page) (*Response, error) {
+func (s *pageService) Update(c echo.Context, req *Page) (*PageResponse, error) {
 	if !s.dbExists(req.Name) {
 		return nil, echo.NewHTTPError(http.StatusNotFound, errors.New("page not found"))
 	}
@@ -52,9 +52,9 @@ func (s *pageService) Update(c echo.Context, req *Page) (*Response, error) {
 		return nil, err
 	}
 
-	return &Response{Results: req}, nil
+	return &PageResponse{Page: req}, nil
 }
-func (s *pageService) Create(c echo.Context, req *Page) (*Response, error) {
+func (s *pageService) Create(c echo.Context, req *Page) (*PageResponse, error) {
 	s.log.Debugf("creating page: %+v", req)
 	if s.dbExists(req.Name) {
 		s.log.Debugf("creating page: already exists: %s", req.Name)
@@ -69,10 +69,10 @@ func (s *pageService) Create(c echo.Context, req *Page) (*Response, error) {
 		return nil, err
 	}
 
-	return &Response{Results: req}, nil
+	return &PageResponse{Page: req}, nil
 }
 
-func (s *pageService) Delete(c echo.Context, req *Request) (*Response, error) {
+func (s *pageService) Delete(c echo.Context, req *Request) (*PageResponse, error) {
 	page, err := s.dbGet(req.ID)
 	if err != nil {
 		return nil, fmt.Errorf("error finding id: %s: %w", req.ID, err)
@@ -82,7 +82,7 @@ func (s *pageService) Delete(c echo.Context, req *Request) (*Response, error) {
 		return nil, err
 	}
 
-	return &Response{Results: page}, nil
+	return &PageResponse{Page: page}, nil
 }
 
 func (s *pageService) dbList() ([]*Page, error) {

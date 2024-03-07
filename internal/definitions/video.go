@@ -1,11 +1,11 @@
 package definitions
 
 type VideoService interface {
-	Index(Request) Response
-	Show(Request) Response
-	Create(Video) Response
-	Update(Video) Response
-	Delete(Request) Response
+	Index(Request) VideosResponse
+	Show(Request) VideoResponse
+	Create(Video) VideoResponse
+	Update(Video) VideoResponse
+	Delete(Request) VideoResponse
 }
 
 // Video represents a video to be downloaded
@@ -22,4 +22,12 @@ type Video struct {
 	Download   string `json:"download" bson:"download"`
 	View       string `json:"view" bson:"view"`
 	Source     string `json:"source" bson:"source"`
+}
+
+type VideosResponse struct {
+	Total   int64    `json:"total"`
+	Results []*Video `json:"results"`
+}
+type VideoResponse struct {
+	Video *Video `json:"video"`
 }

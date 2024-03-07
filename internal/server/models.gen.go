@@ -72,7 +72,7 @@ type Job struct { // model
 	//ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	//CreatedAt time.Time          `bson:"created_at" json:"created_at"`
 	//UpdatedAt time.Time          `bson:"updated_at" json:"updated_at"`
-	Kind     string        `bson:"kind" json:"kind" `
+	Kind     string        `json:"kind" bson:"kind" `
 	Args     string        `json:"args" bson:"args" `
 	Status   string        `json:"status" bson:"status" `
 	Queue    string        `json:"queue" bson:"queue" `
@@ -88,6 +88,19 @@ type JobAttempt struct {
 	Stacktrace []string `json:"stacktrace"`
 }
 
+type JobResponse struct {
+	Job *Job `json:"job"`
+	// Error is string explaining what went wrong. Empty if everything was fine.
+	Error string `json:"error,omitempty"`
+}
+
+type JobsResponse struct {
+	Total   int64  `json:"total"`
+	Results []*Job `json:"results"`
+	// Error is string explaining what went wrong. Empty if everything was fine.
+	Error string `json:"error,omitempty"`
+}
+
 // Page represents a web page to be scraped and downloaded
 type Page struct { // model
 	grimoire.Document `bson:",inline"` // includes default model settings
@@ -95,22 +108,28 @@ type Page struct { // model
 	//CreatedAt time.Time          `bson:"created_at" json:"created_at"`
 	//UpdatedAt time.Time          `bson:"updated_at" json:"updated_at"`
 	Name       string `json:"name" bson:"name" grimoire:"index" `
-	URL        string `json:"url" bson:"url" `
+	URL        string `bson:"url" json:"url" `
 	Scraper    string `json:"scraper" bson:"scraper" `
 	Downloader string `json:"downloader" bson:"downloader" `
+}
+
+type PageResponse struct {
+	Page *Page `json:"page"`
+	// Error is string explaining what went wrong. Empty if everything was fine.
+	Error string `json:"error,omitempty"`
+}
+
+type PagesResponse struct {
+	Total   int64   `json:"total"`
+	Results []*Page `json:"results"`
+	// Error is string explaining what went wrong. Empty if everything was fine.
+	Error string `json:"error,omitempty"`
 }
 
 type Request struct {
 	ID    string `json:"id"`
 	Limit int    `json:"limit"`
 	Skip  int    `json:"skip"`
-}
-
-type Response struct {
-	Total   int64       `json:"total"`
-	Results interface{} `json:"results"`
-	// Error is string explaining what went wrong. Empty if everything was fine.
-	Error string `json:"error,omitempty"`
 }
 
 // Video represents a video to be downloaded
@@ -122,14 +141,27 @@ type Video struct { // model
 	Title      string `json:"title" bson:"title" grimoire:"index" `
 	Season     int    `json:"season" bson:"season" grimoire:"index" `
 	Episode    int    `json:"episode" bson:"episode" grimoire:"index" `
-	Raw        string `json:"raw" bson:"raw" `
-	DisplayID  string `json:"display_id" bson:"display_id" grimoire:"index" `
-	Extension  string `bson:"extension" json:"extension" `
+	Raw        string `bson:"raw" json:"raw" `
+	DisplayID  string `grimoire:"index" json:"display_id" bson:"display_id" `
+	Extension  string `json:"extension" bson:"extension" `
 	Resolution int    `json:"resolution" bson:"resolution" `
-	Size       int64  `bson:"size" json:"size" `
-	Download   string `json:"download" bson:"download" `
+	Size       int64  `json:"size" bson:"size" `
+	Download   string `bson:"download" json:"download" `
 	View       string `json:"view" bson:"view" `
 	Source     string `json:"source" bson:"source" `
+}
+
+type VideoResponse struct {
+	Video *Video `json:"video"`
+	// Error is string explaining what went wrong. Empty if everything was fine.
+	Error string `json:"error,omitempty"`
+}
+
+type VideosResponse struct {
+	Total   int64    `json:"total"`
+	Results []*Video `json:"results"`
+	// Error is string explaining what went wrong. Empty if everything was fine.
+	Error string `json:"error,omitempty"`
 }
 
 // Visit represents a web page to be scraped and downloaded
@@ -140,4 +172,17 @@ type Visit struct { // model
 	//UpdatedAt time.Time          `bson:"updated_at" json:"updated_at"`
 	PageID primitive.ObjectID `json:"page_id" bson:"page_id" grimoire:"index" `
 	URL    string             `json:"url" bson:"url" `
+}
+
+type VisitResponse struct {
+	Visit *Visit `json:"visit"`
+	// Error is string explaining what went wrong. Empty if everything was fine.
+	Error string `json:"error,omitempty"`
+}
+
+type VisitsResponse struct {
+	Total   int64    `json:"total"`
+	Results []*Visit `json:"results"`
+	// Error is string explaining what went wrong. Empty if everything was fine.
+	Error string `json:"error,omitempty"`
 }

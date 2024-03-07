@@ -12,7 +12,7 @@ type videoService struct {
 	log *zap.SugaredLogger
 }
 
-func (s *videoService) Index(c echo.Context, req *Request) (*Response, error) {
+func (s *videoService) Index(c echo.Context, req *Request) (*VideosResponse, error) {
 	count, err := s.db.Video.Query().Count()
 	if err != nil {
 		return nil, err
@@ -23,17 +23,17 @@ func (s *videoService) Index(c echo.Context, req *Request) (*Response, error) {
 		return nil, err
 	}
 
-	return &Response{Total: count, Results: list}, nil
+	return &VideosResponse{Total: count, Results: list}, nil
 }
-func (s *videoService) Show(c echo.Context, req *Request) (*Response, error) {
+func (s *videoService) Show(c echo.Context, req *Request) (*VideoResponse, error) {
 	return nil, errors.New("not implemented")
 }
-func (s *videoService) Update(c echo.Context, req *Video) (*Response, error) {
+func (s *videoService) Update(c echo.Context, req *Video) (*VideoResponse, error) {
 	return nil, errors.New("not implemented")
 }
-func (s *videoService) Create(c echo.Context, req *Video) (*Response, error) {
+func (s *videoService) Create(c echo.Context, req *Video) (*VideoResponse, error) {
 	return nil, errors.New("not implemented")
 }
-func (s *videoService) Delete(c echo.Context, req *Request) (*Response, error) {
+func (s *videoService) Delete(c echo.Context, req *Request) (*VideoResponse, error) {
 	return nil, errors.New("not implemented")
 }

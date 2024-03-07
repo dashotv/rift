@@ -1,11 +1,11 @@
 package definitions
 
 type PageService interface {
-	Index(Request) Response
-	Show(Request) Response
-	Create(Page) Response
-	Update(Page) Response
-	Delete(Request) Response
+	Index(Request) PagesResponse
+	Show(Request) PageResponse
+	Create(Page) PageResponse
+	Update(Page) PageResponse
+	Delete(Request) PageResponse
 }
 
 // Page represents a web page to be scraped and downloaded
@@ -15,4 +15,12 @@ type Page struct {
 	URL        string `json:"url" bson:"url"`
 	Scraper    string `json:"scraper" bson:"scraper"`
 	Downloader string `json:"downloader" bson:"downloader"`
+}
+
+type PagesResponse struct {
+	Total   int64   `json:"total"`
+	Results []*Page `json:"results"`
+}
+type PageResponse struct {
+	Page *Page `json:"page"`
 }

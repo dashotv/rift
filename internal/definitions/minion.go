@@ -1,8 +1,8 @@
 package definitions
 
 type JobService interface {
-	Index(Request) Response
-	Create(Request) Response
+	Index(Request) JobsResponse
+	Create(Request) JobResponse
 }
 
 // Job tracks jobs in the system
@@ -22,4 +22,12 @@ type JobAttempt struct { // struct
 	Status     string   `bson:"status" json:"status"`
 	Error      string   `bson:"error" json:"error"`
 	Stacktrace []string `bson:"stacktrace" json:"stacktrace"`
+}
+
+type JobsResponse struct {
+	Total   int64  `json:"total"`
+	Results []*Job `json:"results"`
+}
+type JobResponse struct {
+	Job *Job `json:"job"`
 }

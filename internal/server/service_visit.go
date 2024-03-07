@@ -13,7 +13,7 @@ type visitService struct {
 	log *zap.SugaredLogger
 }
 
-func (s *visitService) Index(c echo.Context, req *Request) (*Response, error) {
+func (s *visitService) Index(c echo.Context, req *Request) (*VisitsResponse, error) {
 	count, err := s.db.Visit.Query().Count()
 	if err != nil {
 		return nil, err
@@ -24,18 +24,18 @@ func (s *visitService) Index(c echo.Context, req *Request) (*Response, error) {
 		return nil, err
 	}
 
-	return &Response{Total: count, Results: list}, nil
+	return &VisitsResponse{Total: count, Results: list}, nil
 }
-func (s *visitService) Show(c echo.Context, req *Request) (*Response, error) {
+func (s *visitService) Show(c echo.Context, req *Request) (*VisitResponse, error) {
 	return nil, errors.New("not implemented")
 }
-func (s *visitService) Create(c echo.Context, req *Visit) (*Response, error) {
+func (s *visitService) Create(c echo.Context, req *Visit) (*VisitResponse, error) {
 	return nil, errors.New("not implemented")
 }
-func (s *visitService) Update(c echo.Context, req *Visit) (*Response, error) {
+func (s *visitService) Update(c echo.Context, req *Visit) (*VisitResponse, error) {
 	return nil, errors.New("not implemented")
 }
-func (s *visitService) Delete(c echo.Context, req *Request) (*Response, error) {
+func (s *visitService) Delete(c echo.Context, req *Request) (*VisitResponse, error) {
 	return nil, errors.New("not implemented")
 }
 

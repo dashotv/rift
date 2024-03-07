@@ -15,7 +15,7 @@ type jobService struct {
 	bg  *minion.Minion
 }
 
-func (s *jobService) Index(c echo.Context, req *Request) (*Response, error) {
+func (s *jobService) Index(c echo.Context, req *Request) (*JobsResponse, error) {
 	limit := req.Limit
 	if limit == 0 {
 		limit = 100
@@ -31,10 +31,10 @@ func (s *jobService) Index(c echo.Context, req *Request) (*Response, error) {
 		return nil, err
 	}
 
-	return &Response{Total: count, Results: list}, nil
+	return &JobsResponse{Total: count, Results: list}, nil
 }
 
-func (s *jobService) Create(c echo.Context, req *Request) (*Response, error) {
+func (s *jobService) Create(c echo.Context, req *Request) (*JobResponse, error) {
 	id := req.ID
 	switch id {
 	case "scrape_all":
@@ -44,9 +44,9 @@ func (s *jobService) Create(c echo.Context, req *Request) (*Response, error) {
 	default:
 		return nil, errors.New("unknown job")
 	}
-	return &Response{Results: true}, nil
+	return &JobResponse{Job: &Job{Kind: id}}, nil
 }
 
-func (s *jobService) Update(c echo.Context, req *Job) (*Response, error) {
+func (s *jobService) Update(c echo.Context, req *Job) (*JobResponse, error) {
 	return nil, errors.New("not implemented")
 }
