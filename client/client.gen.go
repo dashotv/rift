@@ -3,16 +3,11 @@
 package client
 
 import (
-	"bytes"
-	"compress/gzip"
 	"context"
-	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
-	"strings"
-	"time"
 
+	"github.com/go-resty/resty/v2"
 	"github.com/pkg/errors"
 	primitive "go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -22,23 +17,34 @@ type Client struct {
 	// RemoteHost is the URL of the remote server that this Client should
 	// access.
 	RemoteHost string
-	// HTTPClient is the http.Client to use when making HTTP requests.
-	HTTPClient *http.Client
-	// BeforeRequest is an optional hook that gives you the opportunity
-	// to inspect or modify the request before it is made.
-	// Useful for adding auth headers, for example.
-	BeforeRequest func(r *http.Request) error
-	// Debug writes a line of debug log output.
-	Debug func(s string)
+	// Debug enables debug on Resty client
+	Debug bool
+	// Resty
+	Resty *resty.Client
+
+	JobService   *JobService
+	PageService  *PageService
+	VideoService *VideoService
+	VisitService *VisitService
+}
+
+// Set the debug flag
+func (c *Client) SetDebug(debug bool) {
+	c.Debug = debug
+	c.Resty.SetDebug(debug)
 }
 
 // New makes a new Client.
 func New(remoteHost string) *Client {
 	c := &Client{
 		RemoteHost: remoteHost,
-		Debug:      func(s string) {},
-		HTTPClient: &http.Client{Timeout: 10 * time.Second},
+		Resty:      resty.New(),
 	}
+	c.JobService = NewJobService(c)
+	c.PageService = NewPageService(c)
+	c.VideoService = NewVideoService(c)
+	c.VisitService = NewVisitService(c)
+
 	return c
 }
 
@@ -54,115 +60,45 @@ func NewJobService(client *Client) *JobService {
 }
 
 func (s *JobService) Create(ctx context.Context, r *Request) (*Response, error) {
-	requestBodyBytes, err := json.Marshal(r)
-	if err != nil {
-		return nil, errors.Wrap(err, "JobService.Create: marshal Request")
-	}
-	url := s.client.RemoteHost + "JobService.Create"
-	s.client.Debug(fmt.Sprintf("POST %s", url))
-	s.client.Debug(fmt.Sprintf(">> %s", string(requestBodyBytes)))
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestBodyBytes))
-	if err != nil {
-		return nil, errors.Wrap(err, "JobService.Create: NewRequest")
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept-Encoding", "gzip")
-	req = req.WithContext(ctx)
-	if s.client.BeforeRequest != nil {
-		err = s.client.BeforeRequest(req)
-		if err != nil {
-			// don't wrap this error, it belongs to the user
-			return nil, err
-		}
-	}
-	resp, err := s.client.HTTPClient.Do(req)
+	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "JobService", "Create")
+	result := &Response{}
+	resp, err := s.client.Resty.R().
+		SetBody(r).
+		SetResult(result).
+		Post(url)
+
 	if err != nil {
 		return nil, errors.Wrap(err, "JobService.Create")
 	}
-	defer resp.Body.Close()
-	var response struct {
-		Response
-		Error string
+	if resp.StatusCode() != http.StatusOK {
+		return nil, errors.Errorf("JobService.Create: (%d) %v", resp.StatusCode(), string(resp.Body()))
 	}
-	var bodyReader io.Reader = resp.Body
-	if strings.Contains(resp.Header.Get("Content-Encoding"), "gzip") {
-		decodedBody, err := gzip.NewReader(resp.Body)
-		if err != nil {
-			return nil, errors.Wrap(err, "JobService.Create: new gzip reader")
-		}
-		defer decodedBody.Close()
-		bodyReader = decodedBody
+	if result.error != "" {
+		return nil, errors.New(result.error)
 	}
-	respBodyBytes, err := io.ReadAll(bodyReader)
-	if err != nil {
-		return nil, errors.Wrap(err, "JobService.Create: read response body")
-	}
-	if err := json.Unmarshal(respBodyBytes, &response); err != nil {
-		if resp.StatusCode != http.StatusOK {
-			return nil, errors.Errorf("JobService.Create: (%d) %v", resp.StatusCode, string(respBodyBytes))
-		}
-		return nil, err
-	}
-	if response.Error != "" {
-		return nil, errors.New(response.Error)
-	}
-	return &response.Response, nil
+
+	return result, nil
 }
 
 func (s *JobService) Index(ctx context.Context, r *Request) (*Response, error) {
-	requestBodyBytes, err := json.Marshal(r)
-	if err != nil {
-		return nil, errors.Wrap(err, "JobService.Index: marshal Request")
-	}
-	url := s.client.RemoteHost + "JobService.Index"
-	s.client.Debug(fmt.Sprintf("POST %s", url))
-	s.client.Debug(fmt.Sprintf(">> %s", string(requestBodyBytes)))
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestBodyBytes))
-	if err != nil {
-		return nil, errors.Wrap(err, "JobService.Index: NewRequest")
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept-Encoding", "gzip")
-	req = req.WithContext(ctx)
-	if s.client.BeforeRequest != nil {
-		err = s.client.BeforeRequest(req)
-		if err != nil {
-			// don't wrap this error, it belongs to the user
-			return nil, err
-		}
-	}
-	resp, err := s.client.HTTPClient.Do(req)
+	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "JobService", "Index")
+	result := &Response{}
+	resp, err := s.client.Resty.R().
+		SetBody(r).
+		SetResult(result).
+		Post(url)
+
 	if err != nil {
 		return nil, errors.Wrap(err, "JobService.Index")
 	}
-	defer resp.Body.Close()
-	var response struct {
-		Response
-		Error string
+	if resp.StatusCode() != http.StatusOK {
+		return nil, errors.Errorf("JobService.Index: (%d) %v", resp.StatusCode(), string(resp.Body()))
 	}
-	var bodyReader io.Reader = resp.Body
-	if strings.Contains(resp.Header.Get("Content-Encoding"), "gzip") {
-		decodedBody, err := gzip.NewReader(resp.Body)
-		if err != nil {
-			return nil, errors.Wrap(err, "JobService.Index: new gzip reader")
-		}
-		defer decodedBody.Close()
-		bodyReader = decodedBody
+	if result.error != "" {
+		return nil, errors.New(result.error)
 	}
-	respBodyBytes, err := io.ReadAll(bodyReader)
-	if err != nil {
-		return nil, errors.Wrap(err, "JobService.Index: read response body")
-	}
-	if err := json.Unmarshal(respBodyBytes, &response); err != nil {
-		if resp.StatusCode != http.StatusOK {
-			return nil, errors.Errorf("JobService.Index: (%d) %v", resp.StatusCode, string(respBodyBytes))
-		}
-		return nil, err
-	}
-	if response.Error != "" {
-		return nil, errors.New(response.Error)
-	}
-	return &response.Response, nil
+
+	return result, nil
 }
 
 type PageService struct {
@@ -177,283 +113,108 @@ func NewPageService(client *Client) *PageService {
 }
 
 func (s *PageService) Create(ctx context.Context, r *Page) (*Response, error) {
-	requestBodyBytes, err := json.Marshal(r)
-	if err != nil {
-		return nil, errors.Wrap(err, "PageService.Create: marshal Page")
-	}
-	url := s.client.RemoteHost + "PageService.Create"
-	s.client.Debug(fmt.Sprintf("POST %s", url))
-	s.client.Debug(fmt.Sprintf(">> %s", string(requestBodyBytes)))
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestBodyBytes))
-	if err != nil {
-		return nil, errors.Wrap(err, "PageService.Create: NewRequest")
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept-Encoding", "gzip")
-	req = req.WithContext(ctx)
-	if s.client.BeforeRequest != nil {
-		err = s.client.BeforeRequest(req)
-		if err != nil {
-			// don't wrap this error, it belongs to the user
-			return nil, err
-		}
-	}
-	resp, err := s.client.HTTPClient.Do(req)
+	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "PageService", "Create")
+	result := &Response{}
+	resp, err := s.client.Resty.R().
+		SetBody(r).
+		SetResult(result).
+		Post(url)
+
 	if err != nil {
 		return nil, errors.Wrap(err, "PageService.Create")
 	}
-	defer resp.Body.Close()
-	var response struct {
-		Response
-		Error string
+	if resp.StatusCode() != http.StatusOK {
+		return nil, errors.Errorf("PageService.Create: (%d) %v", resp.StatusCode(), string(resp.Body()))
 	}
-	var bodyReader io.Reader = resp.Body
-	if strings.Contains(resp.Header.Get("Content-Encoding"), "gzip") {
-		decodedBody, err := gzip.NewReader(resp.Body)
-		if err != nil {
-			return nil, errors.Wrap(err, "PageService.Create: new gzip reader")
-		}
-		defer decodedBody.Close()
-		bodyReader = decodedBody
+	if result.error != "" {
+		return nil, errors.New(result.error)
 	}
-	respBodyBytes, err := io.ReadAll(bodyReader)
-	if err != nil {
-		return nil, errors.Wrap(err, "PageService.Create: read response body")
-	}
-	if err := json.Unmarshal(respBodyBytes, &response); err != nil {
-		if resp.StatusCode != http.StatusOK {
-			return nil, errors.Errorf("PageService.Create: (%d) %v", resp.StatusCode, string(respBodyBytes))
-		}
-		return nil, err
-	}
-	if response.Error != "" {
-		return nil, errors.New(response.Error)
-	}
-	return &response.Response, nil
+
+	return result, nil
 }
 
 func (s *PageService) Delete(ctx context.Context, r *Request) (*Response, error) {
-	requestBodyBytes, err := json.Marshal(r)
-	if err != nil {
-		return nil, errors.Wrap(err, "PageService.Delete: marshal Request")
-	}
-	url := s.client.RemoteHost + "PageService.Delete"
-	s.client.Debug(fmt.Sprintf("POST %s", url))
-	s.client.Debug(fmt.Sprintf(">> %s", string(requestBodyBytes)))
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestBodyBytes))
-	if err != nil {
-		return nil, errors.Wrap(err, "PageService.Delete: NewRequest")
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept-Encoding", "gzip")
-	req = req.WithContext(ctx)
-	if s.client.BeforeRequest != nil {
-		err = s.client.BeforeRequest(req)
-		if err != nil {
-			// don't wrap this error, it belongs to the user
-			return nil, err
-		}
-	}
-	resp, err := s.client.HTTPClient.Do(req)
+	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "PageService", "Delete")
+	result := &Response{}
+	resp, err := s.client.Resty.R().
+		SetBody(r).
+		SetResult(result).
+		Post(url)
+
 	if err != nil {
 		return nil, errors.Wrap(err, "PageService.Delete")
 	}
-	defer resp.Body.Close()
-	var response struct {
-		Response
-		Error string
+	if resp.StatusCode() != http.StatusOK {
+		return nil, errors.Errorf("PageService.Delete: (%d) %v", resp.StatusCode(), string(resp.Body()))
 	}
-	var bodyReader io.Reader = resp.Body
-	if strings.Contains(resp.Header.Get("Content-Encoding"), "gzip") {
-		decodedBody, err := gzip.NewReader(resp.Body)
-		if err != nil {
-			return nil, errors.Wrap(err, "PageService.Delete: new gzip reader")
-		}
-		defer decodedBody.Close()
-		bodyReader = decodedBody
+	if result.error != "" {
+		return nil, errors.New(result.error)
 	}
-	respBodyBytes, err := io.ReadAll(bodyReader)
-	if err != nil {
-		return nil, errors.Wrap(err, "PageService.Delete: read response body")
-	}
-	if err := json.Unmarshal(respBodyBytes, &response); err != nil {
-		if resp.StatusCode != http.StatusOK {
-			return nil, errors.Errorf("PageService.Delete: (%d) %v", resp.StatusCode, string(respBodyBytes))
-		}
-		return nil, err
-	}
-	if response.Error != "" {
-		return nil, errors.New(response.Error)
-	}
-	return &response.Response, nil
+
+	return result, nil
 }
 
 func (s *PageService) Index(ctx context.Context, r *Request) (*Response, error) {
-	requestBodyBytes, err := json.Marshal(r)
-	if err != nil {
-		return nil, errors.Wrap(err, "PageService.Index: marshal Request")
-	}
-	url := s.client.RemoteHost + "PageService.Index"
-	s.client.Debug(fmt.Sprintf("POST %s", url))
-	s.client.Debug(fmt.Sprintf(">> %s", string(requestBodyBytes)))
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestBodyBytes))
-	if err != nil {
-		return nil, errors.Wrap(err, "PageService.Index: NewRequest")
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept-Encoding", "gzip")
-	req = req.WithContext(ctx)
-	if s.client.BeforeRequest != nil {
-		err = s.client.BeforeRequest(req)
-		if err != nil {
-			// don't wrap this error, it belongs to the user
-			return nil, err
-		}
-	}
-	resp, err := s.client.HTTPClient.Do(req)
+	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "PageService", "Index")
+	result := &Response{}
+	resp, err := s.client.Resty.R().
+		SetBody(r).
+		SetResult(result).
+		Post(url)
+
 	if err != nil {
 		return nil, errors.Wrap(err, "PageService.Index")
 	}
-	defer resp.Body.Close()
-	var response struct {
-		Response
-		Error string
+	if resp.StatusCode() != http.StatusOK {
+		return nil, errors.Errorf("PageService.Index: (%d) %v", resp.StatusCode(), string(resp.Body()))
 	}
-	var bodyReader io.Reader = resp.Body
-	if strings.Contains(resp.Header.Get("Content-Encoding"), "gzip") {
-		decodedBody, err := gzip.NewReader(resp.Body)
-		if err != nil {
-			return nil, errors.Wrap(err, "PageService.Index: new gzip reader")
-		}
-		defer decodedBody.Close()
-		bodyReader = decodedBody
+	if result.error != "" {
+		return nil, errors.New(result.error)
 	}
-	respBodyBytes, err := io.ReadAll(bodyReader)
-	if err != nil {
-		return nil, errors.Wrap(err, "PageService.Index: read response body")
-	}
-	if err := json.Unmarshal(respBodyBytes, &response); err != nil {
-		if resp.StatusCode != http.StatusOK {
-			return nil, errors.Errorf("PageService.Index: (%d) %v", resp.StatusCode, string(respBodyBytes))
-		}
-		return nil, err
-	}
-	if response.Error != "" {
-		return nil, errors.New(response.Error)
-	}
-	return &response.Response, nil
+
+	return result, nil
 }
 
 func (s *PageService) Show(ctx context.Context, r *Request) (*Response, error) {
-	requestBodyBytes, err := json.Marshal(r)
-	if err != nil {
-		return nil, errors.Wrap(err, "PageService.Show: marshal Request")
-	}
-	url := s.client.RemoteHost + "PageService.Show"
-	s.client.Debug(fmt.Sprintf("POST %s", url))
-	s.client.Debug(fmt.Sprintf(">> %s", string(requestBodyBytes)))
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestBodyBytes))
-	if err != nil {
-		return nil, errors.Wrap(err, "PageService.Show: NewRequest")
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept-Encoding", "gzip")
-	req = req.WithContext(ctx)
-	if s.client.BeforeRequest != nil {
-		err = s.client.BeforeRequest(req)
-		if err != nil {
-			// don't wrap this error, it belongs to the user
-			return nil, err
-		}
-	}
-	resp, err := s.client.HTTPClient.Do(req)
+	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "PageService", "Show")
+	result := &Response{}
+	resp, err := s.client.Resty.R().
+		SetBody(r).
+		SetResult(result).
+		Post(url)
+
 	if err != nil {
 		return nil, errors.Wrap(err, "PageService.Show")
 	}
-	defer resp.Body.Close()
-	var response struct {
-		Response
-		Error string
+	if resp.StatusCode() != http.StatusOK {
+		return nil, errors.Errorf("PageService.Show: (%d) %v", resp.StatusCode(), string(resp.Body()))
 	}
-	var bodyReader io.Reader = resp.Body
-	if strings.Contains(resp.Header.Get("Content-Encoding"), "gzip") {
-		decodedBody, err := gzip.NewReader(resp.Body)
-		if err != nil {
-			return nil, errors.Wrap(err, "PageService.Show: new gzip reader")
-		}
-		defer decodedBody.Close()
-		bodyReader = decodedBody
+	if result.error != "" {
+		return nil, errors.New(result.error)
 	}
-	respBodyBytes, err := io.ReadAll(bodyReader)
-	if err != nil {
-		return nil, errors.Wrap(err, "PageService.Show: read response body")
-	}
-	if err := json.Unmarshal(respBodyBytes, &response); err != nil {
-		if resp.StatusCode != http.StatusOK {
-			return nil, errors.Errorf("PageService.Show: (%d) %v", resp.StatusCode, string(respBodyBytes))
-		}
-		return nil, err
-	}
-	if response.Error != "" {
-		return nil, errors.New(response.Error)
-	}
-	return &response.Response, nil
+
+	return result, nil
 }
 
 func (s *PageService) Update(ctx context.Context, r *Page) (*Response, error) {
-	requestBodyBytes, err := json.Marshal(r)
-	if err != nil {
-		return nil, errors.Wrap(err, "PageService.Update: marshal Page")
-	}
-	url := s.client.RemoteHost + "PageService.Update"
-	s.client.Debug(fmt.Sprintf("POST %s", url))
-	s.client.Debug(fmt.Sprintf(">> %s", string(requestBodyBytes)))
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestBodyBytes))
-	if err != nil {
-		return nil, errors.Wrap(err, "PageService.Update: NewRequest")
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept-Encoding", "gzip")
-	req = req.WithContext(ctx)
-	if s.client.BeforeRequest != nil {
-		err = s.client.BeforeRequest(req)
-		if err != nil {
-			// don't wrap this error, it belongs to the user
-			return nil, err
-		}
-	}
-	resp, err := s.client.HTTPClient.Do(req)
+	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "PageService", "Update")
+	result := &Response{}
+	resp, err := s.client.Resty.R().
+		SetBody(r).
+		SetResult(result).
+		Post(url)
+
 	if err != nil {
 		return nil, errors.Wrap(err, "PageService.Update")
 	}
-	defer resp.Body.Close()
-	var response struct {
-		Response
-		Error string
+	if resp.StatusCode() != http.StatusOK {
+		return nil, errors.Errorf("PageService.Update: (%d) %v", resp.StatusCode(), string(resp.Body()))
 	}
-	var bodyReader io.Reader = resp.Body
-	if strings.Contains(resp.Header.Get("Content-Encoding"), "gzip") {
-		decodedBody, err := gzip.NewReader(resp.Body)
-		if err != nil {
-			return nil, errors.Wrap(err, "PageService.Update: new gzip reader")
-		}
-		defer decodedBody.Close()
-		bodyReader = decodedBody
+	if result.error != "" {
+		return nil, errors.New(result.error)
 	}
-	respBodyBytes, err := io.ReadAll(bodyReader)
-	if err != nil {
-		return nil, errors.Wrap(err, "PageService.Update: read response body")
-	}
-	if err := json.Unmarshal(respBodyBytes, &response); err != nil {
-		if resp.StatusCode != http.StatusOK {
-			return nil, errors.Errorf("PageService.Update: (%d) %v", resp.StatusCode, string(respBodyBytes))
-		}
-		return nil, err
-	}
-	if response.Error != "" {
-		return nil, errors.New(response.Error)
-	}
-	return &response.Response, nil
+
+	return result, nil
 }
 
 type VideoService struct {
@@ -468,283 +229,108 @@ func NewVideoService(client *Client) *VideoService {
 }
 
 func (s *VideoService) Create(ctx context.Context, r *Video) (*Response, error) {
-	requestBodyBytes, err := json.Marshal(r)
-	if err != nil {
-		return nil, errors.Wrap(err, "VideoService.Create: marshal Video")
-	}
-	url := s.client.RemoteHost + "VideoService.Create"
-	s.client.Debug(fmt.Sprintf("POST %s", url))
-	s.client.Debug(fmt.Sprintf(">> %s", string(requestBodyBytes)))
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestBodyBytes))
-	if err != nil {
-		return nil, errors.Wrap(err, "VideoService.Create: NewRequest")
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept-Encoding", "gzip")
-	req = req.WithContext(ctx)
-	if s.client.BeforeRequest != nil {
-		err = s.client.BeforeRequest(req)
-		if err != nil {
-			// don't wrap this error, it belongs to the user
-			return nil, err
-		}
-	}
-	resp, err := s.client.HTTPClient.Do(req)
+	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "VideoService", "Create")
+	result := &Response{}
+	resp, err := s.client.Resty.R().
+		SetBody(r).
+		SetResult(result).
+		Post(url)
+
 	if err != nil {
 		return nil, errors.Wrap(err, "VideoService.Create")
 	}
-	defer resp.Body.Close()
-	var response struct {
-		Response
-		Error string
+	if resp.StatusCode() != http.StatusOK {
+		return nil, errors.Errorf("VideoService.Create: (%d) %v", resp.StatusCode(), string(resp.Body()))
 	}
-	var bodyReader io.Reader = resp.Body
-	if strings.Contains(resp.Header.Get("Content-Encoding"), "gzip") {
-		decodedBody, err := gzip.NewReader(resp.Body)
-		if err != nil {
-			return nil, errors.Wrap(err, "VideoService.Create: new gzip reader")
-		}
-		defer decodedBody.Close()
-		bodyReader = decodedBody
+	if result.error != "" {
+		return nil, errors.New(result.error)
 	}
-	respBodyBytes, err := io.ReadAll(bodyReader)
-	if err != nil {
-		return nil, errors.Wrap(err, "VideoService.Create: read response body")
-	}
-	if err := json.Unmarshal(respBodyBytes, &response); err != nil {
-		if resp.StatusCode != http.StatusOK {
-			return nil, errors.Errorf("VideoService.Create: (%d) %v", resp.StatusCode, string(respBodyBytes))
-		}
-		return nil, err
-	}
-	if response.Error != "" {
-		return nil, errors.New(response.Error)
-	}
-	return &response.Response, nil
+
+	return result, nil
 }
 
 func (s *VideoService) Delete(ctx context.Context, r *Request) (*Response, error) {
-	requestBodyBytes, err := json.Marshal(r)
-	if err != nil {
-		return nil, errors.Wrap(err, "VideoService.Delete: marshal Request")
-	}
-	url := s.client.RemoteHost + "VideoService.Delete"
-	s.client.Debug(fmt.Sprintf("POST %s", url))
-	s.client.Debug(fmt.Sprintf(">> %s", string(requestBodyBytes)))
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestBodyBytes))
-	if err != nil {
-		return nil, errors.Wrap(err, "VideoService.Delete: NewRequest")
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept-Encoding", "gzip")
-	req = req.WithContext(ctx)
-	if s.client.BeforeRequest != nil {
-		err = s.client.BeforeRequest(req)
-		if err != nil {
-			// don't wrap this error, it belongs to the user
-			return nil, err
-		}
-	}
-	resp, err := s.client.HTTPClient.Do(req)
+	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "VideoService", "Delete")
+	result := &Response{}
+	resp, err := s.client.Resty.R().
+		SetBody(r).
+		SetResult(result).
+		Post(url)
+
 	if err != nil {
 		return nil, errors.Wrap(err, "VideoService.Delete")
 	}
-	defer resp.Body.Close()
-	var response struct {
-		Response
-		Error string
+	if resp.StatusCode() != http.StatusOK {
+		return nil, errors.Errorf("VideoService.Delete: (%d) %v", resp.StatusCode(), string(resp.Body()))
 	}
-	var bodyReader io.Reader = resp.Body
-	if strings.Contains(resp.Header.Get("Content-Encoding"), "gzip") {
-		decodedBody, err := gzip.NewReader(resp.Body)
-		if err != nil {
-			return nil, errors.Wrap(err, "VideoService.Delete: new gzip reader")
-		}
-		defer decodedBody.Close()
-		bodyReader = decodedBody
+	if result.error != "" {
+		return nil, errors.New(result.error)
 	}
-	respBodyBytes, err := io.ReadAll(bodyReader)
-	if err != nil {
-		return nil, errors.Wrap(err, "VideoService.Delete: read response body")
-	}
-	if err := json.Unmarshal(respBodyBytes, &response); err != nil {
-		if resp.StatusCode != http.StatusOK {
-			return nil, errors.Errorf("VideoService.Delete: (%d) %v", resp.StatusCode, string(respBodyBytes))
-		}
-		return nil, err
-	}
-	if response.Error != "" {
-		return nil, errors.New(response.Error)
-	}
-	return &response.Response, nil
+
+	return result, nil
 }
 
 func (s *VideoService) Index(ctx context.Context, r *Request) (*Response, error) {
-	requestBodyBytes, err := json.Marshal(r)
-	if err != nil {
-		return nil, errors.Wrap(err, "VideoService.Index: marshal Request")
-	}
-	url := s.client.RemoteHost + "VideoService.Index"
-	s.client.Debug(fmt.Sprintf("POST %s", url))
-	s.client.Debug(fmt.Sprintf(">> %s", string(requestBodyBytes)))
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestBodyBytes))
-	if err != nil {
-		return nil, errors.Wrap(err, "VideoService.Index: NewRequest")
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept-Encoding", "gzip")
-	req = req.WithContext(ctx)
-	if s.client.BeforeRequest != nil {
-		err = s.client.BeforeRequest(req)
-		if err != nil {
-			// don't wrap this error, it belongs to the user
-			return nil, err
-		}
-	}
-	resp, err := s.client.HTTPClient.Do(req)
+	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "VideoService", "Index")
+	result := &Response{}
+	resp, err := s.client.Resty.R().
+		SetBody(r).
+		SetResult(result).
+		Post(url)
+
 	if err != nil {
 		return nil, errors.Wrap(err, "VideoService.Index")
 	}
-	defer resp.Body.Close()
-	var response struct {
-		Response
-		Error string
+	if resp.StatusCode() != http.StatusOK {
+		return nil, errors.Errorf("VideoService.Index: (%d) %v", resp.StatusCode(), string(resp.Body()))
 	}
-	var bodyReader io.Reader = resp.Body
-	if strings.Contains(resp.Header.Get("Content-Encoding"), "gzip") {
-		decodedBody, err := gzip.NewReader(resp.Body)
-		if err != nil {
-			return nil, errors.Wrap(err, "VideoService.Index: new gzip reader")
-		}
-		defer decodedBody.Close()
-		bodyReader = decodedBody
+	if result.error != "" {
+		return nil, errors.New(result.error)
 	}
-	respBodyBytes, err := io.ReadAll(bodyReader)
-	if err != nil {
-		return nil, errors.Wrap(err, "VideoService.Index: read response body")
-	}
-	if err := json.Unmarshal(respBodyBytes, &response); err != nil {
-		if resp.StatusCode != http.StatusOK {
-			return nil, errors.Errorf("VideoService.Index: (%d) %v", resp.StatusCode, string(respBodyBytes))
-		}
-		return nil, err
-	}
-	if response.Error != "" {
-		return nil, errors.New(response.Error)
-	}
-	return &response.Response, nil
+
+	return result, nil
 }
 
 func (s *VideoService) Show(ctx context.Context, r *Request) (*Response, error) {
-	requestBodyBytes, err := json.Marshal(r)
-	if err != nil {
-		return nil, errors.Wrap(err, "VideoService.Show: marshal Request")
-	}
-	url := s.client.RemoteHost + "VideoService.Show"
-	s.client.Debug(fmt.Sprintf("POST %s", url))
-	s.client.Debug(fmt.Sprintf(">> %s", string(requestBodyBytes)))
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestBodyBytes))
-	if err != nil {
-		return nil, errors.Wrap(err, "VideoService.Show: NewRequest")
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept-Encoding", "gzip")
-	req = req.WithContext(ctx)
-	if s.client.BeforeRequest != nil {
-		err = s.client.BeforeRequest(req)
-		if err != nil {
-			// don't wrap this error, it belongs to the user
-			return nil, err
-		}
-	}
-	resp, err := s.client.HTTPClient.Do(req)
+	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "VideoService", "Show")
+	result := &Response{}
+	resp, err := s.client.Resty.R().
+		SetBody(r).
+		SetResult(result).
+		Post(url)
+
 	if err != nil {
 		return nil, errors.Wrap(err, "VideoService.Show")
 	}
-	defer resp.Body.Close()
-	var response struct {
-		Response
-		Error string
+	if resp.StatusCode() != http.StatusOK {
+		return nil, errors.Errorf("VideoService.Show: (%d) %v", resp.StatusCode(), string(resp.Body()))
 	}
-	var bodyReader io.Reader = resp.Body
-	if strings.Contains(resp.Header.Get("Content-Encoding"), "gzip") {
-		decodedBody, err := gzip.NewReader(resp.Body)
-		if err != nil {
-			return nil, errors.Wrap(err, "VideoService.Show: new gzip reader")
-		}
-		defer decodedBody.Close()
-		bodyReader = decodedBody
+	if result.error != "" {
+		return nil, errors.New(result.error)
 	}
-	respBodyBytes, err := io.ReadAll(bodyReader)
-	if err != nil {
-		return nil, errors.Wrap(err, "VideoService.Show: read response body")
-	}
-	if err := json.Unmarshal(respBodyBytes, &response); err != nil {
-		if resp.StatusCode != http.StatusOK {
-			return nil, errors.Errorf("VideoService.Show: (%d) %v", resp.StatusCode, string(respBodyBytes))
-		}
-		return nil, err
-	}
-	if response.Error != "" {
-		return nil, errors.New(response.Error)
-	}
-	return &response.Response, nil
+
+	return result, nil
 }
 
 func (s *VideoService) Update(ctx context.Context, r *Video) (*Response, error) {
-	requestBodyBytes, err := json.Marshal(r)
-	if err != nil {
-		return nil, errors.Wrap(err, "VideoService.Update: marshal Video")
-	}
-	url := s.client.RemoteHost + "VideoService.Update"
-	s.client.Debug(fmt.Sprintf("POST %s", url))
-	s.client.Debug(fmt.Sprintf(">> %s", string(requestBodyBytes)))
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestBodyBytes))
-	if err != nil {
-		return nil, errors.Wrap(err, "VideoService.Update: NewRequest")
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept-Encoding", "gzip")
-	req = req.WithContext(ctx)
-	if s.client.BeforeRequest != nil {
-		err = s.client.BeforeRequest(req)
-		if err != nil {
-			// don't wrap this error, it belongs to the user
-			return nil, err
-		}
-	}
-	resp, err := s.client.HTTPClient.Do(req)
+	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "VideoService", "Update")
+	result := &Response{}
+	resp, err := s.client.Resty.R().
+		SetBody(r).
+		SetResult(result).
+		Post(url)
+
 	if err != nil {
 		return nil, errors.Wrap(err, "VideoService.Update")
 	}
-	defer resp.Body.Close()
-	var response struct {
-		Response
-		Error string
+	if resp.StatusCode() != http.StatusOK {
+		return nil, errors.Errorf("VideoService.Update: (%d) %v", resp.StatusCode(), string(resp.Body()))
 	}
-	var bodyReader io.Reader = resp.Body
-	if strings.Contains(resp.Header.Get("Content-Encoding"), "gzip") {
-		decodedBody, err := gzip.NewReader(resp.Body)
-		if err != nil {
-			return nil, errors.Wrap(err, "VideoService.Update: new gzip reader")
-		}
-		defer decodedBody.Close()
-		bodyReader = decodedBody
+	if result.error != "" {
+		return nil, errors.New(result.error)
 	}
-	respBodyBytes, err := io.ReadAll(bodyReader)
-	if err != nil {
-		return nil, errors.Wrap(err, "VideoService.Update: read response body")
-	}
-	if err := json.Unmarshal(respBodyBytes, &response); err != nil {
-		if resp.StatusCode != http.StatusOK {
-			return nil, errors.Errorf("VideoService.Update: (%d) %v", resp.StatusCode, string(respBodyBytes))
-		}
-		return nil, err
-	}
-	if response.Error != "" {
-		return nil, errors.New(response.Error)
-	}
-	return &response.Response, nil
+
+	return result, nil
 }
 
 type VisitService struct {
@@ -759,283 +345,108 @@ func NewVisitService(client *Client) *VisitService {
 }
 
 func (s *VisitService) Create(ctx context.Context, r *Visit) (*Response, error) {
-	requestBodyBytes, err := json.Marshal(r)
-	if err != nil {
-		return nil, errors.Wrap(err, "VisitService.Create: marshal Visit")
-	}
-	url := s.client.RemoteHost + "VisitService.Create"
-	s.client.Debug(fmt.Sprintf("POST %s", url))
-	s.client.Debug(fmt.Sprintf(">> %s", string(requestBodyBytes)))
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestBodyBytes))
-	if err != nil {
-		return nil, errors.Wrap(err, "VisitService.Create: NewRequest")
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept-Encoding", "gzip")
-	req = req.WithContext(ctx)
-	if s.client.BeforeRequest != nil {
-		err = s.client.BeforeRequest(req)
-		if err != nil {
-			// don't wrap this error, it belongs to the user
-			return nil, err
-		}
-	}
-	resp, err := s.client.HTTPClient.Do(req)
+	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "VisitService", "Create")
+	result := &Response{}
+	resp, err := s.client.Resty.R().
+		SetBody(r).
+		SetResult(result).
+		Post(url)
+
 	if err != nil {
 		return nil, errors.Wrap(err, "VisitService.Create")
 	}
-	defer resp.Body.Close()
-	var response struct {
-		Response
-		Error string
+	if resp.StatusCode() != http.StatusOK {
+		return nil, errors.Errorf("VisitService.Create: (%d) %v", resp.StatusCode(), string(resp.Body()))
 	}
-	var bodyReader io.Reader = resp.Body
-	if strings.Contains(resp.Header.Get("Content-Encoding"), "gzip") {
-		decodedBody, err := gzip.NewReader(resp.Body)
-		if err != nil {
-			return nil, errors.Wrap(err, "VisitService.Create: new gzip reader")
-		}
-		defer decodedBody.Close()
-		bodyReader = decodedBody
+	if result.error != "" {
+		return nil, errors.New(result.error)
 	}
-	respBodyBytes, err := io.ReadAll(bodyReader)
-	if err != nil {
-		return nil, errors.Wrap(err, "VisitService.Create: read response body")
-	}
-	if err := json.Unmarshal(respBodyBytes, &response); err != nil {
-		if resp.StatusCode != http.StatusOK {
-			return nil, errors.Errorf("VisitService.Create: (%d) %v", resp.StatusCode, string(respBodyBytes))
-		}
-		return nil, err
-	}
-	if response.Error != "" {
-		return nil, errors.New(response.Error)
-	}
-	return &response.Response, nil
+
+	return result, nil
 }
 
 func (s *VisitService) Delete(ctx context.Context, r *Request) (*Response, error) {
-	requestBodyBytes, err := json.Marshal(r)
-	if err != nil {
-		return nil, errors.Wrap(err, "VisitService.Delete: marshal Request")
-	}
-	url := s.client.RemoteHost + "VisitService.Delete"
-	s.client.Debug(fmt.Sprintf("POST %s", url))
-	s.client.Debug(fmt.Sprintf(">> %s", string(requestBodyBytes)))
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestBodyBytes))
-	if err != nil {
-		return nil, errors.Wrap(err, "VisitService.Delete: NewRequest")
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept-Encoding", "gzip")
-	req = req.WithContext(ctx)
-	if s.client.BeforeRequest != nil {
-		err = s.client.BeforeRequest(req)
-		if err != nil {
-			// don't wrap this error, it belongs to the user
-			return nil, err
-		}
-	}
-	resp, err := s.client.HTTPClient.Do(req)
+	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "VisitService", "Delete")
+	result := &Response{}
+	resp, err := s.client.Resty.R().
+		SetBody(r).
+		SetResult(result).
+		Post(url)
+
 	if err != nil {
 		return nil, errors.Wrap(err, "VisitService.Delete")
 	}
-	defer resp.Body.Close()
-	var response struct {
-		Response
-		Error string
+	if resp.StatusCode() != http.StatusOK {
+		return nil, errors.Errorf("VisitService.Delete: (%d) %v", resp.StatusCode(), string(resp.Body()))
 	}
-	var bodyReader io.Reader = resp.Body
-	if strings.Contains(resp.Header.Get("Content-Encoding"), "gzip") {
-		decodedBody, err := gzip.NewReader(resp.Body)
-		if err != nil {
-			return nil, errors.Wrap(err, "VisitService.Delete: new gzip reader")
-		}
-		defer decodedBody.Close()
-		bodyReader = decodedBody
+	if result.error != "" {
+		return nil, errors.New(result.error)
 	}
-	respBodyBytes, err := io.ReadAll(bodyReader)
-	if err != nil {
-		return nil, errors.Wrap(err, "VisitService.Delete: read response body")
-	}
-	if err := json.Unmarshal(respBodyBytes, &response); err != nil {
-		if resp.StatusCode != http.StatusOK {
-			return nil, errors.Errorf("VisitService.Delete: (%d) %v", resp.StatusCode, string(respBodyBytes))
-		}
-		return nil, err
-	}
-	if response.Error != "" {
-		return nil, errors.New(response.Error)
-	}
-	return &response.Response, nil
+
+	return result, nil
 }
 
 func (s *VisitService) Index(ctx context.Context, r *Request) (*Response, error) {
-	requestBodyBytes, err := json.Marshal(r)
-	if err != nil {
-		return nil, errors.Wrap(err, "VisitService.Index: marshal Request")
-	}
-	url := s.client.RemoteHost + "VisitService.Index"
-	s.client.Debug(fmt.Sprintf("POST %s", url))
-	s.client.Debug(fmt.Sprintf(">> %s", string(requestBodyBytes)))
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestBodyBytes))
-	if err != nil {
-		return nil, errors.Wrap(err, "VisitService.Index: NewRequest")
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept-Encoding", "gzip")
-	req = req.WithContext(ctx)
-	if s.client.BeforeRequest != nil {
-		err = s.client.BeforeRequest(req)
-		if err != nil {
-			// don't wrap this error, it belongs to the user
-			return nil, err
-		}
-	}
-	resp, err := s.client.HTTPClient.Do(req)
+	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "VisitService", "Index")
+	result := &Response{}
+	resp, err := s.client.Resty.R().
+		SetBody(r).
+		SetResult(result).
+		Post(url)
+
 	if err != nil {
 		return nil, errors.Wrap(err, "VisitService.Index")
 	}
-	defer resp.Body.Close()
-	var response struct {
-		Response
-		Error string
+	if resp.StatusCode() != http.StatusOK {
+		return nil, errors.Errorf("VisitService.Index: (%d) %v", resp.StatusCode(), string(resp.Body()))
 	}
-	var bodyReader io.Reader = resp.Body
-	if strings.Contains(resp.Header.Get("Content-Encoding"), "gzip") {
-		decodedBody, err := gzip.NewReader(resp.Body)
-		if err != nil {
-			return nil, errors.Wrap(err, "VisitService.Index: new gzip reader")
-		}
-		defer decodedBody.Close()
-		bodyReader = decodedBody
+	if result.error != "" {
+		return nil, errors.New(result.error)
 	}
-	respBodyBytes, err := io.ReadAll(bodyReader)
-	if err != nil {
-		return nil, errors.Wrap(err, "VisitService.Index: read response body")
-	}
-	if err := json.Unmarshal(respBodyBytes, &response); err != nil {
-		if resp.StatusCode != http.StatusOK {
-			return nil, errors.Errorf("VisitService.Index: (%d) %v", resp.StatusCode, string(respBodyBytes))
-		}
-		return nil, err
-	}
-	if response.Error != "" {
-		return nil, errors.New(response.Error)
-	}
-	return &response.Response, nil
+
+	return result, nil
 }
 
 func (s *VisitService) Show(ctx context.Context, r *Request) (*Response, error) {
-	requestBodyBytes, err := json.Marshal(r)
-	if err != nil {
-		return nil, errors.Wrap(err, "VisitService.Show: marshal Request")
-	}
-	url := s.client.RemoteHost + "VisitService.Show"
-	s.client.Debug(fmt.Sprintf("POST %s", url))
-	s.client.Debug(fmt.Sprintf(">> %s", string(requestBodyBytes)))
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestBodyBytes))
-	if err != nil {
-		return nil, errors.Wrap(err, "VisitService.Show: NewRequest")
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept-Encoding", "gzip")
-	req = req.WithContext(ctx)
-	if s.client.BeforeRequest != nil {
-		err = s.client.BeforeRequest(req)
-		if err != nil {
-			// don't wrap this error, it belongs to the user
-			return nil, err
-		}
-	}
-	resp, err := s.client.HTTPClient.Do(req)
+	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "VisitService", "Show")
+	result := &Response{}
+	resp, err := s.client.Resty.R().
+		SetBody(r).
+		SetResult(result).
+		Post(url)
+
 	if err != nil {
 		return nil, errors.Wrap(err, "VisitService.Show")
 	}
-	defer resp.Body.Close()
-	var response struct {
-		Response
-		Error string
+	if resp.StatusCode() != http.StatusOK {
+		return nil, errors.Errorf("VisitService.Show: (%d) %v", resp.StatusCode(), string(resp.Body()))
 	}
-	var bodyReader io.Reader = resp.Body
-	if strings.Contains(resp.Header.Get("Content-Encoding"), "gzip") {
-		decodedBody, err := gzip.NewReader(resp.Body)
-		if err != nil {
-			return nil, errors.Wrap(err, "VisitService.Show: new gzip reader")
-		}
-		defer decodedBody.Close()
-		bodyReader = decodedBody
+	if result.error != "" {
+		return nil, errors.New(result.error)
 	}
-	respBodyBytes, err := io.ReadAll(bodyReader)
-	if err != nil {
-		return nil, errors.Wrap(err, "VisitService.Show: read response body")
-	}
-	if err := json.Unmarshal(respBodyBytes, &response); err != nil {
-		if resp.StatusCode != http.StatusOK {
-			return nil, errors.Errorf("VisitService.Show: (%d) %v", resp.StatusCode, string(respBodyBytes))
-		}
-		return nil, err
-	}
-	if response.Error != "" {
-		return nil, errors.New(response.Error)
-	}
-	return &response.Response, nil
+
+	return result, nil
 }
 
 func (s *VisitService) Update(ctx context.Context, r *Visit) (*Response, error) {
-	requestBodyBytes, err := json.Marshal(r)
-	if err != nil {
-		return nil, errors.Wrap(err, "VisitService.Update: marshal Visit")
-	}
-	url := s.client.RemoteHost + "VisitService.Update"
-	s.client.Debug(fmt.Sprintf("POST %s", url))
-	s.client.Debug(fmt.Sprintf(">> %s", string(requestBodyBytes)))
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestBodyBytes))
-	if err != nil {
-		return nil, errors.Wrap(err, "VisitService.Update: NewRequest")
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept-Encoding", "gzip")
-	req = req.WithContext(ctx)
-	if s.client.BeforeRequest != nil {
-		err = s.client.BeforeRequest(req)
-		if err != nil {
-			// don't wrap this error, it belongs to the user
-			return nil, err
-		}
-	}
-	resp, err := s.client.HTTPClient.Do(req)
+	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "VisitService", "Update")
+	result := &Response{}
+	resp, err := s.client.Resty.R().
+		SetBody(r).
+		SetResult(result).
+		Post(url)
+
 	if err != nil {
 		return nil, errors.Wrap(err, "VisitService.Update")
 	}
-	defer resp.Body.Close()
-	var response struct {
-		Response
-		Error string
+	if resp.StatusCode() != http.StatusOK {
+		return nil, errors.Errorf("VisitService.Update: (%d) %v", resp.StatusCode(), string(resp.Body()))
 	}
-	var bodyReader io.Reader = resp.Body
-	if strings.Contains(resp.Header.Get("Content-Encoding"), "gzip") {
-		decodedBody, err := gzip.NewReader(resp.Body)
-		if err != nil {
-			return nil, errors.Wrap(err, "VisitService.Update: new gzip reader")
-		}
-		defer decodedBody.Close()
-		bodyReader = decodedBody
+	if result.error != "" {
+		return nil, errors.New(result.error)
 	}
-	respBodyBytes, err := io.ReadAll(bodyReader)
-	if err != nil {
-		return nil, errors.Wrap(err, "VisitService.Update: read response body")
-	}
-	if err := json.Unmarshal(respBodyBytes, &response); err != nil {
-		if resp.StatusCode != http.StatusOK {
-			return nil, errors.Errorf("VisitService.Update: (%d) %v", resp.StatusCode, string(respBodyBytes))
-		}
-		return nil, err
-	}
-	if response.Error != "" {
-		return nil, errors.New(response.Error)
-	}
-	return &response.Response, nil
+
+	return result, nil
 }
 
 // Job tracks jobs in the system
@@ -1058,6 +469,8 @@ type JobAttempt struct {
 	Duration float64 `json:"duration"`
 
 	Status string `json:"status"`
+
+	error string `json:"-"`
 
 	Stacktrace []string `json:"stacktrace"`
 }
@@ -1085,6 +498,9 @@ type Response struct {
 	Total int64 `json:"total"`
 
 	Results interface{} `json:"results"`
+
+	// Error is string explaining what went wrong. Empty if everything was fine.
+	error string `json:"-"`
 }
 
 // Video represents a video to be downloaded

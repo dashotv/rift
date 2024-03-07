@@ -15,6 +15,7 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
+	"github.com/go-resty/resty/v2"
 	<%= for (importPath, name) in def.Imports { %><%= name %> "<%= importPath %>"
 	<% } %>
 )
@@ -24,23 +25,29 @@ type Client struct {
 	// RemoteHost is the URL of the remote server that this Client should
 	// access.
 	RemoteHost  string
-	// HTTPClient is the http.Client to use when making HTTP requests.
-	HTTPClient 	*http.Client
-	// BeforeRequest is an optional hook that gives you the opportunity
-	// to inspect or modify the request before it is made.
-	// Useful for adding auth headers, for example.
-	BeforeRequest func(r *http.Request) error
-	// Debug writes a line of debug log output.
-	Debug func(s string)
+	// Debug enables debug on Resty client
+	Debug bool
+	// Resty
+	Resty *resty.Client
+
+<%= for (service) in def.Services { %><%= service.Name %> *<%= service.Name %>
+<% } %>
+}
+
+// Set the debug flag
+func (c *Client) SetDebug(debug bool) {
+	c.Debug = debug
+	c.Resty.SetDebug(debug)
 }
 
 // New makes a new Client.
 func New(remoteHost string) *Client {
 	c := &Client{
 		RemoteHost: remoteHost,
-		Debug: func(s string) {},
-		HTTPClient: &http.Client{Timeout:10*time.Second},
+		Resty: resty.New(),
 	}
+<%= for (service) in def.Services { %>c.<%= service.Name %> = New<%= service.Name %>(c)
+<% } %>
 	return c
 }
 
@@ -58,59 +65,24 @@ func New<%= service.Name %>(client *Client) *<%= service.Name %> {
 
 <%= for (method) in service.Methods { %>
 <%= format_comment_text(method.Comment) %>func (s *<%= service.Name %>) <%= method.Name %>(ctx context.Context, r *<%= method.InputObject.TypeName %>) (*<%= method.OutputObject.TypeName %>, error) {
-	requestBodyBytes, err := json.Marshal(r)
-	if err != nil {
-		return nil, errors.Wrap(err, "<%= service.Name %>.<%= method.Name %>: marshal <%= method.InputObject.TypeName %>")
-	}
-	url := s.client.RemoteHost + "<%= service.Name %>.<%= method.Name %>"
-	s.client.Debug(fmt.Sprintf("POST %s", url))
-	s.client.Debug(fmt.Sprintf(">> %s", string(requestBodyBytes)))
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestBodyBytes))
-	if err != nil {
-		return nil, errors.Wrap(err, "<%= service.Name %>.<%= method.Name %>: NewRequest")
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept-Encoding", "gzip")
-	req = req.WithContext(ctx)
-	if s.client.BeforeRequest != nil {
-		err = s.client.BeforeRequest(req)
-		if err != nil {
-			// don't wrap this error, it belongs to the user
-			return nil, err
-		}
-	}
-	resp, err := s.client.HTTPClient.Do(req)
+	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "<%= service.Name %>", "<%= method.Name %>")
+	result := &<%= method.OutputObject.TypeName %>{}
+	resp, err := s.client.Resty.R().
+      SetBody(r).
+      SetResult(result).
+      Post(url)
+
 	if err != nil {
 		return nil, errors.Wrap(err, "<%= service.Name %>.<%= method.Name %>")
 	}
-	defer resp.Body.Close()
-	var response struct {
-		<%= method.OutputObject.TypeName %>
-		Error string
+	if resp.StatusCode() != http.StatusOK {
+		return nil, errors.Errorf("<%= service.Name %>.<%= method.Name %>: (%d) %v", resp.StatusCode(), string(resp.Body()))
 	}
-	var bodyReader io.Reader = resp.Body
-	if strings.Contains(resp.Header.Get("Content-Encoding"), "gzip") {
-		decodedBody, err := gzip.NewReader(resp.Body)
-		if err != nil {
-			return nil, errors.Wrap(err, "<%= service.Name %>.<%= method.Name %>: new gzip reader")
-		}
-		defer decodedBody.Close()
-		bodyReader = decodedBody
+	if result.error != "" {
+		return nil, errors.New(result.error)
 	}
-	respBodyBytes, err := io.ReadAll(bodyReader)
-	if err != nil {
-		return nil, errors.Wrap(err, "<%= service.Name %>.<%= method.Name %>: read response body")
-	}
-	if err := json.Unmarshal(respBodyBytes, &response); err != nil {
-		if resp.StatusCode != http.StatusOK {
-			return nil, errors.Errorf("<%= service.Name %>.<%= method.Name %>: (%d) %v", resp.StatusCode, string(respBodyBytes))
-		}
-		return nil, err
-	}
-	if response.Error != "" {
-		return nil, errors.New(response.Error)
-	}
-	return &response.<%= method.OutputObject.TypeName %>, nil
+
+	return result, nil
 }
 <% } %>
 <% } %>
@@ -119,9 +91,7 @@ func New<%= service.Name %>(client *Client) *<%= service.Name %> {
 	<%= if (!object.Imported) { %>
 		<%= format_comment_text(object.Comment) %>type <%= object.Name %> struct {
 			<%= for (field) in object.Fields { %>
-				<%= if (field.Name != "Error") { %>
- 					<%= format_comment_text(field.Comment) %><%= field.Name %> <%= if (field.Type.Multiple == true) { %>[]<% } %><%= field.Type.TypeName %> `json:"<%= field.NameLowerCamel %><%= if (field.OmitEmpty) { %>,omitempty<% } %>"`
-				<% } %>
+				<%= if (field.Name != "Error") { %><%= format_comment_text(field.Comment) %><%= field.Name %> <%= if (field.Type.Multiple == true) { %>[]<% } %><%= field.Type.TypeName %> `json:"<%= field.NameLowerCamel %><%= if (fld.OmitEmpty) { %>,omitempty<% } %>"` <% } else { %><%= format_comment_text(field.Comment) %>error string `json:"-"`<% } %>
 			<% } %>
 		}
 	<% } %>

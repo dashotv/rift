@@ -72,7 +72,7 @@ type Job struct { // model
 	//ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	//CreatedAt time.Time          `bson:"created_at" json:"created_at"`
 	//UpdatedAt time.Time          `bson:"updated_at" json:"updated_at"`
-	Kind     string        `json:"kind" bson:"kind" `
+	Kind     string        `bson:"kind" json:"kind" `
 	Args     string        `json:"args" bson:"args" `
 	Status   string        `json:"status" bson:"status" `
 	Queue    string        `json:"queue" bson:"queue" `
@@ -123,10 +123,10 @@ type Video struct { // model
 	Season     int    `json:"season" bson:"season" grimoire:"index" `
 	Episode    int    `json:"episode" bson:"episode" grimoire:"index" `
 	Raw        string `json:"raw" bson:"raw" `
-	DisplayID  string `bson:"display_id" grimoire:"index" json:"display_id" `
-	Extension  string `json:"extension" bson:"extension" `
+	DisplayID  string `json:"display_id" bson:"display_id" grimoire:"index" `
+	Extension  string `bson:"extension" json:"extension" `
 	Resolution int    `json:"resolution" bson:"resolution" `
-	Size       int64  `json:"size" bson:"size" `
+	Size       int64  `bson:"size" json:"size" `
 	Download   string `json:"download" bson:"download" `
 	View       string `json:"view" bson:"view" `
 	Source     string `json:"source" bson:"source" `
