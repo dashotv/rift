@@ -3,7 +3,7 @@ package scraper
 import (
 	"fmt"
 
-	"github.com/gocolly/colly"
+	"github.com/gocolly/colly/v2"
 )
 
 func NewMyAnime() *MyAnime {
