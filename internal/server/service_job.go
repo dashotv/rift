@@ -32,6 +32,7 @@ func (s *jobService) Index(c echo.Context, req *Request) (*JobsResponse, error) 
 }
 
 func (s *jobService) Create(c echo.Context, req *Request) (*JobResponse, error) {
+	s.log.Infof("job create: %+v", req)
 	id := req.ID
 	switch id {
 	case "scrape_all":
@@ -39,7 +40,7 @@ func (s *jobService) Create(c echo.Context, req *Request) (*JobResponse, error) 
 			return nil, err
 		}
 	default:
-		return nil, errors.New("unknown job")
+		return nil, errors.New("unknown job:" + id)
 	}
 	return &JobResponse{Job: &Job{Kind: id}}, nil
 }

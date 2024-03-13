@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os/exec"
+	"strings"
 
 	"github.com/dashotv/minion"
 )
@@ -108,7 +109,7 @@ func (j *YtdlpParseJob) Work(ctx context.Context, job *minion.Job[*YtdlpParseJob
 	source := job.Args.Source
 	info := job.Args.Info
 
-	l.Warnf("%s %d %s [%s] %s", info.Fulltitle, info.Height, info.EXT, info.DisplayID, info.URL)
+	l.Warnf("%s %d %s [%s] URL:%s", info.Fulltitle, info.Height, info.EXT, info.DisplayID, info.URL)
 
 	count, err := s.db.Video.Query().Where("display_id", info.DisplayID).Count()
 	if err != nil {
@@ -135,6 +136,10 @@ func (j *YtdlpParseJob) Work(ctx context.Context, job *minion.Job[*YtdlpParseJob
 	video.View = info.WebpageURL
 	video.Size = info.FilesizeApprox
 	video.Source = source
+
+	if video.Download == "" && strings.Contains(info.WebpageURL, "youtube") {
+		video.Download = info.WebpageURL
+	}
 
 	if err := s.db.Video.Save(video); err != nil {
 		return fmt.Errorf("saving: %w", err)
