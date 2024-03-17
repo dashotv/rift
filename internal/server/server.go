@@ -48,9 +48,6 @@ func New() (*Server, error) {
 	if err := setupWorkers(s); err != nil {
 		return nil, err
 	}
-	if err := setupWorkers(s); err != nil {
-		return nil, err
-	}
 
 	setupRouter(s)
 
