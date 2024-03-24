@@ -58,9 +58,6 @@ func setupWorkers(s *Server) error {
 	if err := minion.RegisterWithQueue(m, &YtdlpListJob{}, "scraper"); err != nil {
 		return errors.Wrap(err, "registering worker: ytdlp_list (YtdlpListJob)")
 	}
-	if err := minion.Register(m, &YtdlpInfoJob{}); err != nil {
-		return errors.Wrap(err, "registering worker: ytdlp_info (YtdlpInfoJob)")
-	}
 	if err := minion.Register(m, &YtdlpParseJob{}); err != nil {
 		return errors.Wrap(err, "registering worker: ytdlp_parse (YtdlpParseJob)")
 	}

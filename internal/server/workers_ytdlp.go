@@ -2,10 +2,7 @@ package server
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"os/exec"
-	"strings"
 
 	"github.com/dashotv/minion"
 )
@@ -23,76 +20,59 @@ func (j *YtdlpListJob) Work(ctx context.Context, job *minion.Job[*YtdlpListJob])
 	name := job.Args.Name
 	url := job.Args.URL
 
-	l.Warn(url)
-	cmd := exec.Command("yt-dlp", "--skip-download", "--no-warning", "--flat-playlist", "--dump-single-json", url)
-	out, err := cmd.Output()
+	list, err := ProcessURL(url)
 	if err != nil {
 		return fmt.Errorf("ytdlp-list: %s", err)
 	}
 
-	// l.Warn(out)
-	list := &YtdlpList{}
-	if err = json.Unmarshal(out, list); err != nil {
-		return fmt.Errorf("ytdlp-list: %s", err)
-	}
-
-	if list.Type == "video" {
-		info := &YtdlpInfo{}
-		if err = json.Unmarshal(out, info); err != nil {
-			return fmt.Errorf("ytdlp-list: %s", err)
-		}
-		if err := s.bg.Enqueue(&YtdlpParseJob{Name: name, Source: url, Info: info}); err != nil {
-			return fmt.Errorf("ytdlp-list: enqueuing ytdlp_parse: %w", err)
-		}
-		return nil
-	}
-
-	if len(list.Entries) == 0 {
+	if len(list) == 0 {
 		return fmt.Errorf("ytdlp-list: no entries")
 	}
 
-	for _, e := range list.Entries {
-		if err := s.bg.Enqueue(&YtdlpInfoJob{Name: name, Source: url, URL: e.URL}); err != nil {
-			return fmt.Errorf("ytdlp-list: enqueuing ytdlp_info: %w", err)
+	for _, e := range list {
+		l.Warnf("ytdlp-list: %s", e.URL)
+		if err := s.bg.Enqueue(&YtdlpParseJob{Name: name, Source: "myanime", Info: e}); err != nil {
+			return fmt.Errorf("ytdlp-list: enqueuing ytdlp_parse: %w", err)
 		}
 	}
+
 	return nil
 }
 
-type YtdlpInfoJob struct {
-	minion.WorkerDefaults[*YtdlpInfoJob]
-	Name   string
-	Source string
-	URL    string
-}
-
-func (j *YtdlpInfoJob) Kind() string { return "ytdlp_info" }
-func (j *YtdlpInfoJob) Work(ctx context.Context, job *minion.Job[*YtdlpInfoJob]) error {
-	s := getServer(ctx)
-	l := s.Logger.Named("ytdlp.info")
-
-	name := job.Args.Name
-	url := job.Args.URL
-	source := job.Args.Source
-
-	l.Warn(url)
-	cmd := exec.Command("yt-dlp", "--skip-download", "--no-warning", "--dump-single-json", url)
-	out, err := cmd.Output()
-	if err != nil {
-		return fmt.Errorf("ytdlp-info: %s", err)
-	}
-
-	// c.logger.Warnf("yt-dlp info: %s", out)
-	info := &YtdlpInfo{}
-	if err = json.Unmarshal(out, info); err != nil {
-		return fmt.Errorf("ytdlp-info: %s", err)
-	}
-
-	if err := s.bg.Enqueue(&YtdlpParseJob{Name: name, Source: source, Info: info}); err != nil {
-		return fmt.Errorf("ytdlp-info: enqueuing ytdlp_parse: %w", err)
-	}
-	return nil
-}
+// type YtdlpInfoJob struct {
+// 	minion.WorkerDefaults[*YtdlpInfoJob]
+// 	Name   string
+// 	Source string
+// 	URL    string
+// }
+//
+// func (j *YtdlpInfoJob) Kind() string { return "ytdlp_info" }
+// func (j *YtdlpInfoJob) Work(ctx context.Context, job *minion.Job[*YtdlpInfoJob]) error {
+// 	s := getServer(ctx)
+// 	l := s.Logger.Named("ytdlp.info")
+//
+// 	name := job.Args.Name
+// 	url := job.Args.URL
+// 	source := job.Args.Source
+//
+// 	l.Warn(url)
+// 	cmd := exec.Command("yt-dlp", "--skip-download", "--no-warning", "--dump-single-json", url)
+// 	out, err := cmd.Output()
+// 	if err != nil {
+// 		return fmt.Errorf("ytdlp-info: %s", err)
+// 	}
+//
+// 	// c.logger.Warnf("yt-dlp info: %s", out)
+// 	info := &YtdlpInfo{}
+// 	if err = json.Unmarshal(out, info); err != nil {
+// 		return fmt.Errorf("ytdlp-info: %s", err)
+// 	}
+//
+// 	if err := s.bg.Enqueue(&YtdlpParseJob{Name: name, Source: source, Info: info}); err != nil {
+// 		return fmt.Errorf("ytdlp-info: enqueuing ytdlp_parse: %w", err)
+// 	}
+// 	return nil
+// }
 
 type YtdlpParseJob struct {
 	minion.WorkerDefaults[*YtdlpParseJob]
@@ -109,7 +89,7 @@ func (j *YtdlpParseJob) Work(ctx context.Context, job *minion.Job[*YtdlpParseJob
 	source := job.Args.Source
 	info := job.Args.Info
 
-	l.Warnf("%s %d %s [%s] URL:%s", info.Fulltitle, info.Height, info.EXT, info.DisplayID, info.URL)
+	l.Warnf("%s %d %s [%s] URL:%s", info.Fulltitle, info.Height, info.EXT, info.DisplayID, info.WebpageURL)
 
 	count, err := s.db.Video.Query().Where("display_id", info.DisplayID).Count()
 	if err != nil {
@@ -132,14 +112,10 @@ func (j *YtdlpParseJob) Work(ctx context.Context, job *minion.Job[*YtdlpParseJob
 	video.Resolution = int(info.Height)
 	video.Extension = info.EXT
 	video.DisplayID = info.DisplayID
-	video.Download = info.URL
+	video.Download = info.WebpageURL
 	video.View = info.WebpageURL
 	video.Size = info.FilesizeApprox
 	video.Source = source
-
-	if video.Download == "" && strings.Contains(info.WebpageURL, "youtube") {
-		video.Download = info.WebpageURL
-	}
 
 	if err := s.db.Video.Save(video); err != nil {
 		return fmt.Errorf("saving: %w", err)
