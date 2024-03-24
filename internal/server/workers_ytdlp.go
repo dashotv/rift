@@ -16,63 +16,28 @@ type YtdlpListJob struct {
 func (j *YtdlpListJob) Kind() string { return "ytdlp_list" }
 func (j *YtdlpListJob) Work(ctx context.Context, job *minion.Job[*YtdlpListJob]) error {
 	s := getServer(ctx)
-	l := s.Logger.Named("ytdlp.list")
+	// l := s.Logger.Named("ytdlp.list")
 	name := job.Args.Name
 	url := job.Args.URL
 
 	list, err := ProcessURL(url)
 	if err != nil {
-		return fmt.Errorf("ytdlp-list: %s", err)
+		return fmt.Errorf("ytdlp-list: %s %s: %s", name, url, err)
 	}
 
 	if len(list) == 0 {
-		return fmt.Errorf("ytdlp-list: no entries")
+		return fmt.Errorf("ytdlp-list: %s %s: no entries", name, url)
 	}
 
 	for _, e := range list {
-		l.Warnf("ytdlp-list: %s", e.URL)
+		// l.Warnf("ytdlp-list: %s", e.WebpageURL)
 		if err := s.bg.Enqueue(&YtdlpParseJob{Name: name, Source: "myanime", Info: e}); err != nil {
-			return fmt.Errorf("ytdlp-list: enqueuing ytdlp_parse: %w", err)
+			return fmt.Errorf("ytdlp-list: info: %s: %w", e.WebpageURL, err)
 		}
 	}
 
 	return nil
 }
-
-// type YtdlpInfoJob struct {
-// 	minion.WorkerDefaults[*YtdlpInfoJob]
-// 	Name   string
-// 	Source string
-// 	URL    string
-// }
-//
-// func (j *YtdlpInfoJob) Kind() string { return "ytdlp_info" }
-// func (j *YtdlpInfoJob) Work(ctx context.Context, job *minion.Job[*YtdlpInfoJob]) error {
-// 	s := getServer(ctx)
-// 	l := s.Logger.Named("ytdlp.info")
-//
-// 	name := job.Args.Name
-// 	url := job.Args.URL
-// 	source := job.Args.Source
-//
-// 	l.Warn(url)
-// 	cmd := exec.Command("yt-dlp", "--skip-download", "--no-warning", "--dump-single-json", url)
-// 	out, err := cmd.Output()
-// 	if err != nil {
-// 		return fmt.Errorf("ytdlp-info: %s", err)
-// 	}
-//
-// 	// c.logger.Warnf("yt-dlp info: %s", out)
-// 	info := &YtdlpInfo{}
-// 	if err = json.Unmarshal(out, info); err != nil {
-// 		return fmt.Errorf("ytdlp-info: %s", err)
-// 	}
-//
-// 	if err := s.bg.Enqueue(&YtdlpParseJob{Name: name, Source: source, Info: info}); err != nil {
-// 		return fmt.Errorf("ytdlp-info: enqueuing ytdlp_parse: %w", err)
-// 	}
-// 	return nil
-// }
 
 type YtdlpParseJob struct {
 	minion.WorkerDefaults[*YtdlpParseJob]
@@ -84,12 +49,12 @@ type YtdlpParseJob struct {
 func (j *YtdlpParseJob) Kind() string { return "ytdlp_parse" }
 func (j *YtdlpParseJob) Work(ctx context.Context, job *minion.Job[*YtdlpParseJob]) error {
 	s := getServer(ctx)
-	l := s.Logger.Named("ytdlp.parse")
+	// l := s.Logger.Named("ytdlp.parse")
 	name := job.Args.Name
 	source := job.Args.Source
 	info := job.Args.Info
 
-	l.Warnf("%s %d %s [%s] URL:%s", info.Fulltitle, info.Height, info.EXT, info.DisplayID, info.WebpageURL)
+	// l.Warnf("%s %d %s [%s] URL:%s", info.Fulltitle, info.Height, info.EXT, info.DisplayID, info.WebpageURL)
 
 	count, err := s.db.Video.Query().Where("display_id", info.DisplayID).Count()
 	if err != nil {
@@ -123,140 +88,6 @@ func (j *YtdlpParseJob) Work(ctx context.Context, job *minion.Job[*YtdlpParseJob
 
 	return nil
 }
-
-// func (c *Workers) YtdlpListJob(name, url string) JobFunc {
-// 	return func() error {
-// 		cmd := exec.Command("yt-dlp", "--skip-download", "--no-warning", "--flat-playlist", "--dump-single-json", url)
-// 		out, err := cmd.Output()
-// 		if err != nil {
-// 			return fmt.Errorf("ytdlp-list: %s", err)
-// 		}
-//
-// 		// c.logger.Warnf("yt-dlp list: %s", out)
-// 		list := &YtdlpList{}
-// 		if err = json.Unmarshal(out, list); err != nil {
-// 			return fmt.Errorf("ytdlp-list: %s", err)
-// 		}
-//
-// 		if len(list.Entries) == 0 {
-// 			return fmt.Errorf("ytdlp-list: no entries")
-// 		}
-//
-// 		for _, e := range list.Entries {
-// 			c.logger.Debugf("ytdlp-list: %s", e.URL)
-// 			c.Enqueue(c.YtdlpInfoJob(name, url, e.URL))
-// 		}
-// 		return nil
-// 	}
-// }
-//
-// func (c *Workers) YtdlpInfoJob(name, source, url string) JobFunc {
-// 	return func() error {
-// 		cmd := exec.Command("yt-dlp", "--skip-download", "--no-warning", "--dump-single-json", url)
-// 		out, err := cmd.Output()
-// 		if err != nil {
-// 			return fmt.Errorf("ytdlp-info: %s", err)
-// 		}
-//
-// 		// c.logger.Warnf("yt-dlp info: %s", out)
-// 		info := &YtdlpInfo{}
-// 		if err = json.Unmarshal(out, info); err != nil {
-// 			return fmt.Errorf("ytdlp-info: %s", err)
-// 		}
-//
-// 		c.Enqueue(c.YtdlpParseJob(name, source, info))
-// 		return nil
-// 	}
-// }
-//
-// func (c *Workers) YtdlpParseJob(name, source string, info *YtdlpInfo) JobFunc {
-// 	return func() error {
-// 		c.logger.Warnf("yt-dlp parse: %s %d %s [%s] %s", info.Fulltitle, info.Height, info.EXT, info.DisplayID, info.URL)
-//
-// 		count, err := c.db.Video.Query().Where("display_id", info.DisplayID).Count()
-// 		if err != nil {
-// 			return fmt.Errorf("ytdlp-parse: %s", err)
-// 		}
-// 		if count > 0 {
-// 			return nil
-// 		}
-//
-// 		_, season, episode, err := ParseFulltitle(info.Fulltitle)
-// 		if err != nil {
-// 			return fmt.Errorf("ytdlp-parse: %s", err)
-// 		}
-//
-// 		video := &Video{}
-// 		video.Title = name
-// 		video.Season = season
-// 		video.Episode = episode
-// 		video.Raw = info.Fulltitle
-// 		video.Resolution = int(info.Height)
-// 		video.Extension = info.EXT
-// 		video.DisplayID = info.DisplayID
-// 		video.Download = info.URL
-// 		video.View = info.WebpageURL
-// 		video.Size = info.FilesizeApprox
-// 		video.Source = source
-//
-// 		if err := c.db.Video.Save(video); err != nil {
-// 			return fmt.Errorf("ytdlp-parse: %s", err)
-// 		}
-//
-// 		return nil
-// 	}
-// }
-
-// YtdlpJob runs a yt-dlp and wraps the output in a job
-// func (c *Workers) YtdlpJob(url string) JobFunc {
-// 	c.logger.Debugf("yt-dlp: %s", url)
-// 	return c.CommandJob("yt-dlp", url)
-// }
-
-// YtdlpWithOptionsJob runs a yt-dlp with additional command line options and wraps the output in a job
-//
-//	func (c *Workers) YtdlpWithOptionsJob(url string) JobFunc {
-//		// TODO: handle custom options
-//		c.logger.Debugf("yt-dlp: %s", url)
-//		return c.CommandJob("yt-dlp", url)
-//	}
-// type YtdlpList struct {
-// 	ID                 string      `json:"id"`
-// 	Title              string      `json:"title"`
-// 	Thumbnail          string      `json:"thumbnail"`
-// 	Duration           int64       `json:"duration"`
-// 	Uploader           string      `json:"uploader"`
-// 	UploaderID         string      `json:"uploader_id"`
-// 	LikeCount          int64       `json:"like_count"`
-// 	Formats            []Format    `json:"formats"`
-// 	OriginalURL        string      `json:"original_url"`
-// 	WebpageURL         string      `json:"webpage_url"`
-// 	WebpageURLBasename string      `json:"webpage_url_basename"`
-// 	WebpageURLDomain   string      `json:"webpage_url_domain"`
-// 	Extractor          string      `json:"extractor"`
-// 	ExtractorKey       string      `json:"extractor_key"`
-// 	Thumbnails         []Thumbnail `json:"thumbnails"`
-// 	DisplayID          string      `json:"display_id"`
-// 	Fulltitle          string      `json:"fulltitle"`
-// 	DurationString     string      `json:"duration_string"`
-// 	Epoch              int64       `json:"epoch"`
-// 	RequestedDownloads []Format    `json:"requested_downloads"`
-// 	FormatID           string      `json:"format_id"`
-// 	URL                string      `json:"url"`
-// 	ManifestURL        string      `json:"manifest_url"`
-// 	Tbr                float64     `json:"tbr"`
-// 	EXT                string      `json:"ext"`
-// 	FPS                float64     `json:"fps"`
-// 	Quality            int64       `json:"quality"`
-// 	JSONHasDRM         bool        `json:"has_drm"`
-// 	Width              int64       `json:"width"`
-// 	Height             int64       `json:"height"`
-// 	Resolution         string      `json:"resolution"`
-// 	AspectRatio        float64     `json:"aspect_ratio"`
-// 	Format             string      `json:"format"`
-// 	Type               string      `json:"_type"`
-// 	Version            Version     `json:"_version"`
-// }
 
 type YtdlpList struct {
 	ID                 string      `json:"id"`
