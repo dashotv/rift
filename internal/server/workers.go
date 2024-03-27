@@ -26,7 +26,7 @@ func setupWorkers(s *Server) error {
 		BufferSize:  s.Config.MinionBufferSize,
 		DatabaseURI: s.Config.Mongo,
 		Database:    s.Config.MinionDatabase,
-		Collection:  "job",
+		Collection:  s.Config.MinionCollection,
 	}
 
 	m, err := minion.New("rift", mcfg)
