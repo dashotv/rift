@@ -48,31 +48,7 @@ tasks:
     cmds:
       - npx @dotenvx/dotenvx encrypt
 
-  pages:
-    desc: "list pages from database"
-    cmds:
-      - |
-        curl -s -X POST -H "Content-Type: application/json" -H "Accept: application/json" "http://localhost:9006/api/PageService.Index" -d '{}' | jq
-
-  clean:
-    desc: "remove the database"
-    cmds:
-      - rm -f tmp/rift.db rift
-
   seed:
     desc: "seed the database"
     cmds:
       - scripts/seed.sh
-
-  sleep_5:
-    desc: "sleep for 5 seconds"
-    cmds:
-      - sleep 5
-
-  reset:
-    desc: "w/e"
-    cmds:
-      - task: clean
-      - task: gen
-      - task: sleep_5
-      - task: seed
