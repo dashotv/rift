@@ -5,7 +5,7 @@ go 1.21.5
 require (
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/dashotv/grimoire v0.5.1
-	github.com/dashotv/minion v0.3.3
+	github.com/dashotv/minion v0.4.1
 	github.com/dotenv-org/godotenvvault v0.6.0
 	github.com/go-cmd/cmd v1.4.2
 	github.com/go-resty/resty/v2 v2.11.0

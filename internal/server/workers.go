@@ -8,35 +8,28 @@ import (
 	"github.com/dashotv/minion"
 )
 
-func startWorkers(_ context.Context, s *Server) error {
+func startWorkers(ctx context.Context, s *Server) error {
+	ctx = context.WithValue(ctx, "server", s)
+
 	go func() {
 		// s.Logger.Infof("starting workers (%d)...", s.Config.MinionConcurrency)
-		s.bg.Start()
+		s.bg.Start(ctx)
 	}()
 	return nil
 }
 
 func setupWorkers(s *Server) error {
-	ctx := context.Background()
-
-	dbname := s.Config.Name + "_development"
-	if s.Config.Production {
-		dbname = s.Config.Name + "_production"
-	}
-
 	mcfg := &minion.Config{
 		Logger:      s.Logger.Named("minion"),
 		Debug:       s.Config.MinionDebug,
 		Concurrency: s.Config.MinionConcurrency,
 		BufferSize:  s.Config.MinionBufferSize,
 		DatabaseURI: s.Config.Mongo,
-		Database:    dbname,
+		Database:    s.Config.MinionDatabase,
 		Collection:  "job",
 	}
 
-	ctx = context.WithValue(ctx, "server", s)
-
-	m, err := minion.New(ctx, mcfg)
+	m, err := minion.New("rift", mcfg)
 	if err != nil {
 		return errors.Wrap(err, "creating minion")
 	}
