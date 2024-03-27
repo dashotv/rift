@@ -64,9 +64,9 @@ type Page struct { // model
 	//CreatedAt time.Time          `bson:"created_at" json:"created_at"`
 	//UpdatedAt time.Time          `bson:"updated_at" json:"updated_at"`
 	Name       string `json:"name" bson:"name" grimoire:"index" `
-	URL        string `bson:"url" json:"url" `
+	URL        string `json:"url" bson:"url" `
 	Scraper    string `json:"scraper" bson:"scraper" `
-	Downloader string `json:"downloader" bson:"downloader" `
+	Downloader string `bson:"downloader" json:"downloader" `
 }
 
 type PageResponse struct {
@@ -94,15 +94,15 @@ type Video struct { // model
 	//ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	//CreatedAt time.Time          `bson:"created_at" json:"created_at"`
 	//UpdatedAt time.Time          `bson:"updated_at" json:"updated_at"`
-	Title      string `json:"title" bson:"title" grimoire:"index" `
-	Season     int    `json:"season" bson:"season" grimoire:"index" `
-	Episode    int    `json:"episode" bson:"episode" grimoire:"index" `
-	Raw        string `bson:"raw" json:"raw" `
-	DisplayID  string `grimoire:"index" json:"display_id" bson:"display_id" `
-	Extension  string `json:"extension" bson:"extension" `
+	Title      string `grimoire:"index" json:"title" bson:"title" `
+	Season     int    `grimoire:"index" json:"season" bson:"season" `
+	Episode    int    `grimoire:"index" json:"episode" bson:"episode" `
+	Raw        string `json:"raw" bson:"raw" `
+	DisplayID  string `json:"display_id" bson:"display_id" grimoire:"index" `
+	Extension  string `bson:"extension" json:"extension" `
 	Resolution int    `json:"resolution" bson:"resolution" `
-	Size       int64  `json:"size" bson:"size" `
-	Download   string `bson:"download" json:"download" `
+	Size       int64  `bson:"size" json:"size" `
+	Download   string `json:"download" bson:"download" `
 	View       string `json:"view" bson:"view" `
 	Source     string `json:"source" bson:"source" `
 }

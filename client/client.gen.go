@@ -22,7 +22,6 @@ type Client struct {
 	// Resty
 	Resty *resty.Client
 
-	JobService   *JobService
 	PageService  *PageService
 	VideoService *VideoService
 	VisitService *VisitService
@@ -40,65 +39,11 @@ func New(remoteHost string) *Client {
 		RemoteHost: remoteHost,
 		Resty:      resty.New(),
 	}
-	c.JobService = NewJobService(c)
 	c.PageService = NewPageService(c)
 	c.VideoService = NewVideoService(c)
 	c.VisitService = NewVisitService(c)
 
 	return c
-}
-
-type JobService struct {
-	client *Client
-}
-
-// NewJobService makes a new client for accessing JobService services.
-func NewJobService(client *Client) *JobService {
-	return &JobService{
-		client: client,
-	}
-}
-
-func (s *JobService) Create(ctx context.Context, r *Request) (*JobResponse, error) {
-	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "JobService", "Create")
-	result := &JobResponse{}
-	resp, err := s.client.Resty.R().
-		SetBody(r).
-		SetResult(result).
-		Post(url)
-
-	if err != nil {
-		return nil, errors.Wrap(err, "JobService.Create")
-	}
-	if resp.StatusCode() != http.StatusOK {
-		return nil, errors.Errorf("JobService.Create: (%d) %v", resp.StatusCode(), string(resp.Body()))
-	}
-	if result.error != "" {
-		return nil, errors.New(result.error)
-	}
-
-	return result, nil
-}
-
-func (s *JobService) Index(ctx context.Context, r *Request) (*JobsResponse, error) {
-	url := fmt.Sprintf("%s/%s.%s", s.client.RemoteHost, "JobService", "Index")
-	result := &JobsResponse{}
-	resp, err := s.client.Resty.R().
-		SetBody(r).
-		SetResult(result).
-		Post(url)
-
-	if err != nil {
-		return nil, errors.Wrap(err, "JobService.Index")
-	}
-	if resp.StatusCode() != http.StatusOK {
-		return nil, errors.Errorf("JobService.Index: (%d) %v", resp.StatusCode(), string(resp.Body()))
-	}
-	if result.error != "" {
-		return nil, errors.New(result.error)
-	}
-
-	return result, nil
 }
 
 type PageService struct {
@@ -447,48 +392,6 @@ func (s *VisitService) Update(ctx context.Context, r *Visit) (*VisitResponse, er
 	}
 
 	return result, nil
-}
-
-// Job tracks jobs in the system
-type Job struct {
-	Kind string `json:"kind"`
-
-	Args string `json:"args"`
-
-	Status string `json:"status"`
-
-	Queue string `json:"queue"`
-
-	Attempts []*JobAttempt `json:"attempts"`
-}
-
-// JobAttempt tracks the attempts made to process a job
-type JobAttempt struct {
-	StartedAt string `json:"started_at"`
-
-	Duration float64 `json:"duration"`
-
-	Status string `json:"status"`
-
-	error string `json:"-"`
-
-	Stacktrace []string `json:"stacktrace"`
-}
-
-type JobResponse struct {
-	Job *Job `json:"job"`
-
-	// Error is string explaining what went wrong. Empty if everything was fine.
-	error string `json:"-"`
-}
-
-type JobsResponse struct {
-	Total int64 `json:"total"`
-
-	Results []*Job `json:"results"`
-
-	// Error is string explaining what went wrong. Empty if everything was fine.
-	error string `json:"-"`
 }
 
 // Page represents a web page to be scraped and downloaded
