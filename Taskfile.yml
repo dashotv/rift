@@ -7,8 +7,10 @@ tasks:
   deps:
     desc: "install all dependencies"
     cmds:
-      - go install github.com/pacedotdev/oto@latest
-      - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+      - go install github.com/bwplotka/bingo@latest
+      - bingo get -l github.com/bwplotka/bingo
+      - bingo get github.com/pacedotdev/oto@v0.14.4
+      - bingo get github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
   build:
     desc: "build the compiled binary"
