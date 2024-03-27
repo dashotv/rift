@@ -9,11 +9,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type JobService interface {
-	Create(echo.Context, *Request) (*JobResponse, error)
-	Index(echo.Context, *Request) (*JobsResponse, error)
-}
-
 type PageService interface {
 	Create(echo.Context, *Page) (*PageResponse, error)
 	Delete(echo.Context, *Request) (*PageResponse, error)
@@ -36,47 +31,6 @@ type VisitService interface {
 	Index(echo.Context, *Request) (*VisitsResponse, error)
 	Show(echo.Context, *Request) (*VisitResponse, error)
 	Update(echo.Context, *Visit) (*VisitResponse, error)
-}
-
-type jobServiceServer struct {
-	jobService JobService
-}
-
-// Register adds the JobService to the otohttp.Server.
-func RegisterJobService(e *echo.Group, jobService JobService) {
-	handler := &jobServiceServer{
-		jobService: jobService,
-	}
-	e.POST("/JobService.Create", handler.handleCreate)
-	e.POST("/JobService.Index", handler.handleIndex)
-}
-
-func (s *jobServiceServer) handleCreate(c echo.Context) error {
-	request := &Request{}
-	if err := c.Bind(request); err != nil {
-		return fmt.Errorf("binding request: %w", err)
-	}
-
-	response, err := s.jobService.Create(c, request)
-	if err != nil {
-		return fmt.Errorf("handling request: %w", err)
-	}
-
-	return c.JSON(http.StatusOK, response)
-}
-
-func (s *jobServiceServer) handleIndex(c echo.Context) error {
-	request := &Request{}
-	if err := c.Bind(request); err != nil {
-		return fmt.Errorf("binding request: %w", err)
-	}
-
-	response, err := s.jobService.Index(c, request)
-	if err != nil {
-		return fmt.Errorf("handling request: %w", err)
-	}
-
-	return c.JSON(http.StatusOK, response)
 }
 
 type pageServiceServer struct {

@@ -22,13 +22,6 @@ func setupDatabase(s *Server) error {
 		dbname = s.Config.Name + "_production"
 	}
 
-	if col, err := grimoire.New[*Job](s.Config.Mongo, dbname, strings.ToLower("Job")); err != nil {
-		return fmt.Errorf("failed to create Job collection: %w", err)
-	} else {
-		db.Job = col
-		grimoire.Indexes(col, &Job{})
-	}
-
 	if col, err := grimoire.New[*Page](s.Config.Mongo, dbname, strings.ToLower("Page")); err != nil {
 		return fmt.Errorf("failed to create Page collection: %w", err)
 	} else {
@@ -57,48 +50,11 @@ func setupDatabase(s *Server) error {
 type Connection struct {
 	log *zap.SugaredLogger
 
-	Job *grimoire.Store[*Job]
-
 	Page *grimoire.Store[*Page]
 
 	Video *grimoire.Store[*Video]
 
 	Visit *grimoire.Store[*Visit]
-}
-
-// Job tracks jobs in the system
-type Job struct { // model
-	grimoire.Document `bson:",inline"` // includes default model settings
-	//ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	//CreatedAt time.Time          `bson:"created_at" json:"created_at"`
-	//UpdatedAt time.Time          `bson:"updated_at" json:"updated_at"`
-	Kind     string        `json:"kind" bson:"kind" `
-	Args     string        `json:"args" bson:"args" `
-	Status   string        `json:"status" bson:"status" `
-	Queue    string        `json:"queue" bson:"queue" `
-	Attempts []*JobAttempt `bson:"attempts" json:"attempts" `
-}
-
-// JobAttempt tracks the attempts made to process a job
-type JobAttempt struct {
-	StartedAt  string   `json:"started_at"`
-	Duration   float64  `json:"duration"`
-	Status     string   `json:"status"`
-	Error      string   `json:"error"`
-	Stacktrace []string `json:"stacktrace"`
-}
-
-type JobResponse struct {
-	Job *Job `json:"job"`
-	// Error is string explaining what went wrong. Empty if everything was fine.
-	Error string `json:"error,omitempty"`
-}
-
-type JobsResponse struct {
-	Total   int64  `json:"total"`
-	Results []*Job `json:"results"`
-	// Error is string explaining what went wrong. Empty if everything was fine.
-	Error string `json:"error,omitempty"`
 }
 
 // Page represents a web page to be scraped and downloaded
