@@ -64,9 +64,14 @@ func New() (*Server, error) {
 }
 
 func (s *Server) Start() error {
-	startWorkers(context.Background(), s)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	return s.Router.Start(":" + s.Config.Port)
+	go startWorkers(ctx, s)
+	go s.Router.Start(":" + s.Config.Port)
+
+	<-ctx.Done()
+	return nil
 }
 
 func setupLogger() *zap.SugaredLogger {

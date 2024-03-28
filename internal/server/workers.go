@@ -10,11 +10,7 @@ import (
 
 func startWorkers(ctx context.Context, s *Server) error {
 	ctx = context.WithValue(ctx, "server", s)
-
-	go func() {
-		// s.Logger.Infof("starting workers (%d)...", s.Config.MinionConcurrency)
-		s.bg.Start(ctx)
-	}()
+	s.bg.Start(ctx)
 	return nil
 }
 
@@ -56,7 +52,7 @@ func setupWorkers(s *Server) error {
 	}
 
 	if s.Config.Production {
-		if _, err := m.Schedule("0 */15 * * * *", &ScrapeAll{}); err != nil {
+		if _, err := m.Schedule("0 10-59/15 * * * *", &ScrapeAll{}); err != nil {
 			return errors.Wrap(err, "scheduling worker: scrape_pages (ScrapePages)")
 		}
 	}
