@@ -1,0 +1,4 @@
+name: video
+path: /video
+model: "*Video"
+rest: true

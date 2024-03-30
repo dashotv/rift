@@ -1,0 +1,4 @@
+name: visit
+path: /visit
+model: "*Visit"
+rest: true

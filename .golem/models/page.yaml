@@ -1,0 +1,11 @@
+name: page
+type: model
+fields:
+    - name: name
+      type: string
+    - name: url
+      type: string
+    - name: scraper
+      type: string
+    - name: downloader
+      type: string

@@ -1,6 +1,7 @@
 package scraper
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -8,6 +9,9 @@ import (
 
 func TestGetVideos(t *testing.T) {
 	m := NewMyAnime()
-	urls := m.Read("https://myanime.live/tag/perfect-world/")
+	urls := m.Read("https://jhdanime.live/?s=ancient+lords")
 	assert.NotEmpty(t, urls, "expected results")
+	for _, u := range urls {
+		fmt.Printf("url: %s\n", u)
+	}
 }

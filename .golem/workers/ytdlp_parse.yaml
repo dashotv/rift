@@ -1,0 +1,8 @@
+name: ytdlp_parse
+fields:
+    - name: name
+      type: string
+    - name: source
+      type: string
+    - name: info
+      type: '*YtdlpInfo'

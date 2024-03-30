@@ -1,17 +1,12 @@
 ############################
 # STEP 1 build executable binary
 ############################
-FROM golang:alpine AS builder
+FROM golang:1.21-alpine AS builder
 
 WORKDIR /go/src/app
-RUN --mount=type=cache,target=/go/pkg/mod \
-  --mount=type=bind,source=go.sum,target=go.sum \
-  --mount=type=bind,source=go.mod,target=go.mod \
-  go mod download -x
+COPY . .
 
-RUN --mount=type=cache,target=/go/pkg/mod \
-  --mount=type=bind,target=. \
-  go install
+RUN go install
 
 ############################
 # STEP 2 build a small image
@@ -19,7 +14,6 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 FROM alpine
 # Copy our static executable.
 WORKDIR /root/
-RUN apk add --no-cache ffmpeg yt-dlp
 COPY --from=builder /go/bin/rift .
-COPY .env.vault .
+COPY --from=builder /go/src/app/etc/.rift.yaml ./.rift.yaml
 CMD ["./rift", "server"]

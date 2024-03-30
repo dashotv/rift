@@ -1,0 +1,4 @@
+name: scrape_page
+fields:
+    - name: page
+      type: '*Page'

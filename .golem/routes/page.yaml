@@ -1,0 +1,4 @@
+name: page
+path: /page
+model: "*Page"
+rest: true

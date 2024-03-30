@@ -1,0 +1,19 @@
+version: "2.0"
+name: rift
+repo: github.com/dashotv/rift
+package: app
+output: app
+plugins:
+    models: true
+    routes: true
+    workers: true
+    cache: false
+    events: false
+    clients: true
+definitions:
+    models: .golem/models
+    routes: .golem/routes
+    events: .golem/events
+    workers: .golem/workers
+    queues: .golem/queues
+    clients: clients

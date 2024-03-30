@@ -1,0 +1,18 @@
+[Unit]
+Description=rift Container
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+Restart=always
+ExecStartPre=-/usr/bin/docker stop dashotv/rift
+ExecStartPre=-/usr/bin/docker rm dashotv/rift
+ExecStartPre=/usr/bin/docker pull dashotv/rift
+ExecStart=/usr/bin/docker run --rm --name %n \
+    --add-host=host.docker.internal:host-gateway \
+    -p 3000:3000 \
+    dashotv/rift
+
+[Install]
+WantedBy=multi-user.target
