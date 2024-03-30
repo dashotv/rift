@@ -10,26 +10,30 @@ steps:
   #     - go build
   - name: publish
     image: plugins/docker
+    environment:
+      DOCKER_BUILDKIT: 1
     settings:
+      registry: docker.dasho.tv
       username:
         from_secret: dockerhub_username
       password:
         from_secret: dockerhub_password
-      repo: org/rift
+      repo: docker.dasho.tv/dashotv/rift
       tags:
         - latest
+        - ${DRONE_BUILD_NUMBER}
   - name: deploy
     image: appleboy/drone-ssh
     settings:
       host:
-        - 10.0.4.61
+        - 10.0.4.62
       port: 22
       username: deploy
       key:
         from_secret: ssh_key
       command_timeout: 2m
       script:
-        - sudo service rift restart
+        - cd /srv/dashotv && docker compose pull -q rift && docker compose up -d --no-deps rift
   - name: slack
     image: plugins/slack
     settings:
@@ -43,3 +47,4 @@ trigger:
     - main
   event:
     - push
+    - custom
