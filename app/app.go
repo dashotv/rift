@@ -3,10 +3,11 @@ package app
 import (
 	"context"
 
-	"github.com/dashotv/minion"
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
+
+	"github.com/dashotv/minion"
 )
 
 var app *Application
