@@ -1,1 +1,2 @@
 name: scrape_all
+schedule: "0 10-59/15 * * * *"

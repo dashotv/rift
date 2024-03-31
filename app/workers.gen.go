@@ -54,6 +54,9 @@ func setupWorkers(app *Application) error {
 	if err := minion.Register[*ScrapeAll](m, &ScrapeAll{}); err != nil {
 		return fae.Wrap(err, "registering worker: scrape_all (ScrapeAll)")
 	}
+	if _, err := m.Schedule("0 10-59/15 * * * *", &ScrapeAll{}); err != nil {
+		return fae.Wrap(err, "scheduling worker: scrape_all (ScrapeAll)")
+	}
 
 	if err := minion.Register[*ScrapePage](m, &ScrapePage{}); err != nil {
 		return fae.Wrap(err, "registering worker: scrape_page (ScrapePage)")
