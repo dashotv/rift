@@ -2,7 +2,6 @@ package ytdlp
 
 import (
 	"encoding/json"
-	"fmt"
 	"os/exec"
 
 	"github.com/dashotv/fae"
@@ -23,15 +22,20 @@ func ProcessURL(url string) ([]*Info, error) {
 	}
 
 	infos := make([]*Info, 0)
-
+	errors := make([]error, 0)
 	for _, e := range list.Entries {
 		info, err := ytdlp_get_info(e.URL)
 		if err != nil {
 			// return nil, fae.Errorf("process_url: info: %s", err)
-			fmt.Printf("process_url: info: %s\n", err)
+			// fmt.Printf("process_url: info: %s\n", err)
+			errors = append(errors, fae.Wrapf(err, "process_url: info: %s", e.URL))
 			continue
 		}
 		infos = append(infos, info)
+	}
+
+	if len(errors) > 0 {
+		return nil, fae.Errorf("process_url: %d: first %s", len(errors), errors[0])
 	}
 
 	return infos, nil
