@@ -1,19 +1,20 @@
 package scraper
 
 import (
-	"fmt"
-
 	"github.com/gocolly/colly/v2"
+	"go.uber.org/zap"
 )
 
-func NewMyAnime() *MyAnime {
+func NewMyAnime(log *zap.SugaredLogger) *MyAnime {
 	return &MyAnime{
 		col: colly.NewCollector(),
+		log: log.Named("myanime"),
 	}
 }
 
 type MyAnime struct {
 	col *colly.Collector
+	log *zap.SugaredLogger
 }
 
 func (m *MyAnime) Read(url string) []string {
@@ -22,7 +23,7 @@ func (m *MyAnime) Read(url string) []string {
 		urls = append(urls, e.ChildAttr("a", "href"))
 	})
 	m.col.OnError(func(r *colly.Response, err error) {
-		fmt.Printf("error: %s\n", err)
+		m.log.Errorf("scraping: %s\n", err)
 	})
 	m.col.Visit(url)
 	return urls

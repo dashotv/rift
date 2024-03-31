@@ -44,7 +44,7 @@ func (j *ScrapePage) Work(ctx context.Context, job *minion.Job[*ScrapePage]) err
 
 	l.Debugf("scrape: %s", p.Name)
 	if app.Config.Production {
-		scr := scraper.NewMyAnime()
+		scr := scraper.NewMyAnime(l)
 		urls := scr.Read(p.Url)
 
 		for _, url := range urls {
