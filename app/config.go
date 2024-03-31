@@ -22,9 +22,9 @@ func setupConfig(app *Application) error {
 }
 
 type Config struct {
-	Mode   string `env:"MODE" envDefault:"dev"`
-	Logger string `env:"LOGGER" envDefault:"dev"`
-	Port   int    `env:"PORT" envDefault:"10080"`
+	Production bool   `env:"PRODUCTION" envDefault:"false"`
+	Logger     string `env:"LOGGER" envDefault:"dev"`
+	Port       int    `env:"PORT" envDefault:"10080"`
 	//golem:template:app/config_partial_struct
 	// DO NOT EDIT. This section is managed by github.com/dashotv/golem.
 	// Models (Database)
@@ -49,7 +49,6 @@ type Config struct {
 
 func (c *Config) Validate() error {
 	list := []func() error{
-		c.validateMode,
 		c.validateLogger,
 		//golem:template:app/config_partial_validate
 		// DO NOT EDIT. This section is managed by github.com/dashotv/golem.
@@ -66,15 +65,6 @@ func (c *Config) Validate() error {
 	}
 
 	return nil
-}
-
-func (c *Config) validateMode() error {
-	switch c.Mode {
-	case "dev", "release":
-		return nil
-	default:
-		return fae.New("invalid mode (must be 'dev' or 'release')")
-	}
 }
 
 func (c *Config) validateLogger() error {

@@ -20,7 +20,6 @@ func (a *Application) PageIndex(c echo.Context, page int, limit int) error {
 	if skip < 0 {
 		skip = 0
 	}
-	a.Log.Debugf("page: %d, limit: %d, skip: %d", page, limit, skip)
 
 	count, err := a.DB.Page.Query().Count()
 	if err != nil {
