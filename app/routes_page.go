@@ -31,7 +31,7 @@ func (a *Application) PageIndex(c echo.Context, page int, limit int) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, H{"total": count, "results": list})
+	return c.JSON(http.StatusOK, H{"error": false, "total": count, "result": list})
 }
 
 // POST /page/
@@ -48,7 +48,7 @@ func (a *Application) PageCreate(c echo.Context, req *Page) error {
 	// 	return nil, err
 	// }
 
-	return c.JSON(http.StatusOK, H{"error": false, "page": req})
+	return c.JSON(http.StatusOK, H{"error": false, "result": req})
 }
 
 // GET /page/:id
@@ -58,7 +58,7 @@ func (a *Application) PageShow(c echo.Context, id string) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, H{"error": false, "page": page})
+	return c.JSON(http.StatusOK, H{"error": false, "result": page})
 }
 
 // PUT /page/:id
@@ -83,7 +83,7 @@ func (a *Application) PageUpdate(c echo.Context, id string, req *Page) error {
 		return fae.Wrap(err, "save failed")
 	}
 
-	return c.JSON(http.StatusOK, H{"error": false, "page": p})
+	return c.JSON(http.StatusOK, H{"error": false, "result": p})
 }
 
 // PATCH /page/:id
@@ -109,5 +109,5 @@ func (a *Application) PageDelete(c echo.Context, id string) error {
 		return fae.Wrap(err, "delete failed")
 	}
 
-	return c.JSON(http.StatusOK, H{"error": false, "page": subject})
+	return c.JSON(http.StatusOK, H{"error": false, "result": subject})
 }

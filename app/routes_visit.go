@@ -37,7 +37,7 @@ func (a *Application) VisitIndex(c echo.Context, page int, limit int) error {
 		return fae.Wrap(err, "query")
 	}
 
-	return c.JSON(http.StatusOK, H{"error": false, "total": count, "results": list})
+	return c.JSON(http.StatusOK, H{"error": false, "total": count, "result": list})
 }
 
 // POST /visit/

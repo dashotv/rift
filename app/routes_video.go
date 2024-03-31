@@ -20,7 +20,7 @@ func (a *Application) VideoIndex(c echo.Context, page int, limit int) error {
 	if skip < 0 {
 		skip = 0
 	}
-
+	a.Log.Debugf("VideoIndex: page=%d limit=%d skip=%d", page, limit, skip)
 	count, err := a.DB.Video.Query().Count()
 	if err != nil {
 		return fae.Wrap(err, "count")
@@ -31,7 +31,7 @@ func (a *Application) VideoIndex(c echo.Context, page int, limit int) error {
 		return fae.Wrap(err, "query")
 	}
 
-	return c.JSON(http.StatusOK, H{"error": false, "total": count, "results": list})
+	return c.JSON(http.StatusOK, H{"error": false, "total": count, "result": list})
 }
 
 // POST /video/
