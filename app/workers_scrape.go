@@ -2,8 +2,8 @@ package app
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/dashotv/fae"
 	"github.com/dashotv/minion"
 	"github.com/dashotv/rift/internal/scraper"
 )
@@ -18,14 +18,14 @@ func (j *ScrapeAll) Work(ctx context.Context, job *minion.Job[*ScrapeAll]) error
 
 	pages, err := app.DB.Page.Query().Run()
 	if err != nil {
-		return fmt.Errorf("scrape: %s", err)
+		return fae.Errorf("scrape: %s", err)
 	}
 
 	l.Debugf("scraping all %d pages", len(pages))
 	for _, p := range pages {
 		// l.Debugf("page: %s", p.Name)
 		if err := app.Workers.Enqueue(&ScrapePage{Title: p.Name, Page: p}); err != nil {
-			return fmt.Errorf("scrape_pages: enqueuing scrape_page: %w", err)
+			return fae.Errorf("scrape_pages: enqueuing scrape_page: %w", err)
 		}
 	}
 	return nil
@@ -47,13 +47,13 @@ func (j *ScrapePage) Work(ctx context.Context, job *minion.Job[*ScrapePage]) err
 
 	for _, url := range urls {
 		if ok, err := app.DB.IsVisited(p, url); err != nil {
-			return fmt.Errorf("scrape_page: is_visited: %w", err)
+			return fae.Errorf("scrape_page: is_visited: %w", err)
 		} else if ok {
 			continue
 		}
 		l.Debugf("'%s' %s", p.Name, url)
 		if err := app.Workers.Enqueue(&YtdlpList{Name: p.Name, URL: url}); err != nil {
-			return fmt.Errorf("scrape_page_url: enqueuing ytdlp_list: %w", err)
+			return fae.Errorf("scrape_page_url: enqueuing ytdlp_list: %w", err)
 		}
 	}
 
@@ -78,19 +78,19 @@ func (j *ScrapePage) Work(ctx context.Context, job *minion.Job[*ScrapePage]) err
 //
 // 	count, err := app.DB.Visit.Query().Where("page_id", p.ID).Where("url", u).Count()
 // 	if err != nil {
-// 		return fmt.Errorf("scrape_page_url: counting visit: %w", err)
+// 		return fae.Errorf("scrape_page_url: counting visit: %w", err)
 // 	}
 // 	if count > 0 {
 // 		return nil
 // 	}
 //
 // 	if err := app.DB.Visit.Save(&Visit{PageID: p.ID.Hex(), URL: u}); err != nil {
-// 		return fmt.Errorf("scrape_page_url: saving visit: %w", err)
+// 		return fae.Errorf("scrape_page_url: saving visit: %w", err)
 // 	}
 //
 // 	l.Debugf("scrape: %s %s", p.Name, u)
 // 	if err := app.Workers.Enqueue(&YtdlpListJob{Name: p.Name, URL: u}); err != nil {
-// 		return fmt.Errorf("scrape_page_url: enqueuing ytdlp_list: %w", err)
+// 		return fae.Errorf("scrape_page_url: enqueuing ytdlp_list: %w", err)
 // 	}
 // 	return nil
 // }

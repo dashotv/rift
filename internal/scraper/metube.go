@@ -1,10 +1,11 @@
 package scraper
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/go-resty/resty/v2"
+
+	"github.com/dashotv/fae"
 )
 
 type Metube struct {
@@ -27,15 +28,15 @@ func (m *Metube) Download(name, url string) error {
 		Post(m.URL)
 	if err != nil {
 		log.Printf("DEBUG: resty: %s", resp.String())
-		return fmt.Errorf("resty failed: %w", err)
+		return fae.Errorf("resty failed: %w", err)
 	}
 
 	if !resp.IsSuccess() {
-		return fmt.Errorf("request failed: %d: %s: %s", resp.StatusCode(), resp.Status(), resp.String())
+		return fae.Errorf("request failed: %d: %s: %s", resp.StatusCode(), resp.Status(), resp.String())
 	}
 
 	if result.Status != "ok" {
-		return fmt.Errorf("request failed: %s", result.Message)
+		return fae.Errorf("request failed: %s", result.Message)
 	}
 
 	return nil

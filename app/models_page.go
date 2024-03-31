@@ -1,6 +1,6 @@
 package app
 
-import "fmt"
+import "github.com/dashotv/fae"
 
 func (c *Connector) PageExists(name string) bool {
 	count, err := c.Page.Query().Where("name", name).Count()
@@ -38,14 +38,14 @@ func (c *Connector) PageList() ([]*Page, error) {
 func (c *Connector) IsVisited(page *Page, url string) (bool, error) {
 	count, err := c.Visit.Query().Where("page_id", page.ID).Where("url", url).Count()
 	if err != nil {
-		return false, fmt.Errorf("is_visited: counting visit: %w", err)
+		return false, fae.Errorf("is_visited: counting visit: %w", err)
 	}
 	if count > 0 {
 		return true, nil
 	}
 
 	if err := c.Visit.Save(&Visit{PageId: page.ID, Url: url}); err != nil {
-		return false, fmt.Errorf("is_visited: saving visit: %w", err)
+		return false, fae.Errorf("is_visited: saving visit: %w", err)
 	}
 
 	return false, nil

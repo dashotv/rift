@@ -2,8 +2,8 @@ package app
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/dashotv/fae"
 	"github.com/dashotv/minion"
 	"github.com/dashotv/rift/internal/ytdlp"
 )
@@ -22,17 +22,17 @@ func (j *YtdlpList) Work(ctx context.Context, job *minion.Job[*YtdlpList]) error
 
 	list, err := ytdlp.ProcessURL(url)
 	if err != nil {
-		return fmt.Errorf("ytdlp-list: %s %s: %s", name, url, err)
+		return fae.Errorf("ytdlp-list: %s %s: %s", name, url, err)
 	}
 
 	if len(list) == 0 {
-		return fmt.Errorf("ytdlp-list: %s %s: no entries", name, url)
+		return fae.Errorf("ytdlp-list: %s %s: no entries", name, url)
 	}
 
 	for _, e := range list {
 		// l.Warnf("ytdlp-list: %s", e.WebpageURL)
 		if err := app.Workers.Enqueue(&YtdlpParse{Name: name, Source: "myanime", Info: e}); err != nil {
-			return fmt.Errorf("ytdlp-list: info: %s: %w", e.WebpageURL, err)
+			return fae.Errorf("ytdlp-list: info: %s: %w", e.WebpageURL, err)
 		}
 	}
 
@@ -57,7 +57,7 @@ func (j *YtdlpParse) Work(ctx context.Context, job *minion.Job[*YtdlpParse]) err
 
 	count, err := app.DB.Video.Query().Where("display_id", info.DisplayID).Count()
 	if err != nil {
-		return fmt.Errorf("couting: %w", err)
+		return fae.Errorf("couting: %w", err)
 	}
 	if count > 0 {
 		return nil
@@ -65,7 +65,7 @@ func (j *YtdlpParse) Work(ctx context.Context, job *minion.Job[*YtdlpParse]) err
 
 	_, season, episode, err := ParseFulltitle(info.Fulltitle)
 	if err != nil {
-		return fmt.Errorf("parsing: %w", err)
+		return fae.Errorf("parsing: %w", err)
 	}
 
 	video := &Video{}
@@ -82,7 +82,7 @@ func (j *YtdlpParse) Work(ctx context.Context, job *minion.Job[*YtdlpParse]) err
 	video.Source = source
 
 	if err := app.DB.Video.Save(video); err != nil {
-		return fmt.Errorf("saving: %w", err)
+		return fae.Errorf("saving: %w", err)
 	}
 
 	return nil

@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/labstack/echo/v4"
-	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
+	"github.com/dashotv/fae"
 	"github.com/dashotv/minion"
 )
 
@@ -42,7 +42,7 @@ type Application struct {
 
 func Setup() error {
 	if app != nil {
-		return errors.New("application already setup")
+		return fae.New("application already setup")
 	}
 
 	app = &Application{}

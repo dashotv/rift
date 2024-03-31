@@ -2,11 +2,12 @@ package app
 
 import (
 	"encoding/xml"
-	"fmt"
 	"strconv"
 	"time"
 
 	"github.com/labstack/echo/v4"
+
+	"github.com/dashotv/fae"
 )
 
 // QueryString retrieves a string param from the gin request querystring
@@ -35,7 +36,7 @@ func QueryDefaultInteger(c echo.Context, name string, def int) (int, error) {
 	}
 
 	if n < 0 {
-		return def, fmt.Errorf("less than zero")
+		return def, fae.Errorf("less than zero")
 	}
 
 	return n, nil

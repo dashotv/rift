@@ -2,6 +2,8 @@
 package client
 
 import (
+	"time"
+
 	"github.com/dashotv/grimoire"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -11,10 +13,11 @@ type Page struct { // model
 	//ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	//CreatedAt time.Time          `bson:"created_at" json:"created_at"`
 	//UpdatedAt time.Time          `bson:"updated_at" json:"updated_at"`
-	Name       string `bson:"name" json:"name"`
-	Url        string `bson:"url" json:"url"`
-	Scraper    string `bson:"scraper" json:"scraper"`
-	Downloader string `bson:"downloader" json:"downloader"`
+	Name        string    `bson:"name" json:"name"`
+	Url         string    `bson:"url" json:"url"`
+	Scraper     string    `bson:"scraper" json:"scraper"`
+	Downloader  string    `bson:"downloader" json:"downloader"`
+	ProcessedAt time.Time `bson:"processed_at" json:"processed_at"`
 }
 
 type Video struct { // model
