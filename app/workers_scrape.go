@@ -56,6 +56,10 @@ func (j *ScrapePage) Work(ctx context.Context, job *minion.Job[*ScrapePage]) err
 			return fmt.Errorf("scrape_page_url: enqueuing ytdlp_list: %w", err)
 		}
 	}
+
+	if err := app.DB.Page.Save(p); err != nil {
+		return fae.Errorf("scrape_page: saving visit: %w", err)
+	}
 	return nil
 }
 
