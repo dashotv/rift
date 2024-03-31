@@ -1,4 +1,5 @@
 name: scrape_page
+queue: scraper
 fields:
   - name: page
     type: "*Page"

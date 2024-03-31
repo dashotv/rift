@@ -1,0 +1,4 @@
+name: scraper
+concurrency: 1
+buffer: 50
+interval: 3

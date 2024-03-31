@@ -1,4 +1,5 @@
 name: ytdlp_list
+queue: scraper
 fields:
   - name: name
     type: string

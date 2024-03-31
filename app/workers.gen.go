@@ -51,6 +51,8 @@ func setupWorkers(app *Application) error {
 	// an example of the subscription function and the basic setup instructions
 	// are included at the end of this file.
 
+	m.Queue("scraper", 1, 50, 3)
+
 	if err := minion.Register[*ScrapeAll](m, &ScrapeAll{}); err != nil {
 		return fae.Wrap(err, "registering worker: scrape_all (ScrapeAll)")
 	}
@@ -58,11 +60,11 @@ func setupWorkers(app *Application) error {
 		return fae.Wrap(err, "scheduling worker: scrape_all (ScrapeAll)")
 	}
 
-	if err := minion.Register[*ScrapePage](m, &ScrapePage{}); err != nil {
+	if err := minion.RegisterWithQueue[*ScrapePage](m, &ScrapePage{}, "scraper"); err != nil {
 		return fae.Wrap(err, "registering worker: scrape_page (ScrapePage)")
 	}
 
-	if err := minion.Register[*YtdlpList](m, &YtdlpList{}); err != nil {
+	if err := minion.RegisterWithQueue[*YtdlpList](m, &YtdlpList{}, "scraper"); err != nil {
 		return fae.Wrap(err, "registering worker: ytdlp_list (YtdlpList)")
 	}
 
