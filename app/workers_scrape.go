@@ -16,7 +16,7 @@ func (j *ScrapeAll) Kind() string { return "scrape_all" }
 func (j *ScrapeAll) Work(ctx context.Context, job *minion.Job[*ScrapeAll]) error {
 	l := app.Log.Named("scrape")
 
-	pages, err := app.DB.Page.Query().Run()
+	pages, err := app.DB.Page.Query().Limit(-1).Desc("name").Run()
 	if err != nil {
 		return fae.Errorf("scrape: %s", err)
 	}
