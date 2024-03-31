@@ -51,7 +51,7 @@ func setupWorkers(app *Application) error {
 	// an example of the subscription function and the basic setup instructions
 	// are included at the end of this file.
 
-	m.Queue("scraper", 1, 50, 3)
+	m.Queue("scraper", 1, 1, 3)
 
 	if err := minion.Register[*ScrapeAll](m, &ScrapeAll{}); err != nil {
 		return fae.Wrap(err, "registering worker: scrape_all (ScrapeAll)")
