@@ -24,7 +24,7 @@ func (j *ScrapeAll) Work(ctx context.Context, job *minion.Job[*ScrapeAll]) error
 	l.Debugf("scraping all %d pages", len(pages))
 	for _, p := range pages {
 		// l.Debugf("page: %s", p.Name)
-		if err := app.Workers.Enqueue(&ScrapePage{Page: p}); err != nil {
+		if err := app.Workers.Enqueue(&ScrapePage{Title: p.Name, Page: p}); err != nil {
 			return fmt.Errorf("scrape_pages: enqueuing scrape_page: %w", err)
 		}
 	}
@@ -33,7 +33,8 @@ func (j *ScrapeAll) Work(ctx context.Context, job *minion.Job[*ScrapeAll]) error
 
 type ScrapePage struct {
 	minion.WorkerDefaults[*ScrapePage]
-	Page *Page
+	Title string
+	Page  *Page
 }
 
 func (j *ScrapePage) Kind() string { return "scrape_page" }
