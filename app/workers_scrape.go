@@ -14,14 +14,14 @@ type ScrapeAll struct {
 
 func (j *ScrapeAll) Kind() string { return "scrape_all" }
 func (j *ScrapeAll) Work(ctx context.Context, job *minion.Job[*ScrapeAll]) error {
-	l := app.Log.Named("scrape")
+	// l := app.Log.Named("scrape")
 
 	pages, err := app.DB.Page.Query().Limit(-1).Desc("name").Run()
 	if err != nil {
 		return fae.Errorf("scrape: %s", err)
 	}
 
-	l.Debugf("scraping all %d pages", len(pages))
+	// l.Debugf("scraping all %d pages", len(pages))
 	for _, p := range pages {
 		// l.Debugf("page: %s", p.Name)
 		if err := app.Workers.Enqueue(&ScrapePage{Title: p.Name, Page: p}); err != nil {
@@ -42,7 +42,7 @@ func (j *ScrapePage) Work(ctx context.Context, job *minion.Job[*ScrapePage]) err
 	p := job.Args.Page
 	l := app.Log.Named("scrape.page")
 
-	l.Debugf("scrape: %s", p.Name)
+	// l.Debugf("scrape: %s", p.Name)
 	if app.Config.Production {
 		scr := scraper.NewMyAnime(l)
 		urls := scr.Read(p.Url)
@@ -53,7 +53,7 @@ func (j *ScrapePage) Work(ctx context.Context, job *minion.Job[*ScrapePage]) err
 			} else if ok {
 				continue
 			}
-			l.Debugf("'%s' %s", p.Name, url)
+			// l.Debugf("'%s' %s", p.Name, url)
 			if err := app.Workers.Enqueue(&YtdlpList{Name: p.Name, URL: url}); err != nil {
 				return fae.Errorf("scrape_page_url: enqueuing ytdlp_list: %w", err)
 			}
