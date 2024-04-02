@@ -111,3 +111,36 @@ func (a *Application) PageDelete(c echo.Context, id string) error {
 
 	return c.JSON(http.StatusOK, H{"error": false, "result": subject})
 }
+
+// GET /page/:id/videos
+func (a *Application) PageVideos(c echo.Context, id string, page int, limit int) error {
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 {
+		limit = 25
+	}
+	skip := (page - 1) * limit
+	if skip < 0 {
+		skip = 0
+	}
+
+	p, err := a.DB.PageGet(id)
+	if err != nil {
+		return err
+	}
+
+	q := a.DB.Video.Query().Where("title", p.Name)
+
+	count, err := q.Count()
+	if err != nil {
+		return err
+	}
+
+	list, err := q.Desc("created_at").Limit(limit).Skip(skip).Run()
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, H{"error": false, "total": count, "result": list})
+}

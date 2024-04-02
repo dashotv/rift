@@ -1,4 +1,18 @@
 name: page
 path: /page
-model: "*Page"
 rest: true
+model: "*Page"
+routes:
+  - name: videos
+    path: /:id/videos
+    method: GET
+    result: "[]*Video"
+    params:
+      - name: id
+        type: string
+      - name: page
+        type: int
+        query: true
+      - name: limit
+        type: int
+        query: true

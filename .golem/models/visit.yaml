@@ -1,7 +1,7 @@
 name: visit
 type: model
 fields:
-    - name: page_id
-      type: primitive.ObjectID
-    - name: url
-      type: string
+  - name: page_id
+    type: primitive.ObjectID
+  - name: url
+    type: string

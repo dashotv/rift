@@ -14,22 +14,22 @@ export default defineConfig({
   plugins: [
     react(),
     viteTsconfigPaths(),
-    // federation({
-    //   name: 'rift',
-    //   filename: 'remote.js',
-    //   exposes: {
-    //     './App': './src/pages/app.tsx',
-    //   },
-    //   shared: {
-    //     ...dependencies,
-    //     react: {
-    //       requiredVersion: dependencies['react'],
-    //     },
-    //     'react-dom': {
-    //       requiredVersion: dependencies['react-dom'],
-    //     },
-    //   },
-    // }),
+    federation({
+      name: 'rift',
+      filename: 'remote.js',
+      exposes: {
+        './App': './src/pages/app.tsx',
+      },
+      shared: {
+        ...dependencies,
+        react: {
+          requiredVersion: dependencies['react'],
+        },
+        'react-dom': {
+          requiredVersion: dependencies['react-dom'],
+        },
+      },
+    }),
   ],
   build: {
     target: 'esnext', //browsers can handle the latest ES features

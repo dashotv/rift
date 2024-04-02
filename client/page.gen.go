@@ -202,3 +202,37 @@ func (s *PageService) Delete(ctx context.Context, req *PageDeleteRequest) (*Page
 
 	return result, nil
 }
+
+type PageVideosRequest struct {
+	Id    string `json:"id"`
+	Page  int    `json:"page"`
+	Limit int    `json:"limit"`
+}
+
+type PageVideosResponse struct {
+	*Response
+	Result []*Video `json:"result"`
+}
+
+func (s *PageService) Videos(ctx context.Context, req *PageVideosRequest) (*PageVideosResponse, error) {
+	result := &PageVideosResponse{Response: &Response{}}
+	resp, err := s.client.Resty.R().
+		SetContext(ctx).
+		SetBody(req).
+		SetResult(result).
+		SetQueryParam("page", fmt.Sprintf("%v", req.Page)).
+		SetQueryParam("limit", fmt.Sprintf("%v", req.Limit)).
+		SetPathParam("id", fmt.Sprintf("%v", req.Id)).
+		Get("/page/{id}/videos")
+	if err != nil {
+		return nil, fae.Wrap(err, "failed to make request")
+	}
+	if !resp.IsSuccess() {
+		return nil, fae.Errorf("%d: %v", resp.StatusCode(), resp.String())
+	}
+	if result.Error {
+		return nil, fae.New(result.Message)
+	}
+
+	return result, nil
+}

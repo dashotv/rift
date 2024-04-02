@@ -2,6 +2,7 @@
 import { Setting, riftClient } from './client.gen';
 import { Visit } from './models.gen';
 
+
 export interface VisitIndexRequest {
   page: number;
   limit: number;

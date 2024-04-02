@@ -5,6 +5,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { RoutingTabs, RoutingTabsRoute } from '@dashotv/components';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
+import Pages from 'pages/pages';
 import Videos from 'pages/videos';
 
 const darkTheme = createTheme({
@@ -35,8 +36,13 @@ const queryClient = new QueryClient({
 const App = () => {
   const tabsMap: RoutingTabsRoute[] = [
     {
-      label: 'Videos',
+      label: 'Pages',
       to: '',
+      element: <Pages />,
+    },
+    {
+      label: 'Videos',
+      to: '/videos',
       element: <Videos />,
     },
   ];

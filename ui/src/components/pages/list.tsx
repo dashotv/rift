@@ -1,22 +1,29 @@
-import Truncate from 'react-truncate-inside';
+import { useState } from 'react';
 
-import { Video } from 'client';
+import { Page } from 'client';
 
 import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-import { Chrono, Megabytes, Resolution, Row } from '@dashotv/components';
+import { Chrono, Row } from '@dashotv/components';
 
-export const VideosList = ({ data }: { data: Video[] }) => {
-  const view = (row: Video) => {
+import { PagesDialog } from '.';
+
+export const PageList = ({ data }: { data: Page[] }) => {
+  const [viewing, setViewing] = useState<Page | null>(null);
+  const view = (row: Page) => {
     console.log(row);
+    setViewing(row);
+  };
+  const handleClose = () => {
+    setViewing(null);
   };
 
   return (
     <Paper elevation={0} sx={{ width: '100%' }}>
-      {data.map((row: Video) => (
+      {data.map((row: Page) => (
         <Row key={row.id}>
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={{ xs: 0, md: 1 }} alignItems="center">
             <Stack
@@ -35,18 +42,10 @@ export const VideosList = ({ data }: { data: Video[] }) => {
                 sx={{ pr: 1, '& a': { color: 'primary.main' } }}
               >
                 <Link href="#" onClick={() => view(row)}>
-                  <Truncate text={`${row.title} ${row.season}x${row.episode}`} ellipsis=" ... " />
+                  {row.name}
                 </Link>
               </Typography>
-              <Stack
-                display={{ xs: 'none', md: 'inherit' }}
-                direction="row"
-                spacing={1}
-                alignItems="center"
-                sx={{ pl: 1 }}
-              >
-                <Resolution resolution={row.resolution} variant="default" />
-              </Stack>
+              {/* <Group group={row.scraper} author="myanime" variant="default" /> */}
             </Stack>
             <Stack
               direction="row"
@@ -54,19 +53,9 @@ export const VideosList = ({ data }: { data: Video[] }) => {
               alignItems="center"
               sx={{ width: '100%', justifyContent: { xs: 'start', md: 'end' } }}
             >
-              <Stack
-                display={{ xs: 'inherit', md: 'none' }}
-                direction="row"
-                spacing={1}
-                alignItems="center"
-                sx={{ pl: 1 }}
-              >
-                <Resolution resolution={row.resolution} variant="default" />
-              </Stack>
               <Stack width={{ xs: '100%', md: 'auto' }} direction="row" spacing={1} alignItems="center">
-                {row.size ? <Megabytes value={row.size} ord="bytes" /> : null}
                 <Typography noWrap variant="subtitle2" color="gray" pl="3px" width="100%">
-                  {row.created_at && <Chrono fromNow>{row.created_at}</Chrono>}
+                  {row.processed_at && <Chrono fromNow>{row.processed_at}</Chrono>}
                 </Typography>
                 {/* <Box>{actions && actions(row)}</Box> */}
               </Stack>
@@ -74,7 +63,7 @@ export const VideosList = ({ data }: { data: Video[] }) => {
           </Stack>
         </Row>
       ))}
-      {/* {viewing && <ReleaseDialog {...{ open, handleClose }} release={viewing} actions={actions} />} */}
+      {viewing && <PagesDialog {...{ open, close: handleClose }} page={viewing} />}
     </Paper>
   );
 };

@@ -78,6 +78,7 @@ func (a *Application) Routes() {
 	page.PUT("/:id", a.PageUpdateHandler)
 	page.PATCH("/:id", a.PageSettingsHandler)
 	page.DELETE("/:id", a.PageDeleteHandler)
+	page.GET("/:id/videos", a.PageVideosHandler)
 
 	video := a.Router.Group("/video")
 	video.GET("/", a.VideoIndexHandler)
@@ -152,6 +153,12 @@ func (a *Application) PageSettingsHandler(c echo.Context) error {
 func (a *Application) PageDeleteHandler(c echo.Context) error {
 	id := c.Param("id")
 	return a.PageDelete(c, id)
+}
+func (a *Application) PageVideosHandler(c echo.Context) error {
+	id := c.Param("id")
+	page := QueryInt(c, "page")
+	limit := QueryInt(c, "limit")
+	return a.PageVideos(c, id, page, limit)
 }
 
 // Video (/video)

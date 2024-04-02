@@ -1,25 +1,25 @@
 name: video
 type: model
 fields:
-    - name: title
-      type: string
-    - name: season
-      type: int
-    - name: episode
-      type: int
-    - name: raw
-      type: string
-    - name: display_id
-      type: string
-    - name: extension
-      type: string
-    - name: resolution
-      type: int
-    - name: size
-      type: int64
-    - name: download
-      type: string
-    - name: view
-      type: string
-    - name: source
-      type: string
+  - name: title
+    type: string
+  - name: season
+    type: int
+  - name: episode
+    type: int
+  - name: raw
+    type: string
+  - name: display_id
+    type: string
+  - name: extension
+    type: string
+  - name: resolution
+    type: int
+  - name: size
+    type: int64
+  - name: download
+    type: string
+  - name: view
+    type: string
+  - name: source
+    type: string

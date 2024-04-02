@@ -2,6 +2,7 @@
 import { Setting, riftClient } from './client.gen';
 import { Video } from './models.gen';
 
+
 export interface VideoIndexRequest {
   page: number;
   limit: number;
