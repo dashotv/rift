@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"time"
 
 	"github.com/dashotv/fae"
 	"github.com/dashotv/minion"
@@ -59,8 +60,9 @@ func (j *ScrapePage) Work(ctx context.Context, job *minion.Job[*ScrapePage]) err
 			}
 		}
 
+		p.ProcessedAt = time.Now()
 		if err := app.DB.Page.Save(p); err != nil {
-			return fae.Errorf("scrape_page: saving visit: %w", err)
+			return fae.Errorf("scrape_page: saving page: %w", err)
 		}
 	}
 	return nil
