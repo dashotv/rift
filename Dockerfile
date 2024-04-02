@@ -24,7 +24,7 @@ COPY . .
 COPY --from=ui-builder /app/static ./static
 
 RUN --mount=type=cache,target=/go/pkg/mod \
-  go install ./server
+  go install
 
 ############################
 # STEP 2 build a small image
