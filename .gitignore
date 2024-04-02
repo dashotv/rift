@@ -2,3 +2,12 @@ rift
 /tmp
 .env*
 .md5*
+
+/static
+!/static/embed.go
+!/static/assets/.keep
+!/static/keep.html
+
+ui/vite.config.js
+ui/vite.config.d.ts
+ui/tsconfig.node.tsbuildinfo
