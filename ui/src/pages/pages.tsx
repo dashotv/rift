@@ -12,7 +12,7 @@ const Videos = () => {
   return (
     <>
       <Helmet>
-        <title>Minion - Jobs</title>
+        <title>Rift - Pages</title>
         <meta name="description" content="runic" />
       </Helmet>
 
