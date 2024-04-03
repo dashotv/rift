@@ -10,11 +10,12 @@ riftClient.interceptors.request.use(config => {
 });
 
 export interface Response {
-    error: boolean;
-    message: string;
+  error: boolean;
+  message: string;
+  total: number;
 }
 
 export interface Setting {
-    name: string;
-    value: boolean;
+  name: string;
+  value: boolean;
 }

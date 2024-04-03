@@ -20,6 +20,11 @@ export const PagesDialog = ({ close, page: { id, name, processed_at, url } }: { 
     close();
   };
 
+  if (!id) {
+    throw new Error('Page ID is required');
+    return null;
+  }
+
   const { data } = usePageVideosQuery(id, 1);
 
   const theme = useTheme();

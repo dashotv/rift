@@ -67,6 +67,13 @@ type Setting struct {
 	Value bool   `json:"value"`
 }
 
+type Response struct {
+	Error   bool        `json:"error"`
+	Message string      `json:"message,omitempty"`
+	Result  interface{} `json:"result,omitempty"`
+	Total   int64       `json:"total,omitempty"`
+}
+
 func (a *Application) Routes() {
 	a.Default.GET("/", a.indexHandler)
 	a.Default.GET("/health", a.healthHandler)
@@ -124,7 +131,7 @@ func (a *Application) PageIndexHandler(c echo.Context) error {
 	return a.PageIndex(c, page, limit)
 }
 func (a *Application) PageCreateHandler(c echo.Context) error {
-	var subject *Page
+	subject := &Page{}
 	if err := c.Bind(subject); err != nil {
 		return err
 	}
@@ -136,7 +143,7 @@ func (a *Application) PageShowHandler(c echo.Context) error {
 }
 func (a *Application) PageUpdateHandler(c echo.Context) error {
 	id := c.Param("id")
-	var subject *Page
+	subject := &Page{}
 	if err := c.Bind(subject); err != nil {
 		return err
 	}
@@ -144,7 +151,7 @@ func (a *Application) PageUpdateHandler(c echo.Context) error {
 }
 func (a *Application) PageSettingsHandler(c echo.Context) error {
 	id := c.Param("id")
-	var setting *Setting
+	setting := &Setting{}
 	if err := c.Bind(setting); err != nil {
 		return err
 	}
@@ -168,7 +175,7 @@ func (a *Application) VideoIndexHandler(c echo.Context) error {
 	return a.VideoIndex(c, page, limit)
 }
 func (a *Application) VideoCreateHandler(c echo.Context) error {
-	var subject *Video
+	subject := &Video{}
 	if err := c.Bind(subject); err != nil {
 		return err
 	}
@@ -180,7 +187,7 @@ func (a *Application) VideoShowHandler(c echo.Context) error {
 }
 func (a *Application) VideoUpdateHandler(c echo.Context) error {
 	id := c.Param("id")
-	var subject *Video
+	subject := &Video{}
 	if err := c.Bind(subject); err != nil {
 		return err
 	}
@@ -188,7 +195,7 @@ func (a *Application) VideoUpdateHandler(c echo.Context) error {
 }
 func (a *Application) VideoSettingsHandler(c echo.Context) error {
 	id := c.Param("id")
-	var setting *Setting
+	setting := &Setting{}
 	if err := c.Bind(setting); err != nil {
 		return err
 	}
@@ -206,7 +213,7 @@ func (a *Application) VisitIndexHandler(c echo.Context) error {
 	return a.VisitIndex(c, page, limit)
 }
 func (a *Application) VisitCreateHandler(c echo.Context) error {
-	var subject *Visit
+	subject := &Visit{}
 	if err := c.Bind(subject); err != nil {
 		return err
 	}
@@ -218,7 +225,7 @@ func (a *Application) VisitShowHandler(c echo.Context) error {
 }
 func (a *Application) VisitUpdateHandler(c echo.Context) error {
 	id := c.Param("id")
-	var subject *Visit
+	subject := &Visit{}
 	if err := c.Bind(subject); err != nil {
 		return err
 	}
@@ -226,7 +233,7 @@ func (a *Application) VisitUpdateHandler(c echo.Context) error {
 }
 func (a *Application) VisitSettingsHandler(c echo.Context) error {
 	id := c.Param("id")
-	var setting *Setting
+	setting := &Setting{}
 	if err := c.Bind(setting); err != nil {
 		return err
 	}
