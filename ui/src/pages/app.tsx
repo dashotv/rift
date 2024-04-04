@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import Pages from 'pages/pages';
 import Videos from 'pages/videos';
+import Visits from 'pages/visits';
 
 const darkTheme = createTheme({
   palette: {
@@ -44,6 +45,11 @@ const App = () => {
       label: 'Videos',
       to: '/videos',
       element: <Videos />,
+    },
+    {
+      label: 'Visits',
+      to: '/visits',
+      element: <Visits />,
     },
   ];
   return (
