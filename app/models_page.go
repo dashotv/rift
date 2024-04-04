@@ -5,13 +5,13 @@ import "github.com/dashotv/fae"
 func (c *Connector) PageExists(name string) bool {
 	count, err := c.Page.Query().Where("name", name).Count()
 	if err != nil {
-		return false
+		return true
 	}
 	if count > 0 {
-		return false
+		return true
 	}
 
-	return true
+	return false
 }
 
 func (c *Connector) PageGet(id string) (*Page, error) {
