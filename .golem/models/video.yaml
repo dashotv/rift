@@ -1,6 +1,8 @@
 name: video
 type: model
 fields:
+  - name: page_id
+    type: primitive.ObjectID
   - name: title
     type: string
   - name: season

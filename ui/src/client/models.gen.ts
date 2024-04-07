@@ -11,11 +11,13 @@ export interface Page {
   downloader?: string;
   processed_at?: string;
 }
+
 export interface Video {
   id?: string;
   created_at?: string;
   updated_at?: string;
 
+  page_id?: string;
   title?: string;
   season?: number;
   episode?: number;
@@ -28,6 +30,7 @@ export interface Video {
   view?: string;
   source?: string;
 }
+
 export interface Visit {
   id?: string;
   created_at?: string;
@@ -35,4 +38,6 @@ export interface Visit {
 
   page_id?: string;
   url?: string;
+  error?: string;
+  stacktrace?: string[];
 }

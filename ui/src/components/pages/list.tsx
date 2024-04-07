@@ -2,23 +2,45 @@ import { useState } from 'react';
 
 import { Page } from 'client';
 
+import ReplayCircleFilledIcon from '@mui/icons-material/ReplayCircleFilled';
+import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-import { Chrono, Row } from '@dashotv/components';
+import { ButtonMap, ButtonMapButton, Chrono, Row } from '@dashotv/components';
 
-import { PagesDialog } from '.';
+import { PagesDialog, usePageRefreshMutation } from '.';
 
 export const PageList = ({ data }: { data: Page[] }) => {
   const [viewing, setViewing] = useState<Page | null>(null);
+  const pageRefresh = usePageRefreshMutation();
   const view = (row: Page) => {
     console.log(row);
     setViewing(row);
   };
   const handleClose = () => {
     setViewing(null);
+  };
+  const refresh = (row: Page) => {
+    if (!row.id) return;
+    console.log('refresh:', row);
+    pageRefresh.mutate(row.id);
+  };
+  const actions = (row: Page) => {
+    const buttons: ButtonMapButton[] = [
+      {
+        title: 'Refresh',
+        Icon: ReplayCircleFilledIcon,
+        color: 'primary',
+        click: ev => {
+          ev.preventDefault();
+          refresh(row);
+        },
+      },
+    ];
+    return <ButtonMap {...{ buttons }} size="small" />;
   };
 
   return (
@@ -57,7 +79,7 @@ export const PageList = ({ data }: { data: Page[] }) => {
                 <Typography noWrap variant="subtitle2" color="gray" pl="3px" width="100%">
                   {row.processed_at && <Chrono fromNow>{row.processed_at}</Chrono>}
                 </Typography>
-                {/* <Box>{actions && actions(row)}</Box> */}
+                <Box>{actions && actions(row)}</Box>
               </Stack>
             </Stack>
           </Stack>

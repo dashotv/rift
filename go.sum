@@ -24,8 +24,8 @@ github.com/clerk/clerk-sdk-go/v2 v2.0.0 h1:JG4SFx6FlkQ83/WaPyejlgsxXiDd+7nDjuPj7
 github.com/clerk/clerk-sdk-go/v2 v2.0.0/go.mod h1:SD9fe+omcaigqL/B3fbzIFREkeBqiC0CwSM7/qt7Xw4=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
 github.com/cpuguy83/go-md2man/v2 v2.0.3/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
-github.com/dashotv/fae v0.1.4 h1:zI2a3lgEztiWnFs2Tny84f9F2WaP1WoBi47DzBarwDo=
-github.com/dashotv/fae v0.1.4/go.mod h1:+deep7H052Bz6GxW7HXiel4S+Rqkva1mPETS+3tQOVU=
+github.com/dashotv/fae v0.1.5 h1:kC/7G7uvpTQIyLlcuqo1m/ctgX0sEMthUmA1Pu20r0U=
+github.com/dashotv/fae v0.1.5/go.mod h1:+deep7H052Bz6GxW7HXiel4S+Rqkva1mPETS+3tQOVU=
 github.com/dashotv/golem v0.14.2 h1:FDshwsLsZDgZqVCP9ONo3JzvV+GZ53YxW5H1HyUWstE=
 github.com/dashotv/golem v0.14.2/go.mod h1:LKYJaqFhVnVwtCPOnVuVTjTKHRA77XU5EkE0DGZ9r+Y=
 github.com/dashotv/grimoire v0.5.1 h1:DP0sY3NTO6fjOpx+q72ZZkHoEzYCGqxNF4mH0pVNHW8=

@@ -38,18 +38,18 @@ const App = () => {
   const tabsMap: RoutingTabsRoute[] = [
     {
       label: 'Pages',
-      to: '',
+      to: '/rift',
       element: <Pages />,
     },
     {
-      label: 'Videos',
-      to: '/videos',
-      element: <Videos />,
+      label: 'Visits',
+      to: '/rift/visits',
+      element: <Visits />,
     },
     {
-      label: 'Visits',
-      to: '/visits',
-      element: <Visits />,
+      label: 'Videos',
+      to: '/rift/videos',
+      element: <Videos />,
     },
   ];
   return (

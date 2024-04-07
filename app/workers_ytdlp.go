@@ -3,6 +3,8 @@ package app
 import (
 	"context"
 
+	"go.mongodb.org/mongo-driver/bson/primitive"
+
 	"github.com/dashotv/fae"
 	"github.com/dashotv/minion"
 	"github.com/dashotv/rift/internal/ytdlp"
@@ -10,15 +12,23 @@ import (
 
 type YtdlpList struct {
 	minion.WorkerDefaults[*YtdlpList]
-	Name string
-	URL  string
+	Name   string
+	PageID primitive.ObjectID
+	URL    string
 }
 
 func (j *YtdlpList) Kind() string { return "ytdlp_list" }
-func (j *YtdlpList) Work(ctx context.Context, job *minion.Job[*YtdlpList]) error {
+func (j *YtdlpList) Work(ctx context.Context, job *minion.Job[*YtdlpList]) (err error) {
 	// l := s.Logger.Named("ytdlp.list")
 	name := job.Args.Name
 	url := job.Args.URL
+	pid := job.Args.PageID
+
+	// defer func() {
+	// 	if err != nil {
+	// 		if e := app.DB.Visit.Save()
+	// 	}
+	// }()
 
 	list, err := ytdlp.ProcessURL(url)
 	if err != nil {
@@ -31,7 +41,7 @@ func (j *YtdlpList) Work(ctx context.Context, job *minion.Job[*YtdlpList]) error
 
 	for _, e := range list {
 		// l.Warnf("ytdlp-list: %s", e.WebpageURL)
-		if err := app.Workers.Enqueue(&YtdlpParse{Name: name, Source: "myanime", Info: e}); err != nil {
+		if err := app.Workers.Enqueue(&YtdlpParse{Name: name, PageID: pid, Source: "myanime", Info: e}); err != nil {
 			return fae.Errorf("ytdlp-list: info: %s: %w", e.WebpageURL, err)
 		}
 	}
@@ -42,6 +52,7 @@ func (j *YtdlpList) Work(ctx context.Context, job *minion.Job[*YtdlpList]) error
 type YtdlpParse struct {
 	minion.WorkerDefaults[*YtdlpParse]
 	Name   string
+	PageID primitive.ObjectID
 	Source string
 	Info   *ytdlp.Info
 }
@@ -52,6 +63,7 @@ func (j *YtdlpParse) Work(ctx context.Context, job *minion.Job[*YtdlpParse]) err
 	name := job.Args.Name
 	source := job.Args.Source
 	info := job.Args.Info
+	pid := job.Args.PageID
 
 	// l.Warnf("%s %d %s [%s] URL:%s", info.Fulltitle, info.Height, info.EXT, info.DisplayID, info.WebpageURL)
 
@@ -69,6 +81,7 @@ func (j *YtdlpParse) Work(ctx context.Context, job *minion.Job[*YtdlpParse]) err
 	}
 
 	video := &Video{}
+	video.PageId = pid
 	video.Title = name
 	video.Season = season
 	video.Episode = episode

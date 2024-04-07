@@ -2,14 +2,17 @@ import { useEffect, useState } from 'react';
 
 import { Visit } from 'client';
 
+import DeleteIcon from '@mui/icons-material/Delete';
 import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-import { Chrono, Row } from '@dashotv/components';
+import { ButtonMap, ButtonMapButton, Chrono, Row } from '@dashotv/components';
 
 import { usePagesQuery } from 'components/pages';
+
+import { useVisitsDeleteMutation } from './query';
 
 export interface PagesMap {
   [key: string]: string;
@@ -18,6 +21,8 @@ export interface PagesMap {
 export const VisitsList = ({ data }: { data: Visit[] }) => {
   const { data: pages } = usePagesQuery(1);
   const [pagesMap, setPagesMap] = useState<PagesMap>({});
+  const remove = useVisitsDeleteMutation();
+
   useEffect(() => {
     if (pages?.result) {
       const p: PagesMap = {};
@@ -29,8 +34,28 @@ export const VisitsList = ({ data }: { data: Visit[] }) => {
       setPagesMap(p);
     }
   }, [pages]);
+
   const view = (row: Visit) => {
-    console.log(row);
+    console.log('view:', row);
+  };
+  const deleteVisit = (row: Visit) => {
+    if (!row.id) return;
+    remove.mutate(row.id);
+  };
+
+  const actions = (row: Visit) => {
+    const buttons: ButtonMapButton[] = [
+      {
+        title: 'Delete',
+        Icon: DeleteIcon,
+        color: 'error',
+        click: ev => {
+          ev.preventDefault();
+          deleteVisit(row);
+        },
+      },
+    ];
+    return <ButtonMap buttons={buttons} size="small" />;
   };
 
   return (
@@ -50,7 +75,7 @@ export const VisitsList = ({ data }: { data: Visit[] }) => {
                 component="div"
                 fontWeight="bolder"
                 noWrap
-                color="primary"
+                color={row.error ? 'error' : 'primary'}
                 sx={{ pr: 1, '& a': { color: 'primary.main' } }}
               >
                 <Link href="#" onClick={() => view(row)}>
@@ -79,7 +104,7 @@ export const VisitsList = ({ data }: { data: Visit[] }) => {
                 <Typography noWrap variant="subtitle2" color="gray" pl="3px" width="100%">
                   {row.created_at && <Chrono fromNow>{row.created_at}</Chrono>}
                 </Typography>
-                {/* <Box>{actions && actions(row)}</Box> */}
+                {actions(row)}
               </Stack>
             </Stack>
           </Stack>

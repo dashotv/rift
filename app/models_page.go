@@ -50,3 +50,27 @@ func (c *Connector) IsVisited(page *Page, url string) (bool, error) {
 
 	return false, nil
 }
+
+func (c *Connector) VisitError(page *Page, url string, failure *fae.Error) error {
+	visits, err := c.Visit.Query().Where("page_id", page.ID).Where("url", url).Run()
+	if err != nil {
+		return fae.Errorf("visit_error: querying visit: %w", err)
+	}
+	if len(visits) == 0 {
+		return fae.Errorf("visit_error: no visit found")
+	}
+	if len(visits) > 1 {
+		return fae.Errorf("visit_error: multiple visits found")
+	}
+	if failure == nil {
+		return fae.Errorf("visit_error: failure is nil")
+	}
+
+	visits[0].Error = failure.Error()
+	visits[0].Stacktrace = fae.StackTrace(failure)
+	if err := c.Visit.Save(visits[0]); err != nil {
+		return fae.Errorf("visit_error: saving visit: %w", err)
+	}
+
+	return nil
+}

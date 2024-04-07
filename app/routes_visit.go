@@ -10,12 +10,6 @@ import (
 
 // GET /visit/
 func (a *Application) VisitIndex(c echo.Context, page int, limit int) error {
-	if page < 1 {
-		page = 1
-	}
-	if limit < 1 {
-		limit = 25
-	}
 	skip := (page - 1) * limit
 	if skip < 0 {
 		skip = 0
@@ -85,12 +79,13 @@ func (a *Application) VisitSettings(c echo.Context, id string, setting *Setting)
 
 // DELETE /visit/:id
 func (a *Application) VisitDelete(c echo.Context, id string) error {
-	// subject, err := a.DB.Visit.Get(id)
-	// if err != nil {
-	//     return c.JSON(http.StatusNotFound, H{"error": true, "message": "not found"})
-	// }
+	subject, err := a.DB.VisitGet(id)
+	if err != nil {
+		return c.JSON(http.StatusNotFound, H{"error": true, "message": "not found"})
+	}
+	if err := a.DB.Visit.Delete(subject); err != nil {
+		return fae.Wrap(err, "delete failed")
+	}
 
-	// TODO: implement the route
-	return c.JSON(http.StatusNotImplemented, H{"error": "not implmented"})
-	// return c.JSON(http.StatusOK, H{"error": false})
+	return c.JSON(http.StatusOK, H{"error": false})
 }

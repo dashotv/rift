@@ -5,3 +5,7 @@ fields:
     type: primitive.ObjectID
   - name: url
     type: string
+  - name: error
+    type: string
+  - name: stacktrace
+    type: "[]string"

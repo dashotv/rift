@@ -3,6 +3,19 @@ path: /page
 rest: true
 model: "*Page"
 routes:
+  - name: visits
+    path: /:id/visits
+    method: GET
+    result: "[]*Visit"
+    params:
+      - name: id
+        type: string
+      - name: page
+        type: int
+        query: true
+      - name: limit
+        type: int
+        query: true
   - name: videos
     path: /:id/videos
     method: GET
@@ -16,3 +29,10 @@ routes:
       - name: limit
         type: int
         query: true
+  - name: refresh
+    path: /:id/refresh
+    method: POST
+    result: "*Page"
+    params:
+      - name: id
+        type: string

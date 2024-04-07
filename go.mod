@@ -4,7 +4,7 @@ go 1.22.1
 
 require (
 	github.com/caarlos0/env/v10 v10.0.0
-	github.com/dashotv/fae v0.1.4
+	github.com/dashotv/fae v0.1.5
 	github.com/dashotv/golem v0.14.2
 	github.com/dashotv/grimoire v0.5.1
 	github.com/dashotv/minion v0.4.3
