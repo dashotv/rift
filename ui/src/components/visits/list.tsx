@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Truncate from 'react-truncate-inside';
 
 import { Visit } from 'client';
 
@@ -79,7 +80,7 @@ export const VisitsList = ({ data }: { data: Visit[] }) => {
                 sx={{ pr: 1, '& a': { color: 'primary.main' } }}
               >
                 <Link href="#" onClick={() => view(row)}>
-                  {row.url}
+                  {row.url ? <Truncate text={row.url} ellipsis=" ... " width={500} offset={50} /> : null}
                 </Link>
               </Typography>
             </Stack>

@@ -1,4 +1,4 @@
-import { Container } from '@mui/material';
+import { Box } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
@@ -34,21 +34,21 @@ const queryClient = new QueryClient({
   },
 });
 
-const App = () => {
+const App = ({ mount }: { mount: string }) => {
   const tabsMap: RoutingTabsRoute[] = [
     {
       label: 'Pages',
-      to: '/rift',
+      to: '',
       element: <Pages />,
     },
     {
       label: 'Visits',
-      to: '/rift/visits',
+      to: 'visits',
       element: <Visits />,
     },
     {
       label: 'Videos',
-      to: '/rift/videos',
+      to: 'videos',
       element: <Videos />,
     },
   ];
@@ -56,9 +56,9 @@ const App = () => {
     <ThemeProvider theme={darkTheme}>
       <QueryClientProvider client={queryClient}>
         <CssBaseline />
-        <Container>
-          <RoutingTabs data={tabsMap} route={'/'} />
-        </Container>
+        <Box sx={{ pr: 2, pl: 2 }}>
+          <RoutingTabs data={tabsMap} mount={mount} />
+        </Box>
       </QueryClientProvider>
     </ThemeProvider>
   );

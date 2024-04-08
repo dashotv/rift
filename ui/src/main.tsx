@@ -12,7 +12,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <Router>
       <HelmetProvider>
-        <App />
+        <App mount="/" />
       </HelmetProvider>
     </Router>
   </React.StrictMode>,
