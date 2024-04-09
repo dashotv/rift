@@ -21,7 +21,7 @@ server:
 	go run main.go server
 
 docker:
-	docker build -t $(NAME) .
+	docker build --build-arg="GITHUB_TOKEN=$(GITHUB_TOKEN)" -t $(NAME) .
 
 docker-run:
 	docker run -d --rm --name $(NAME) -p $(PORT):$(PORT) $(NAME)
