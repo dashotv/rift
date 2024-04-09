@@ -14,8 +14,6 @@ steps:
       DOCKER_BUILDKIT: 1
       GITHUB_TOKEN:
         from_secret: npm_github_token
-    build_args_from_env:
-      - GITHUB_TOKEN
     settings:
       registry: docker.dasho.tv
       username:
@@ -26,6 +24,7 @@ steps:
       tags:
         - latest
         - ${DRONE_BUILD_NUMBER}
+      build_args_from_env: [GITHUB_TOKEN]
   - name: deploy
     image: appleboy/drone-ssh
     settings:
