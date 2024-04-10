@@ -38,14 +38,14 @@ func (c *Connector) PageList() ([]*Page, error) {
 func (c *Connector) IsVisited(page *Page, url string) (bool, error) {
 	count, err := c.Visit.Query().Where("page_id", page.ID).Where("url", url).Count()
 	if err != nil {
-		return false, fae.Errorf("is_visited: counting visit: %w", err)
+		return false, fae.Wrap(err, "is_visited: counting visit")
 	}
 	if count > 0 {
 		return true, nil
 	}
 
 	if err := c.Visit.Save(&Visit{PageId: page.ID, Url: url}); err != nil {
-		return false, fae.Errorf("is_visited: saving visit: %w", err)
+		return false, fae.Wrap(err, "is_visited: saving visit")
 	}
 
 	return false, nil
@@ -54,7 +54,7 @@ func (c *Connector) IsVisited(page *Page, url string) (bool, error) {
 func (c *Connector) VisitError(page *Page, url string, failure *fae.Error) error {
 	visits, err := c.Visit.Query().Where("page_id", page.ID).Where("url", url).Run()
 	if err != nil {
-		return fae.Errorf("visit_error: querying visit: %w", err)
+		return fae.Wrap(err, "visit_error: querying visit")
 	}
 	if len(visits) == 0 {
 		return fae.Errorf("visit_error: no visit found")
@@ -69,7 +69,7 @@ func (c *Connector) VisitError(page *Page, url string, failure *fae.Error) error
 	visits[0].Error = failure.Error()
 	visits[0].Stacktrace = fae.StackTrace(failure)
 	if err := c.Visit.Save(visits[0]); err != nil {
-		return fae.Errorf("visit_error: saving visit: %w", err)
+		return fae.Wrap(err, "visit_error: saving visit")
 	}
 
 	return nil

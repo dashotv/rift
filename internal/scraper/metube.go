@@ -1,8 +1,6 @@
 package scraper
 
 import (
-	"log"
-
 	"github.com/go-resty/resty/v2"
 
 	"github.com/dashotv/fae"
@@ -27,8 +25,8 @@ func (m *Metube) Download(name, url string) error {
 		ForceContentType("application/json").
 		Post(m.URL)
 	if err != nil {
-		log.Printf("DEBUG: resty: %s", resp.String())
-		return fae.Errorf("resty failed: %w", err)
+		// log.Printf("DEBUG: resty: %s", resp.String())
+		return fae.Wrap(err, "resty failed")
 	}
 
 	if !resp.IsSuccess() {

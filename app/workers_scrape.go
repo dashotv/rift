@@ -19,14 +19,14 @@ func (j *ScrapeAll) Work(ctx context.Context, job *minion.Job[*ScrapeAll]) error
 
 	pages, err := app.DB.Page.Query().Limit(-1).Desc("name").Run()
 	if err != nil {
-		return fae.Errorf("scrape: %s", err)
+		return fae.Wrap(err, "loading pages")
 	}
 
 	// l.Debugf("scraping all %d pages", len(pages))
 	for _, p := range pages {
 		// l.Debugf("page: %s", p.Name)
 		if err := app.Workers.Enqueue(&ScrapePage{Title: p.Name, Page: p}); err != nil {
-			return fae.Errorf("scrape_pages: enqueuing scrape_page: %w", err)
+			return fae.Wrap(err, "scrape_pages: enqueuing scrape_page")
 		}
 	}
 	return nil
@@ -51,7 +51,7 @@ func (j *ScrapePage) Work(ctx context.Context, job *minion.Job[*ScrapePage]) err
 		for _, url := range urls {
 			ok, err := app.DB.IsVisited(p, url)
 			if err != nil {
-				return fae.Errorf("scrape_page: is_visited: %w", err)
+				return fae.Wrap(err, "scrape_page: is_visited")
 			}
 			if ok {
 				continue
@@ -59,13 +59,13 @@ func (j *ScrapePage) Work(ctx context.Context, job *minion.Job[*ScrapePage]) err
 
 			// l.Debugf("'%s' %s", p.Name, url)
 			if err := app.Workers.Enqueue(&YtdlpList{Name: p.Name, PageID: p.ID, URL: url}); err != nil {
-				return fae.Errorf("scrape_page_url: enqueuing ytdlp_list: %w", err)
+				return fae.Wrap(err, "scrape_page_url: enqueuing ytdlp_list")
 			}
 		}
 
 		p.ProcessedAt = time.Now()
 		if err := app.DB.Page.Save(p); err != nil {
-			return fae.Errorf("scrape_page: saving page: %w", err)
+			return fae.Wrap(err, "scrape_page: saving page")
 		}
 	}
 	return nil

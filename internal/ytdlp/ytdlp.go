@@ -10,13 +10,13 @@ import (
 func ProcessURL(url string) ([]*Info, error) {
 	list, err := ytdlp_get_list(url)
 	if err != nil {
-		return nil, fae.Errorf("process_url: %s", err)
+		return nil, fae.Wrap(err, "getting list")
 	}
 
 	if list.Type == "video" {
 		info, err := ytdlp_get_info(url)
 		if err != nil {
-			return nil, fae.Errorf("process_url: info: %s", err)
+			return nil, fae.Wrap(err, "getting info")
 		}
 		return []*Info{info}, nil
 	}
@@ -26,16 +26,16 @@ func ProcessURL(url string) ([]*Info, error) {
 	for _, e := range list.Entries {
 		info, err := ytdlp_get_info(e.URL)
 		if err != nil {
-			// return nil, fae.Errorf("process_url: info: %s", err)
+			// return nil, fae.Wrap(err, "process_url: info")
 			// fmt.Printf("process_url: info: %s\n", err)
-			errors = append(errors, fae.Wrapf(err, "process_url: info: %s", e.URL))
+			errors = append(errors, fae.Wrapf(err, "getting info: %s", e.URL))
 			continue
 		}
 		infos = append(infos, info)
 	}
 
 	if len(errors) > 0 {
-		return nil, fae.Errorf("process_url: %d: first %s", len(errors), errors[0])
+		return nil, fae.Wrapf(errors[0], "%d errors, showing first", len(errors))
 	}
 
 	return infos, nil
@@ -47,12 +47,12 @@ func ytdlp_get_list(url string) (*List, error) {
 	cmd := exec.Command("yt-dlp", args...)
 	out, err := cmd.Output()
 	if err != nil {
-		return nil, fae.Errorf("ytdlp-list: %s", err)
+		return nil, fae.Wrap(err, "running command")
 	}
 
 	list := &List{}
 	if err = json.Unmarshal(out, list); err != nil {
-		return nil, fae.Errorf("ytdlp-list: %s", err)
+		return nil, fae.Wrap(err, "unmarshalling json")
 	}
 
 	return list, nil
@@ -64,12 +64,12 @@ func ytdlp_get_info(url string) (*Info, error) {
 	cmd := exec.Command("yt-dlp", args...)
 	out, err := cmd.Output()
 	if err != nil {
-		return nil, fae.Errorf("ytdlp-info: %s", err)
+		return nil, fae.Wrap(err, "running command")
 	}
 
 	info := &Info{}
 	if err = json.Unmarshal(out, info); err != nil {
-		return nil, fae.Errorf("ytdlp-info: %s", err)
+		return nil, fae.Wrap(err, "unmarshalling json")
 	}
 
 	return info, nil
