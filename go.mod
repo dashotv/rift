@@ -4,10 +4,10 @@ go 1.22.1
 
 require (
 	github.com/caarlos0/env/v10 v10.0.0
-	github.com/dashotv/fae v0.1.6
+	github.com/dashotv/fae v0.1.9
 	github.com/dashotv/golem v0.14.20
 	github.com/dashotv/grimoire v0.5.4
-	github.com/dashotv/minion v0.4.3
+	github.com/dashotv/minion v0.4.11
 	github.com/dotenv-org/godotenvvault v0.6.0
 	github.com/go-resty/resty/v2 v2.12.0
 	github.com/gocolly/colly/v2 v2.1.0
