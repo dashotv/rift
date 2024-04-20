@@ -2,6 +2,8 @@ import { useState } from 'react';
 
 import { Page } from 'client';
 
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import EditIcon from '@mui/icons-material/Edit';
 import ReplayCircleFilledIcon from '@mui/icons-material/ReplayCircleFilled';
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
@@ -11,11 +13,13 @@ import Typography from '@mui/material/Typography';
 
 import { ButtonMap, ButtonMapButton, Chrono, Row } from '@dashotv/components';
 
-import { PagesDialog, usePageRefreshMutation } from '.';
+import { PagesDialog, usePageDeleteMutation, usePageRefreshMutation } from '.';
 
-export const PageList = ({ data }: { data: Page[] }) => {
+export const PageList = ({ data, setEditing }: { data: Page[]; setEditing: (p: Page) => void }) => {
   const [viewing, setViewing] = useState<Page | null>(null);
+  // const [editing, setEditing] = useState<Page | null>(null);
   const pageRefresh = usePageRefreshMutation();
+  const pageDelete = usePageDeleteMutation();
   const view = (row: Page) => {
     console.log(row);
     setViewing(row);
@@ -25,11 +29,27 @@ export const PageList = ({ data }: { data: Page[] }) => {
   };
   const refresh = (row: Page) => {
     if (!row.id) return;
-    console.log('refresh:', row);
+    // console.log('refresh:', row);
     pageRefresh.mutate(row.id);
+  };
+  const edit = (row: Page) => {
+    // console.log(row);
+    setEditing(row);
+  };
+  const del = (row: Page) => {
+    pageDelete.mutate(row);
   };
   const actions = (row: Page) => {
     const buttons: ButtonMapButton[] = [
+      {
+        title: 'Edit',
+        Icon: EditIcon,
+        color: 'primary',
+        click: ev => {
+          ev.preventDefault();
+          edit(row);
+        },
+      },
       {
         title: 'Refresh',
         Icon: ReplayCircleFilledIcon,
@@ -37,6 +57,15 @@ export const PageList = ({ data }: { data: Page[] }) => {
         click: ev => {
           ev.preventDefault();
           refresh(row);
+        },
+      },
+      {
+        title: 'Delete',
+        Icon: DeleteForeverIcon,
+        color: 'error',
+        click: ev => {
+          ev.preventDefault();
+          del(row);
         },
       },
     ];

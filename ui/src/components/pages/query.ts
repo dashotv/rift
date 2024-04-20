@@ -1,6 +1,6 @@
-import { PageIndex, PageRefresh, PageVideos, PageVisits } from 'client';
+import { Page, PageCreate, PageDelete, PageIndex, PageRefresh, PageUpdate, PageVideos, PageVisits } from 'client';
 
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 export const usePagesQuery = (page: number, limit = 50) =>
   useQuery({
@@ -26,8 +26,47 @@ export const usePageVideosQuery = (id: string, page: number, limit = 50) =>
     retry: false,
   });
 
+export const usePageMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (page: Page) => {
+      if (!page.id) {
+        throw new Error('page id required');
+      }
+      return PageUpdate({ id: page.id, subject: page });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['pages'] });
+    },
+  });
+};
+
+export const usePageCreateMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (page: Page) => PageCreate({ subject: page }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['pages'] });
+    },
+  });
+};
+
+export const usePageDeleteMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (page: Page) => {
+      if (!page.id) {
+        throw new Error('page id required');
+      }
+      return PageDelete({ id: page.id });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['pages'] });
+    },
+  });
+};
 export const usePageRefreshMutation = () => {
   return useMutation({
-    onMutate: async (id: string) => PageRefresh({ id }),
+    mutationFn: async (id: string) => PageRefresh({ id }),
   });
 };
