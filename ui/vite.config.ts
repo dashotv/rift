@@ -36,6 +36,7 @@ export default defineConfig({
     outDir: '../static',
   },
   server: {
+    port: 3006,
     proxy: {
       '/api/rift': {
         target: 'http://localhost:59006',
