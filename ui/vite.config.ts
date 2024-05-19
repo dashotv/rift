@@ -38,7 +38,7 @@ export default defineConfig({
     port: 3006,
     proxy: {
       '/api/rift': {
-        target: 'http://localhost:59006',
+        target: 'http://host.docker.internal:59006',
         changeOrigin: true,
         secure: false,
         ws: true,
