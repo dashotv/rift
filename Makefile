@@ -29,6 +29,12 @@ docker-run:
 dotenv:
 	npx dotenv-vault local build
 
+clean:
+	rm -rf static/assets/*
+
+ui: clean
+	cd ui && npm run build
+
 deps:
 	go install golang.org/x/tools/cmd/goimports@latest
 	go install github.com/dashotv/golem@latest
