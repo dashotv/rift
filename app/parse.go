@@ -7,8 +7,9 @@ import (
 
 var seasonRegex = regexp.MustCompile(`(?i)(?:s|season)(?:\s*)(\d{1,2})`)
 var episodeRegex = regexp.MustCompile(`(?i)[e第](?:p)*(?:isode)*\s*(\d+)`)
+var urlRegex = regexp.MustCompile(`(?i)(?:season[\s-]+(\d+))*[\s-]+episode[\s-]+(\d+)`)
 
-func ParseFulltitle(title string) (string, int, int, error) {
+func ParseFulltitle(title string) (int, int) {
 	season := 0
 	episode := 0
 
@@ -22,5 +23,21 @@ func ParseFulltitle(title string) (string, int, int, error) {
 		episode = e
 	}
 
-	return title, season, episode, nil
+	return season, episode
+}
+
+func ParseURL(url string) (int, int) {
+	season := 0
+	episode := 0
+
+	if results := urlRegex.FindStringSubmatch(url); len(results) == 3 {
+		if results[1] != "" {
+			s, _ := strconv.Atoi(results[1])
+			season = s
+		}
+		e, _ := strconv.Atoi(results[2])
+		episode = e
+	}
+
+	return season, episode
 }

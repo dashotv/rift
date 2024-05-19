@@ -44,29 +44,30 @@ func (j *ScrapePage) Work(ctx context.Context, job *minion.Job[*ScrapePage]) err
 	l := app.Log.Named("scrape.page")
 
 	// l.Debugf("scrape: %s", p.Name)
-	if app.Config.Production {
-		scr := scraper.NewMyAnime(l)
-		urls := scr.Read(p.Url)
+	// if app.Config.Production {
+	scr := scraper.NewMyAnime(l)
+	urls := scr.Read(p.Url)
 
-		for _, url := range urls {
-			ok, err := app.DB.IsVisited(p, url)
-			if err != nil {
-				return fae.Wrap(err, "scrape_page: is_visited")
-			}
-			if ok {
-				continue
-			}
-
-			// l.Debugf("'%s' %s", p.Name, url)
-			if err := app.Workers.Enqueue(&YtdlpList{Name: p.Name, PageID: p.ID, URL: url}); err != nil {
-				return fae.Wrap(err, "scrape_page_url: enqueuing ytdlp_list")
-			}
+	for _, url := range urls {
+		ok, err := app.DB.IsVisited(p, url)
+		if err != nil {
+			return fae.Wrap(err, "scrape_page: is_visited")
+		}
+		if ok {
+			// l.Debugf("'%s' already visited: %s", p.Name, url)
+			continue
 		}
 
-		p.ProcessedAt = time.Now()
-		if err := app.DB.Page.Save(p); err != nil {
-			return fae.Wrap(err, "scrape_page: saving page")
+		// l.Debugf("'%s' %s", p.Name, url)
+		if err := app.Workers.Enqueue(&YtdlpList{Name: p.Name, PageID: p.ID, URL: url}); err != nil {
+			return fae.Wrap(err, "scrape_page_url: enqueuing ytdlp_list")
 		}
 	}
+
+	p.ProcessedAt = time.Now()
+	if err := app.DB.Page.Save(p); err != nil {
+		return fae.Wrap(err, "scrape_page: saving page")
+	}
+	// }
 	return nil
 }

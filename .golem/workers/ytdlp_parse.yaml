@@ -4,5 +4,7 @@ fields:
     type: string
   - name: source
     type: string
+  - name: url
+    type: string
   - name: info
     type: "*YtdlpInfo"

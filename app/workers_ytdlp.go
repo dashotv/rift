@@ -41,7 +41,7 @@ func (j *YtdlpList) Work(ctx context.Context, job *minion.Job[*YtdlpList]) (err 
 
 	for _, e := range list {
 		// l.Warnf("ytdlp-list: %s", e.WebpageURL)
-		if err := app.Workers.Enqueue(&YtdlpParse{Name: name, PageID: pid, Source: "myanime", Info: e}); err != nil {
+		if err := app.Workers.Enqueue(&YtdlpParse{Name: name, PageID: pid, Source: "myanime", URL: url, Info: e}); err != nil {
 			return fae.Wrapf(err, "ytdlp-list: info: %s", e.WebpageURL)
 		}
 	}
@@ -54,6 +54,7 @@ type YtdlpParse struct {
 	Name   string
 	PageID primitive.ObjectID
 	Source string
+	URL    string
 	Info   *ytdlp.Info
 }
 
@@ -62,6 +63,7 @@ func (j *YtdlpParse) Work(ctx context.Context, job *minion.Job[*YtdlpParse]) err
 	// l := s.Logger.Named("ytdlp.parse")
 	name := job.Args.Name
 	source := job.Args.Source
+	url := job.Args.URL
 	info := job.Args.Info
 	pid := job.Args.PageID
 
@@ -75,9 +77,9 @@ func (j *YtdlpParse) Work(ctx context.Context, job *minion.Job[*YtdlpParse]) err
 		return nil
 	}
 
-	_, season, episode, err := ParseFulltitle(info.Fulltitle)
-	if err != nil {
-		return fae.Wrap(err, "parsing")
+	season, episode := ParseURL(url)
+	if episode == 0 {
+		season, episode = ParseFulltitle(info.Fulltitle)
 	}
 
 	video := &Video{}
@@ -90,7 +92,7 @@ func (j *YtdlpParse) Work(ctx context.Context, job *minion.Job[*YtdlpParse]) err
 	video.Extension = info.EXT
 	video.DisplayId = info.DisplayID
 	video.Download = info.WebpageURL
-	video.View = info.WebpageURL
+	video.View = url
 	video.Size = info.FilesizeApprox
 	video.Source = source
 

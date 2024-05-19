@@ -12,12 +12,25 @@ type parseCase struct {
 	episode int
 }
 
-func TestParse(t *testing.T) {
+func TestParseFulltitle(t *testing.T) {
 	subjects := []parseCase{{"wspws1ep78eng", 1, 78}}
 	for _, subject := range subjects {
 		t.Run(subject.title, func(t *testing.T) {
-			_, s, e, err := ParseFulltitle(subject.title)
-			assert.NoError(t, err)
+			s, e := ParseFulltitle(subject.title)
+			assert.Equal(t, subject.season, s)
+			assert.Equal(t, subject.episode, e)
+		})
+	}
+}
+
+func TestParseURL(t *testing.T) {
+	subjects := []parseCase{
+		{"https://myanime.live/2024/05/19/battle-through-the-heavens-season-5-episode-97-english-sub/", 5, 97},
+		{"https://myanime.live/2024/05/19/xiaobing-chuanqi-legend-of-soldier-episode-04-english-sub/", 0, 4},
+	}
+	for _, subject := range subjects {
+		t.Run(subject.title, func(t *testing.T) {
+			s, e := ParseURL(subject.title)
 			assert.Equal(t, subject.season, s)
 			assert.Equal(t, subject.episode, e)
 		})
