@@ -77,9 +77,9 @@ func (j *YtdlpParse) Work(ctx context.Context, job *minion.Job[*YtdlpParse]) err
 		return nil
 	}
 
-	season, episode := ParseURL(url)
+	season, episode := ParseFulltitle(info.Fulltitle)
 	if episode == 0 {
-		season, episode = ParseFulltitle(info.Fulltitle)
+		season, episode = ParseURL(url)
 	}
 
 	video := &Video{}
