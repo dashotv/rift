@@ -13,7 +13,13 @@ import { VideosList } from 'components/videos';
 
 import { usePageVideosQuery } from '.';
 
-export const PagesDialog = ({ close, page: { id, name, processed_at, url } }: { close: () => void; page: Page }) => {
+export const PagesDialog = ({
+  close,
+  page: { id, name, processed_at, url, scraper, downloader },
+}: {
+  close: () => void;
+  page: Page;
+}) => {
   const [open, setOpen] = useState(true);
   const handleClose = () => {
     setOpen(false);
@@ -52,25 +58,31 @@ export const PagesDialog = ({ close, page: { id, name, processed_at, url } }: { 
         </IconButton>
       </DialogTitle>
       <DialogContent>
-        <Stack width="100%" direction={{ xs: 'column', md: 'row' }} spacing={0} sx={{ mb: 1 }}>
+        <Stack width="100%" direction={{ xs: 'column', md: 'row' }} spacing={1} alignItems="center">
           <Typography minWidth="125px" variant="subtitle1" color="textSecondary">
             ID
           </Typography>
           <Typography variant="button">{id}</Typography>
         </Stack>
-        <Stack width="100%" direction={{ xs: 'column', md: 'row' }} spacing={0} sx={{ mb: 1 }}>
+        <Stack width="100%" direction={{ xs: 'column', md: 'row' }} spacing={1} alignItems="center">
           <Typography minWidth="125px" variant="subtitle1" color="textSecondary">
             Name
           </Typography>
           <Typography variant="subtitle1">{name}</Typography>
+          <Typography variant="subtitle2" color="primary">
+            {scraper || 'myanime'}
+          </Typography>
+          <Typography variant="subtitle2" color="secondary">
+            {downloader || 'metube'}
+          </Typography>
         </Stack>
-        <Stack width="100%" direction={{ xs: 'column', md: 'row' }} spacing={0} sx={{ mb: 1 }}>
+        <Stack width="100%" direction={{ xs: 'column', md: 'row' }} spacing={1} alignItems="center">
           <Typography minWidth="125px" variant="subtitle1" color="textSecondary">
             URL
           </Typography>
           <Typography variant="subtitle1">{url}</Typography>
         </Stack>
-        <Stack width="100%" direction={{ xs: 'column', md: 'row' }} spacing={0} sx={{ mb: 1 }}>
+        <Stack width="100%" direction={{ xs: 'column', md: 'row' }} spacing={1} alignItems="center">
           <Typography minWidth="125px" variant="subtitle1" color="textSecondary">
             Processed At
           </Typography>

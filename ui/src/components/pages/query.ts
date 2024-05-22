@@ -10,7 +10,7 @@ export const usePagesQuery = (page: number, limit = 50) =>
     retry: false,
   });
 
-export const usePageVisitsQuery = (id: string, page: number, limit = 50) =>
+export const usePageVisitsQuery = (id: string, page: number, limit = 5) =>
   useQuery({
     queryKey: ['pages', id, 'videos', page],
     queryFn: () => PageVisits({ id, page, limit }),
