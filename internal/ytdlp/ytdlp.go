@@ -2,6 +2,7 @@ package ytdlp
 
 import (
 	"encoding/json"
+	"fmt"
 	"os/exec"
 
 	"github.com/dashotv/fae"
@@ -64,6 +65,7 @@ func ytdlp_get_info(url string) (*Info, error) {
 	cmd := exec.Command("yt-dlp", args...)
 	out, err := cmd.Output()
 	if err != nil {
+		fmt.Printf("ytdlp_get_info: %s\n", out)
 		return nil, fae.Wrap(err, "running command")
 	}
 
