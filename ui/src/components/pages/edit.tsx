@@ -8,9 +8,15 @@ import { Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Stack, Typ
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
-import { Text } from '@dashotv/components';
+import { Option, Select, Text } from '@dashotv/components';
 
 import { usePageCreateMutation, usePageMutation } from '.';
+
+const scraperOptions: Option[] = [
+  { value: 'myanime', label: 'MyAnime.live' },
+  { value: 'jhdanime', label: 'JHDAnime.live' },
+];
+const downloaderOptions: Option[] = [{ value: 'metube', label: 'MeTube' }];
 
 export const PagesEditDialog = ({
   setEditing,
@@ -67,6 +73,10 @@ export const PagesEditDialog = ({
           <Stack direction="column" spacing={1}>
             <Text name="name" control={control} />
             <Text name="url" control={control} />
+            <Stack direction="row" spacing={1}>
+              <Select name="scraper" control={control} options={scraperOptions} />
+              <Select name="downloader" control={control} options={downloaderOptions} />
+            </Stack>
           </Stack>
           <Stack direction="row" spacing={1} sx={{ mt: 3, width: '100%', justifyContent: 'end' }}>
             <Button variant="contained" onClick={() => handleClose()}>

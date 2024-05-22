@@ -35,7 +35,11 @@ const Videos = () => {
       <Grid container spacing={0} sx={{ mb: 2 }}>
         <Grid item xs={12} md={6}>
           <Stack direction="row" spacing={0} alignItems="center">
-            <IconButton aria-label="refresh" color="primary" onClick={() => setEditing({ name: '', url: '' })}>
+            <IconButton
+              aria-label="refresh"
+              color="primary"
+              onClick={() => setEditing({ name: '', url: '', scraper: 'myanime', downloader: 'metube' })}
+            >
               <QueueIcon />
             </IconButton>
           </Stack>

@@ -10,7 +10,7 @@ export const usePagesQuery = (page: number, limit = 50) =>
     retry: false,
   });
 
-export const usePageVisitsQuery = (id: string, page: number, limit = 5) =>
+export const usePageVisitsQuery = (id: string, page: number, limit = 10) =>
   useQuery({
     queryKey: ['pages', id, 'videos', page],
     queryFn: () => PageVisits({ id, page, limit }),
@@ -18,7 +18,7 @@ export const usePageVisitsQuery = (id: string, page: number, limit = 5) =>
     retry: false,
   });
 
-export const usePageVideosQuery = (id: string, page: number, limit = 50) =>
+export const usePageVideosQuery = (id: string, page: number, limit = 10) =>
   useQuery({
     queryKey: ['pages', id, 'videos', page],
     queryFn: () => PageVideos({ id, page, limit }),
