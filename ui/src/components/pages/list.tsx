@@ -96,6 +96,12 @@ export const PageList = ({ data, setEditing }: { data: Page[]; setEditing: (p: P
                   {row.name}
                 </Link>
               </Typography>
+              <Typography variant="subtitle2" color="primary.dark">
+                {row.scraper || 'myanime'}
+              </Typography>
+              <Typography variant="subtitle2" color="secondary.dark">
+                {row.downloader || 'metube'}
+              </Typography>
               {/* <Group group={row.scraper} author="myanime" variant="default" /> */}
             </Stack>
             <Stack

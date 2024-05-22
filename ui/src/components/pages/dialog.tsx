@@ -69,10 +69,10 @@ export const PagesDialog = ({
             Name
           </Typography>
           <Typography variant="subtitle1">{name}</Typography>
-          <Typography variant="subtitle2" color="primary">
+          <Typography variant="subtitle2" color="primary.dark">
             {scraper || 'myanime'}
           </Typography>
-          <Typography variant="subtitle2" color="secondary">
+          <Typography variant="subtitle2" color="secondary.dark">
             {downloader || 'metube'}
           </Typography>
         </Stack>
