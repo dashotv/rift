@@ -3,15 +3,16 @@ import { useState } from 'react';
 import { Page } from 'client';
 
 import CloseIcon from '@mui/icons-material/Close';
-import { Dialog, DialogContent, DialogTitle, IconButton, Paper, Stack, Typography } from '@mui/material';
+import { Dialog, DialogContent, DialogTitle, IconButton, Stack, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
-import { Chrono } from '@dashotv/components';
+import { Chrono, MediumTabMap, MediumTabs } from '@dashotv/components';
 
 import { VideosList } from 'components/videos';
+import { VisitsList } from 'components/visits';
 
-import { usePageVideosQuery } from '.';
+import { usePageVideosQuery, usePageVisitsQuery } from '.';
 
 export const PagesDialog = ({
   close,
@@ -32,9 +33,15 @@ export const PagesDialog = ({
   }
 
   const { data } = usePageVideosQuery(id, 1);
+  const { data: visits } = usePageVisitsQuery(id, 1);
 
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+
+  const tabs: MediumTabMap = {
+    Videos: <VideosList data={data?.result || []} />,
+    Visits: <VisitsList data={visits?.result || []} />,
+  };
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth fullScreen={fullScreen}>
@@ -90,10 +97,7 @@ export const PagesDialog = ({
             {processed_at && <Chrono fromNow>{processed_at}</Chrono>}
           </Typography>
         </Stack>
-        <Paper elevation={0} sx={{ p: 1, width: '100%' }}>
-          {/* <Row>{data?.result?.map((row: Video) => <div>{row.title}</div>)}</Row> */}
-          <VideosList data={data?.result || []} />
-        </Paper>
+        <MediumTabs data={tabs} />
       </DialogContent>
     </Dialog>
   );

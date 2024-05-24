@@ -12,7 +12,7 @@ export const usePagesQuery = (page: number, limit = 50) =>
 
 export const usePageVisitsQuery = (id: string, page: number, limit = 10) =>
   useQuery({
-    queryKey: ['pages', id, 'videos', page],
+    queryKey: ['pages', id, 'visits', page],
     queryFn: () => PageVisits({ id, page, limit }),
     placeholderData: previousData => previousData,
     retry: false,
