@@ -108,7 +108,7 @@ func (a *Application) PageVisits(c echo.Context, id string, page int, limit int)
 		return err
 	}
 
-	list, err := q.Desc("created_at").Limit(limit).Skip((page - 0) * limit).Run()
+	list, err := q.Desc("created_at").Limit(limit).Skip((page - 1) * limit).Run()
 	if err != nil {
 		return err
 	}
