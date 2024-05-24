@@ -30,9 +30,9 @@ func (a *Application) PageIndex(c echo.Context, page int, limit int) error {
 
 // POST /page/
 func (a *Application) PageCreate(c echo.Context, req *Page) error {
-	if a.DB.PageExists(req.Name) {
-		return fae.New("page exists")
-	}
+	// if a.DB.PageExists(req.Name) {
+	// 	return fae.New("page exists")
+	// }
 
 	if err := a.DB.Page.Save(req); err != nil {
 		return fae.Wrap(err, "save failed")
