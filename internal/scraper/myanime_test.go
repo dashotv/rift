@@ -17,3 +17,12 @@ func TestGetVideos(t *testing.T) {
 		fmt.Printf("url: %s\n", u)
 	}
 }
+
+func TestMyAnime_Parse(t *testing.T) {
+	url := "https://myanime.live/"
+	client := NewMyAnime(zap.NewExample().Sugar())
+	list := client.Parse(url)
+	for _, l := range list {
+		fmt.Printf("myanime: %+v\n", l)
+	}
+}

@@ -9,21 +9,21 @@ import (
 	"go.uber.org/zap"
 )
 
-var myanimeRegex = regexp.MustCompile(`(?i)^http(?:s)*://myanime\.live/\d+/\d+/\d+/([\w-]+?)(?:-season-(\d+))*-episode-(\d+)`)
+var xinRegex = regexp.MustCompile(`(?i)^http(?:s)*://animexin\.vip/([\w-]+?)(?:-season-(\d+))*-episode-(\d+)`)
 
-func NewMyAnime(log *zap.SugaredLogger) *MyAnime {
-	return &MyAnime{
+func NewAnimeXin(log *zap.SugaredLogger) *AnimeXin {
+	return &AnimeXin{
 		col: colly.NewCollector(),
-		log: log.Named("myanime"),
+		log: log.Named("animexin"),
 	}
 }
 
-type MyAnime struct {
+type AnimeXin struct {
 	col *colly.Collector
 	log *zap.SugaredLogger
 }
 
-func (m *MyAnime) Read(url string) []string {
+func (m *AnimeXin) Read(url string) []string {
 	urls := []string{}
 	m.col.OnHTML("article", func(e *colly.HTMLElement) {
 		urls = append(urls, e.ChildAttr("a", "href"))
@@ -35,11 +35,11 @@ func (m *MyAnime) Read(url string) []string {
 	return urls
 }
 
-func (m *MyAnime) Parse(url string) []*Result {
+func (m *AnimeXin) Parse(url string) []*Result {
 	results := []*Result{}
 	list := m.Read(url)
 	for _, l := range list {
-		match := myanimeRegex.FindAllStringSubmatch(l, -1)
+		match := xinRegex.FindAllStringSubmatch(l, -1)
 		if len(match) > 0 {
 			// m.log.Infof("match: %v\n", match[0])
 			title := strings.Replace(match[0][1], "-", " ", -1)

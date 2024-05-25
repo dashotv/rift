@@ -4,6 +4,7 @@ import "go.uber.org/zap"
 
 type Scraper interface {
 	Read(url string) []string
+	Parse(url string) []*Result
 }
 
 func New(name string, log *zap.SugaredLogger) Scraper {
@@ -12,7 +13,16 @@ func New(name string, log *zap.SugaredLogger) Scraper {
 		return NewMyAnime(log)
 	case "jhdanime":
 		return NewJhdAnime(log)
+	case "animexin":
+		return NewAnimeXin(log)
 	default:
 		return nil
 	}
+}
+
+type Result struct {
+	Title   string
+	Season  int
+	Episode int
+	URL     string
 }
