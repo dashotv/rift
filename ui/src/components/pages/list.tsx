@@ -19,9 +19,6 @@ import { PagesDialog, usePageDeleteMutation, usePageMutation, usePageRefreshMuta
 export const PageList = ({ data, setEditing }: { data: Page[]; setEditing: (p: Page) => void }) => {
   const [viewing, setViewing] = useState<Page | null>(null);
   // const [editing, setEditing] = useState<Page | null>(null);
-  const pageUpdate = usePageMutation();
-  const pageRefresh = usePageRefreshMutation();
-  const pageDelete = usePageDeleteMutation();
   const view = (row: Page) => {
     console.log(row);
     setViewing(row);
@@ -29,6 +26,56 @@ export const PageList = ({ data, setEditing }: { data: Page[]; setEditing: (p: P
   const handleClose = () => {
     setViewing(null);
   };
+
+  const enabled = data.filter(row => row.enabled);
+  const disabled = data.filter(row => !row.enabled);
+
+  return (
+    <>
+      <Typography variant="button" color="primary.dark" fontWeight="bolder">
+        Enabled
+      </Typography>
+      <Paper elevation={0} sx={{ width: '100%', mb: 2 }}>
+        {enabled.length === 0 && (
+          <Typography variant="caption" color="gray">
+            No enabled pages
+          </Typography>
+        )}
+        {enabled.map((row: Page) => (
+          <PageListRow key={row.id} row={row} view={view} setEditing={setEditing} />
+        ))}
+      </Paper>
+
+      <Typography variant="button" color="primary.dark" fontWeight="bolder">
+        Disabled
+      </Typography>
+      <Paper elevation={0} sx={{ width: '100%' }}>
+        {disabled.length === 0 && (
+          <Typography variant="caption" color="gray">
+            No disabled pages
+          </Typography>
+        )}
+        {disabled.map((row: Page) => (
+          <PageListRow key={row.id} row={row} view={view} setEditing={setEditing} />
+        ))}
+      </Paper>
+      {viewing && <PagesDialog {...{ open, close: handleClose }} page={viewing} />}
+    </>
+  );
+};
+
+const PageListRow = ({
+  row,
+  view,
+  setEditing,
+}: {
+  row: Page;
+  view: (row: Page) => void;
+  setEditing: (p: Page) => void;
+}) => {
+  const pageUpdate = usePageMutation();
+  const pageRefresh = usePageRefreshMutation();
+  const pageDelete = usePageDeleteMutation();
   const refresh = (row: Page) => {
     if (!row.id) return;
     // console.log('refresh:', row);
@@ -84,54 +131,49 @@ export const PageList = ({ data, setEditing }: { data: Page[]; setEditing: (p: P
   };
 
   return (
-    <Paper elevation={0} sx={{ width: '100%' }}>
-      {data.map((row: Page) => (
-        <Row key={row.id}>
-          <Stack direction={{ xs: 'column', md: 'row' }} spacing={{ xs: 0, md: 1 }} alignItems="center">
-            <Stack
-              direction="row"
-              spacing={1}
-              width="100%"
-              maxWidth={{ xs: '100%', md: '800px' }}
-              pr="3px"
-              alignItems="center"
-            >
-              <Typography
-                component="div"
-                fontWeight="bolder"
-                noWrap
-                color="primary"
-                sx={{ pr: 1, '& a': { color: 'primary.main' } }}
-              >
-                <Link href="#" onClick={() => view(row)}>
-                  {row.name}
-                </Link>
-              </Typography>
-              <Typography variant="subtitle2" color="primary.dark">
-                {row.scraper || 'myanime'}
-              </Typography>
-              <Typography variant="subtitle2" color="secondary.dark">
-                {row.downloader || 'metube'}
-              </Typography>
-              {/* <Group group={row.scraper} author="myanime" variant="default" /> */}
-            </Stack>
-            <Stack
-              direction="row"
-              spacing={1}
-              alignItems="center"
-              sx={{ width: '100%', justifyContent: { xs: 'start', md: 'end' } }}
-            >
-              <Stack width={{ xs: '100%', md: 'auto' }} direction="row" spacing={1} alignItems="center">
-                <Typography noWrap variant="subtitle2" color="gray" pl="3px" width="100%">
-                  {row.processed_at && <Chrono fromNow>{row.processed_at}</Chrono>}
-                </Typography>
-                <Box>{actions && actions(row)}</Box>
-              </Stack>
-            </Stack>
+    <Row key={row.id}>
+      <Stack direction={{ xs: 'column', md: 'row' }} spacing={{ xs: 0, md: 1 }} alignItems="center">
+        <Stack
+          direction="row"
+          spacing={1}
+          width="100%"
+          maxWidth={{ xs: '100%', md: '800px' }}
+          pr="3px"
+          alignItems="center"
+        >
+          <Typography
+            component="div"
+            fontWeight="bolder"
+            noWrap
+            color="primary"
+            sx={{ pr: 1, '& a': { color: 'primary.main' } }}
+          >
+            <Link href="#" onClick={() => view(row)}>
+              {row.name}
+            </Link>
+          </Typography>
+          <Typography variant="subtitle2" color="primary.dark">
+            {row.scraper || 'myanime'}
+          </Typography>
+          <Typography variant="subtitle2" color="secondary.dark">
+            {row.downloader || 'metube'}
+          </Typography>
+          {/* <Group group={row.scraper} author="myanime" variant="default" /> */}
+        </Stack>
+        <Stack
+          direction="row"
+          spacing={1}
+          alignItems="center"
+          sx={{ width: '100%', justifyContent: { xs: 'start', md: 'end' } }}
+        >
+          <Stack width={{ xs: '100%', md: 'auto' }} direction="row" spacing={1} alignItems="center">
+            <Typography noWrap variant="subtitle2" color="gray" pl="3px" width="100%">
+              {row.processed_at && <Chrono fromNow>{row.processed_at}</Chrono>}
+            </Typography>
+            <Box>{actions && actions(row)}</Box>
           </Stack>
-        </Row>
-      ))}
-      {viewing && <PagesDialog {...{ open, close: handleClose }} page={viewing} />}
-    </Paper>
+        </Stack>
+      </Stack>
+    </Row>
   );
 };

@@ -2,7 +2,7 @@ import { Page, PageCreate, PageDelete, PageIndex, PageRefresh, PageUpdate, PageV
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-export const usePagesQuery = (page: number, limit = 50) =>
+export const usePagesQuery = (page: number, limit = 100) =>
   useQuery({
     queryKey: ['pages', page],
     queryFn: () => PageIndex({ page, limit }),
