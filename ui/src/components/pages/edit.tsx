@@ -15,6 +15,7 @@ import { usePageCreateMutation, usePageMutation } from '.';
 const scraperOptions: Option[] = [
   { value: 'myanime', label: 'MyAnime.live' },
   { value: 'jhdanime', label: 'JHDAnime.live' },
+  { value: 'animexin', label: 'AnimeXin.vip' },
 ];
 const downloaderOptions: Option[] = [{ value: 'metube', label: 'MeTube' }];
 

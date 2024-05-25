@@ -5,6 +5,7 @@ import { Page } from 'client';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import EditIcon from '@mui/icons-material/Edit';
 import ReplayCircleFilledIcon from '@mui/icons-material/ReplayCircleFilled';
+import StarIcon from '@mui/icons-material/Star';
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
@@ -13,11 +14,12 @@ import Typography from '@mui/material/Typography';
 
 import { ButtonMap, ButtonMapButton, Chrono, Row } from '@dashotv/components';
 
-import { PagesDialog, usePageDeleteMutation, usePageRefreshMutation } from '.';
+import { PagesDialog, usePageDeleteMutation, usePageMutation, usePageRefreshMutation } from '.';
 
 export const PageList = ({ data, setEditing }: { data: Page[]; setEditing: (p: Page) => void }) => {
   const [viewing, setViewing] = useState<Page | null>(null);
   // const [editing, setEditing] = useState<Page | null>(null);
+  const pageUpdate = usePageMutation();
   const pageRefresh = usePageRefreshMutation();
   const pageDelete = usePageDeleteMutation();
   const view = (row: Page) => {
@@ -41,6 +43,15 @@ export const PageList = ({ data, setEditing }: { data: Page[]; setEditing: (p: P
   };
   const actions = (row: Page) => {
     const buttons: ButtonMapButton[] = [
+      {
+        title: 'Enabled',
+        Icon: StarIcon,
+        color: row.enabled ? 'secondary' : 'disabled',
+        click: ev => {
+          ev.preventDefault();
+          pageUpdate.mutate({ ...row, enabled: !row.enabled });
+        },
+      },
       {
         title: 'Edit',
         Icon: EditIcon,
