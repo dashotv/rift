@@ -7,7 +7,7 @@ import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-import { Chrono, Megabytes, Resolution, Row } from '@dashotv/components';
+import { Chrono, Group, Megabytes, Resolution, Row } from '@dashotv/components';
 
 export const VideosList = ({ data }: { data: Video[] }) => {
   const view = (row: Video) => {
@@ -45,6 +45,7 @@ export const VideosList = ({ data }: { data: Video[] }) => {
                 alignItems="center"
                 sx={{ pl: 1 }}
               >
+                <Group group={row.source} author="" />
                 <Resolution resolution={row.resolution} variant="default" />
               </Stack>
             </Stack>
