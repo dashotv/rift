@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/dashotv/grimoire"
+	"github.com/kamva/mgm/v3"
 )
 
 func init() {
@@ -37,36 +38,39 @@ type Connector struct {
 	Visit *grimoire.Store[*Visit]
 }
 
+func connection[T mgm.Model](name string) (*grimoire.Store[T], error) {
+	s, err := app.Config.ConnectionFor(name)
+	if err != nil {
+		return nil, err
+	}
+	c, err := grimoire.New[T](s.URI, s.Database, s.Collection)
+	if err != nil {
+		return nil, err
+	}
+	return c, nil
+}
+
 func NewConnector(app *Application) (*Connector, error) {
-	var s *Connection
-	var err error
-
-	s, err = app.Config.ConnectionFor("page")
-	if err != nil {
-		return nil, err
-	}
-	page, err := grimoire.New[*Page](s.URI, s.Database, s.Collection)
+	page, err := connection[*Page]("page")
 	if err != nil {
 		return nil, err
 	}
 
-	s, err = app.Config.ConnectionFor("video")
-	if err != nil {
-		return nil, err
-	}
-	video, err := grimoire.New[*Video](s.URI, s.Database, s.Collection)
+	grimoire.Indexes[*Page](page, &Page{})
+
+	video, err := connection[*Video]("video")
 	if err != nil {
 		return nil, err
 	}
 
-	s, err = app.Config.ConnectionFor("visit")
+	grimoire.Indexes[*Video](video, &Video{})
+
+	visit, err := connection[*Visit]("visit")
 	if err != nil {
 		return nil, err
 	}
-	visit, err := grimoire.New[*Visit](s.URI, s.Database, s.Collection)
-	if err != nil {
-		return nil, err
-	}
+
+	grimoire.Indexes[*Visit](visit, &Visit{})
 
 	c := &Connector{
 		Log:   app.Log.Named("db"),
@@ -84,9 +88,10 @@ type Page struct { // model
 	//CreatedAt time.Time          `bson:"created_at" json:"created_at"`
 	//UpdatedAt time.Time          `bson:"updated_at" json:"updated_at"`
 	Name        string    `bson:"name" json:"name"`
-	Url         string    `bson:"url" json:"url"`
+	URL         string    `bson:"url" json:"url"`
 	Scraper     string    `bson:"scraper" json:"scraper"`
 	Downloader  string    `bson:"downloader" json:"downloader"`
+	Enabled     bool      `bson:"enabled" json:"enabled"`
 	ProcessedAt time.Time `bson:"processed_at" json:"processed_at"`
 }
 
@@ -95,12 +100,12 @@ type Video struct { // model
 	//ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	//CreatedAt time.Time          `bson:"created_at" json:"created_at"`
 	//UpdatedAt time.Time          `bson:"updated_at" json:"updated_at"`
-	PageId     primitive.ObjectID `bson:"page_id" json:"page_id"`
+	PageID     primitive.ObjectID `bson:"page_id" json:"page_id"`
 	Title      string             `bson:"title" json:"title"`
 	Season     int                `bson:"season" json:"season"`
 	Episode    int                `bson:"episode" json:"episode"`
 	Raw        string             `bson:"raw" json:"raw"`
-	DisplayId  string             `bson:"display_id" json:"display_id"`
+	DisplayID  string             `bson:"display_id" json:"display_id"`
 	Extension  string             `bson:"extension" json:"extension"`
 	Resolution int                `bson:"resolution" json:"resolution"`
 	Size       int64              `bson:"size" json:"size"`
@@ -114,8 +119,8 @@ type Visit struct { // model
 	//ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	//CreatedAt time.Time          `bson:"created_at" json:"created_at"`
 	//UpdatedAt time.Time          `bson:"updated_at" json:"updated_at"`
-	PageId     primitive.ObjectID `bson:"page_id" json:"page_id"`
-	Url        string             `bson:"url" json:"url"`
+	PageID     primitive.ObjectID `bson:"page_id" json:"page_id"`
+	URL        string             `bson:"url" json:"url"`
 	Error      string             `bson:"error" json:"error"`
 	Stacktrace []string           `bson:"stacktrace" json:"stacktrace"`
 }

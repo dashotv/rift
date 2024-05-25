@@ -14,9 +14,10 @@ type Page struct { // model
 	//CreatedAt time.Time          `bson:"created_at" json:"created_at"`
 	//UpdatedAt time.Time          `bson:"updated_at" json:"updated_at"`
 	Name        string    `bson:"name" json:"name"`
-	Url         string    `bson:"url" json:"url"`
+	URL         string    `bson:"url" json:"url"`
 	Scraper     string    `bson:"scraper" json:"scraper"`
 	Downloader  string    `bson:"downloader" json:"downloader"`
+	Enabled     bool      `bson:"enabled" json:"enabled"`
 	ProcessedAt time.Time `bson:"processed_at" json:"processed_at"`
 }
 
@@ -25,12 +26,12 @@ type Video struct { // model
 	//ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	//CreatedAt time.Time          `bson:"created_at" json:"created_at"`
 	//UpdatedAt time.Time          `bson:"updated_at" json:"updated_at"`
-	PageId     primitive.ObjectID `bson:"page_id" json:"page_id"`
+	PageID     primitive.ObjectID `bson:"page_id" json:"page_id"`
 	Title      string             `bson:"title" json:"title"`
 	Season     int                `bson:"season" json:"season"`
 	Episode    int                `bson:"episode" json:"episode"`
 	Raw        string             `bson:"raw" json:"raw"`
-	DisplayId  string             `bson:"display_id" json:"display_id"`
+	DisplayID  string             `bson:"display_id" json:"display_id"`
 	Extension  string             `bson:"extension" json:"extension"`
 	Resolution int                `bson:"resolution" json:"resolution"`
 	Size       int64              `bson:"size" json:"size"`
@@ -44,8 +45,8 @@ type Visit struct { // model
 	//ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	//CreatedAt time.Time          `bson:"created_at" json:"created_at"`
 	//UpdatedAt time.Time          `bson:"updated_at" json:"updated_at"`
-	PageId     primitive.ObjectID `bson:"page_id" json:"page_id"`
-	Url        string             `bson:"url" json:"url"`
+	PageID     primitive.ObjectID `bson:"page_id" json:"page_id"`
+	URL        string             `bson:"url" json:"url"`
 	Error      string             `bson:"error" json:"error"`
 	Stacktrace []string           `bson:"stacktrace" json:"stacktrace"`
 }

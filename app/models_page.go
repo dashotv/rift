@@ -44,7 +44,7 @@ func (c *Connector) IsVisited(page *Page, url string) (bool, error) {
 		return true, nil
 	}
 
-	if err := c.Visit.Save(&Visit{PageId: page.ID, Url: url}); err != nil {
+	if err := c.Visit.Save(&Visit{PageID: page.ID, URL: url}); err != nil {
 		return false, fae.Wrap(err, "is_visited: saving visit")
 	}
 

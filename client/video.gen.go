@@ -82,7 +82,7 @@ func (s *VideoService) Create(ctx context.Context, req *VideoCreateRequest) (*Vi
 }
 
 type VideoShowRequest struct {
-	Id string `json:"id"`
+	ID string `json:"id"`
 }
 
 type VideoShowResponse struct {
@@ -96,7 +96,7 @@ func (s *VideoService) Show(ctx context.Context, req *VideoShowRequest) (*VideoS
 		SetContext(ctx).
 		SetBody(req).
 		SetResult(result).
-		SetPathParam("id", fmt.Sprintf("%v", req.Id)).
+		SetPathParam("id", fmt.Sprintf("%v", req.ID)).
 		Get("/video/{id}")
 	if err != nil {
 		return nil, fae.Wrap(err, "failed to make request")
@@ -112,7 +112,7 @@ func (s *VideoService) Show(ctx context.Context, req *VideoShowRequest) (*VideoS
 }
 
 type VideoUpdateRequest struct {
-	Id      string `json:"id"`
+	ID      string `json:"id"`
 	Subject *Video `json:"subject"`
 }
 
@@ -127,7 +127,7 @@ func (s *VideoService) Update(ctx context.Context, req *VideoUpdateRequest) (*Vi
 		SetContext(ctx).
 		SetBody(req).
 		SetResult(result).
-		SetPathParam("id", fmt.Sprintf("%v", req.Id)).
+		SetPathParam("id", fmt.Sprintf("%v", req.ID)).
 		Put("/video/{id}")
 	if err != nil {
 		return nil, fae.Wrap(err, "failed to make request")
@@ -143,7 +143,7 @@ func (s *VideoService) Update(ctx context.Context, req *VideoUpdateRequest) (*Vi
 }
 
 type VideoSettingsRequest struct {
-	Id      string   `json:"id"`
+	ID      string   `json:"id"`
 	Setting *Setting `json:"setting"`
 }
 
@@ -158,7 +158,7 @@ func (s *VideoService) Settings(ctx context.Context, req *VideoSettingsRequest) 
 		SetContext(ctx).
 		SetBody(req).
 		SetResult(result).
-		SetPathParam("id", fmt.Sprintf("%v", req.Id)).
+		SetPathParam("id", fmt.Sprintf("%v", req.ID)).
 		Patch("/video/{id}")
 	if err != nil {
 		return nil, fae.Wrap(err, "failed to make request")
@@ -174,7 +174,7 @@ func (s *VideoService) Settings(ctx context.Context, req *VideoSettingsRequest) 
 }
 
 type VideoDeleteRequest struct {
-	Id string `json:"id"`
+	ID string `json:"id"`
 }
 
 type VideoDeleteResponse struct {
@@ -188,7 +188,7 @@ func (s *VideoService) Delete(ctx context.Context, req *VideoDeleteRequest) (*Vi
 		SetContext(ctx).
 		SetBody(req).
 		SetResult(result).
-		SetPathParam("id", fmt.Sprintf("%v", req.Id)).
+		SetPathParam("id", fmt.Sprintf("%v", req.ID)).
 		Delete("/video/{id}")
 	if err != nil {
 		return nil, fae.Wrap(err, "failed to make request")

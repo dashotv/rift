@@ -9,9 +9,9 @@ export interface Page {
   url?: string;
   scraper?: string;
   downloader?: string;
+  enabled?: boolean;
   processed_at?: string;
 }
-
 export interface Video {
   id?: string;
   created_at?: string;
@@ -30,7 +30,6 @@ export interface Video {
   view?: string;
   source?: string;
 }
-
 export interface Visit {
   id?: string;
   created_at?: string;

@@ -50,7 +50,7 @@ func (j *ScrapePage) Work(ctx context.Context, job *minion.Job[*ScrapePage]) err
 			return fae.Errorf("invalid scraper: %s", p.Scraper)
 		}
 
-		urls := scr.Read(p.Url)
+		urls := scr.Read(p.URL)
 
 		for _, url := range urls {
 			ok, err := app.DB.IsVisited(p, url)

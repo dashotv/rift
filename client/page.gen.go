@@ -82,7 +82,7 @@ func (s *PageService) Create(ctx context.Context, req *PageCreateRequest) (*Page
 }
 
 type PageShowRequest struct {
-	Id string `json:"id"`
+	ID string `json:"id"`
 }
 
 type PageShowResponse struct {
@@ -96,7 +96,7 @@ func (s *PageService) Show(ctx context.Context, req *PageShowRequest) (*PageShow
 		SetContext(ctx).
 		SetBody(req).
 		SetResult(result).
-		SetPathParam("id", fmt.Sprintf("%v", req.Id)).
+		SetPathParam("id", fmt.Sprintf("%v", req.ID)).
 		Get("/page/{id}")
 	if err != nil {
 		return nil, fae.Wrap(err, "failed to make request")
@@ -112,7 +112,7 @@ func (s *PageService) Show(ctx context.Context, req *PageShowRequest) (*PageShow
 }
 
 type PageUpdateRequest struct {
-	Id      string `json:"id"`
+	ID      string `json:"id"`
 	Subject *Page  `json:"subject"`
 }
 
@@ -127,7 +127,7 @@ func (s *PageService) Update(ctx context.Context, req *PageUpdateRequest) (*Page
 		SetContext(ctx).
 		SetBody(req).
 		SetResult(result).
-		SetPathParam("id", fmt.Sprintf("%v", req.Id)).
+		SetPathParam("id", fmt.Sprintf("%v", req.ID)).
 		Put("/page/{id}")
 	if err != nil {
 		return nil, fae.Wrap(err, "failed to make request")
@@ -143,7 +143,7 @@ func (s *PageService) Update(ctx context.Context, req *PageUpdateRequest) (*Page
 }
 
 type PageSettingsRequest struct {
-	Id      string   `json:"id"`
+	ID      string   `json:"id"`
 	Setting *Setting `json:"setting"`
 }
 
@@ -158,7 +158,7 @@ func (s *PageService) Settings(ctx context.Context, req *PageSettingsRequest) (*
 		SetContext(ctx).
 		SetBody(req).
 		SetResult(result).
-		SetPathParam("id", fmt.Sprintf("%v", req.Id)).
+		SetPathParam("id", fmt.Sprintf("%v", req.ID)).
 		Patch("/page/{id}")
 	if err != nil {
 		return nil, fae.Wrap(err, "failed to make request")
@@ -174,7 +174,7 @@ func (s *PageService) Settings(ctx context.Context, req *PageSettingsRequest) (*
 }
 
 type PageDeleteRequest struct {
-	Id string `json:"id"`
+	ID string `json:"id"`
 }
 
 type PageDeleteResponse struct {
@@ -188,7 +188,7 @@ func (s *PageService) Delete(ctx context.Context, req *PageDeleteRequest) (*Page
 		SetContext(ctx).
 		SetBody(req).
 		SetResult(result).
-		SetPathParam("id", fmt.Sprintf("%v", req.Id)).
+		SetPathParam("id", fmt.Sprintf("%v", req.ID)).
 		Delete("/page/{id}")
 	if err != nil {
 		return nil, fae.Wrap(err, "failed to make request")
@@ -204,7 +204,7 @@ func (s *PageService) Delete(ctx context.Context, req *PageDeleteRequest) (*Page
 }
 
 type PageVisitsRequest struct {
-	Id    string `json:"id"`
+	ID    string `json:"id"`
 	Page  int    `json:"page"`
 	Limit int    `json:"limit"`
 }
@@ -222,7 +222,7 @@ func (s *PageService) Visits(ctx context.Context, req *PageVisitsRequest) (*Page
 		SetResult(result).
 		SetQueryParam("page", fmt.Sprintf("%v", req.Page)).
 		SetQueryParam("limit", fmt.Sprintf("%v", req.Limit)).
-		SetPathParam("id", fmt.Sprintf("%v", req.Id)).
+		SetPathParam("id", fmt.Sprintf("%v", req.ID)).
 		Get("/page/{id}/visits")
 	if err != nil {
 		return nil, fae.Wrap(err, "failed to make request")
@@ -238,7 +238,7 @@ func (s *PageService) Visits(ctx context.Context, req *PageVisitsRequest) (*Page
 }
 
 type PageVideosRequest struct {
-	Id    string `json:"id"`
+	ID    string `json:"id"`
 	Page  int    `json:"page"`
 	Limit int    `json:"limit"`
 }
@@ -256,7 +256,7 @@ func (s *PageService) Videos(ctx context.Context, req *PageVideosRequest) (*Page
 		SetResult(result).
 		SetQueryParam("page", fmt.Sprintf("%v", req.Page)).
 		SetQueryParam("limit", fmt.Sprintf("%v", req.Limit)).
-		SetPathParam("id", fmt.Sprintf("%v", req.Id)).
+		SetPathParam("id", fmt.Sprintf("%v", req.ID)).
 		Get("/page/{id}/videos")
 	if err != nil {
 		return nil, fae.Wrap(err, "failed to make request")
@@ -272,7 +272,7 @@ func (s *PageService) Videos(ctx context.Context, req *PageVideosRequest) (*Page
 }
 
 type PageRefreshRequest struct {
-	Id string `json:"id"`
+	ID string `json:"id"`
 }
 
 type PageRefreshResponse struct {
@@ -286,7 +286,7 @@ func (s *PageService) Refresh(ctx context.Context, req *PageRefreshRequest) (*Pa
 		SetContext(ctx).
 		SetBody(req).
 		SetResult(result).
-		SetPathParam("id", fmt.Sprintf("%v", req.Id)).
+		SetPathParam("id", fmt.Sprintf("%v", req.ID)).
 		Post("/page/{id}/refresh")
 	if err != nil {
 		return nil, fae.Wrap(err, "failed to make request")

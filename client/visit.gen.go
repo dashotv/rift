@@ -82,7 +82,7 @@ func (s *VisitService) Create(ctx context.Context, req *VisitCreateRequest) (*Vi
 }
 
 type VisitShowRequest struct {
-	Id string `json:"id"`
+	ID string `json:"id"`
 }
 
 type VisitShowResponse struct {
@@ -96,7 +96,7 @@ func (s *VisitService) Show(ctx context.Context, req *VisitShowRequest) (*VisitS
 		SetContext(ctx).
 		SetBody(req).
 		SetResult(result).
-		SetPathParam("id", fmt.Sprintf("%v", req.Id)).
+		SetPathParam("id", fmt.Sprintf("%v", req.ID)).
 		Get("/visit/{id}")
 	if err != nil {
 		return nil, fae.Wrap(err, "failed to make request")
@@ -112,7 +112,7 @@ func (s *VisitService) Show(ctx context.Context, req *VisitShowRequest) (*VisitS
 }
 
 type VisitUpdateRequest struct {
-	Id      string `json:"id"`
+	ID      string `json:"id"`
 	Subject *Visit `json:"subject"`
 }
 
@@ -127,7 +127,7 @@ func (s *VisitService) Update(ctx context.Context, req *VisitUpdateRequest) (*Vi
 		SetContext(ctx).
 		SetBody(req).
 		SetResult(result).
-		SetPathParam("id", fmt.Sprintf("%v", req.Id)).
+		SetPathParam("id", fmt.Sprintf("%v", req.ID)).
 		Put("/visit/{id}")
 	if err != nil {
 		return nil, fae.Wrap(err, "failed to make request")
@@ -143,7 +143,7 @@ func (s *VisitService) Update(ctx context.Context, req *VisitUpdateRequest) (*Vi
 }
 
 type VisitSettingsRequest struct {
-	Id      string   `json:"id"`
+	ID      string   `json:"id"`
 	Setting *Setting `json:"setting"`
 }
 
@@ -158,7 +158,7 @@ func (s *VisitService) Settings(ctx context.Context, req *VisitSettingsRequest) 
 		SetContext(ctx).
 		SetBody(req).
 		SetResult(result).
-		SetPathParam("id", fmt.Sprintf("%v", req.Id)).
+		SetPathParam("id", fmt.Sprintf("%v", req.ID)).
 		Patch("/visit/{id}")
 	if err != nil {
 		return nil, fae.Wrap(err, "failed to make request")
@@ -174,7 +174,7 @@ func (s *VisitService) Settings(ctx context.Context, req *VisitSettingsRequest) 
 }
 
 type VisitDeleteRequest struct {
-	Id string `json:"id"`
+	ID string `json:"id"`
 }
 
 type VisitDeleteResponse struct {
@@ -188,7 +188,7 @@ func (s *VisitService) Delete(ctx context.Context, req *VisitDeleteRequest) (*Vi
 		SetContext(ctx).
 		SetBody(req).
 		SetResult(result).
-		SetPathParam("id", fmt.Sprintf("%v", req.Id)).
+		SetPathParam("id", fmt.Sprintf("%v", req.ID)).
 		Delete("/visit/{id}")
 	if err != nil {
 		return nil, fae.Wrap(err, "failed to make request")

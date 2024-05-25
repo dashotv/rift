@@ -9,5 +9,7 @@ fields:
     type: string
   - name: downloader
     type: string
+  - name: enabled
+    type: bool
   - name: processed_at
     type: time.Time

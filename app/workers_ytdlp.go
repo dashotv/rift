@@ -83,14 +83,14 @@ func (j *YtdlpParse) Work(ctx context.Context, job *minion.Job[*YtdlpParse]) err
 	}
 
 	video := &Video{}
-	video.PageId = pid
+	video.PageID = pid
 	video.Title = name
 	video.Season = season
 	video.Episode = episode
 	video.Raw = info.Fulltitle
 	video.Resolution = int(info.Height)
 	video.Extension = info.EXT
-	video.DisplayId = info.DisplayID
+	video.DisplayID = info.DisplayID
 	video.Download = info.WebpageURL
 	video.View = url
 	video.Size = info.FilesizeApprox

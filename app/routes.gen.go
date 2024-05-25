@@ -114,9 +114,9 @@ func (a *Application) Routes() {
 }
 
 func (a *Application) indexHandler(c echo.Context) error {
-	return c.JSON(http.StatusOK, H{
+	return c.JSON(http.StatusOK, router.H{
 		"name": "rift",
-		"routes": H{
+		"routes": router.H{
 			"page":  "/page",
 			"video": "/video",
 			"visit": "/visit",
@@ -129,13 +129,13 @@ func (a *Application) healthHandler(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, H{"name": "rift", "health": health})
+	return c.JSON(http.StatusOK, router.H{"name": "rift", "health": health})
 }
 
 // Page (/page)
 func (a *Application) PageIndexHandler(c echo.Context) error {
-	page := QueryParamIntDefault(c, "page", "1")
-	limit := QueryParamIntDefault(c, "limit", "25")
+	page := router.QueryParamIntDefault(c, "page", "1")
+	limit := router.QueryParamIntDefault(c, "limit", "25")
 	return a.PageIndex(c, page, limit)
 }
 func (a *Application) PageCreateHandler(c echo.Context) error {
@@ -171,14 +171,14 @@ func (a *Application) PageDeleteHandler(c echo.Context) error {
 }
 func (a *Application) PageVisitsHandler(c echo.Context) error {
 	id := c.Param("id")
-	page := QueryParamInt(c, "page")
-	limit := QueryParamInt(c, "limit")
+	page := router.QueryParamInt(c, "page")
+	limit := router.QueryParamInt(c, "limit")
 	return a.PageVisits(c, id, page, limit)
 }
 func (a *Application) PageVideosHandler(c echo.Context) error {
 	id := c.Param("id")
-	page := QueryParamInt(c, "page")
-	limit := QueryParamInt(c, "limit")
+	page := router.QueryParamInt(c, "page")
+	limit := router.QueryParamInt(c, "limit")
 	return a.PageVideos(c, id, page, limit)
 }
 func (a *Application) PageRefreshHandler(c echo.Context) error {
@@ -188,8 +188,8 @@ func (a *Application) PageRefreshHandler(c echo.Context) error {
 
 // Video (/video)
 func (a *Application) VideoIndexHandler(c echo.Context) error {
-	page := QueryParamIntDefault(c, "page", "1")
-	limit := QueryParamIntDefault(c, "limit", "25")
+	page := router.QueryParamIntDefault(c, "page", "1")
+	limit := router.QueryParamIntDefault(c, "limit", "25")
 	return a.VideoIndex(c, page, limit)
 }
 func (a *Application) VideoCreateHandler(c echo.Context) error {
@@ -226,8 +226,8 @@ func (a *Application) VideoDeleteHandler(c echo.Context) error {
 
 // Visit (/visit)
 func (a *Application) VisitIndexHandler(c echo.Context) error {
-	page := QueryParamIntDefault(c, "page", "1")
-	limit := QueryParamIntDefault(c, "limit", "25")
+	page := router.QueryParamIntDefault(c, "page", "1")
+	limit := router.QueryParamIntDefault(c, "limit", "25")
 	return a.VisitIndex(c, page, limit)
 }
 func (a *Application) VisitCreateHandler(c echo.Context) error {
