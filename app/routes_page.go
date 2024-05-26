@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/dashotv/fae"
 )
@@ -118,12 +119,12 @@ func (a *Application) PageVisits(c echo.Context, id string, page int, limit int)
 
 // GET /page/:id/videos
 func (a *Application) PageVideos(c echo.Context, id string, page int, limit int) error {
-	p, err := a.DB.PageGet(id)
+	pid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return err
 	}
 
-	q := a.DB.Video.Query().Where("title", p.Name)
+	q := a.DB.Video.Query().Where("page_id", pid)
 
 	count, err := q.Count()
 	if err != nil {
