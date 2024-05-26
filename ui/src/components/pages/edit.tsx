@@ -16,6 +16,7 @@ const scraperOptions: Option[] = [
   { value: 'myanime', label: 'MyAnime.live' },
   { value: 'jhdanime', label: 'JHDAnime.live' },
   { value: 'animexin', label: 'AnimeXin.vip' },
+  { value: 'animekhor', label: 'AnimeKhor.xyz' },
 ];
 const downloaderOptions: Option[] = [{ value: 'metube', label: 'MeTube' }];
 
