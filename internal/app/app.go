@@ -33,6 +33,9 @@ type Application struct {
 	// Models
 	DB *Connector
 
+	// Events
+	Events *Events
+
 	// Workers
 	Workers *minion.Minion
 

@@ -7,12 +7,14 @@ require (
 	github.com/dashotv/fae v0.1.9
 	github.com/dashotv/golem v0.14.20
 	github.com/dashotv/grimoire v0.5.4
+	github.com/dashotv/mercury v0.3.2
 	github.com/dashotv/minion v0.4.11
 	github.com/dotenv-org/godotenvvault v0.6.0
 	github.com/go-resty/resty/v2 v2.12.0
 	github.com/gocolly/colly/v2 v2.1.0
 	github.com/kamva/mgm/v3 v3.5.0
 	github.com/labstack/echo/v4 v4.11.4
+	github.com/nats-io/nats.go v1.34.1
 	github.com/spf13/cobra v1.8.0
 	github.com/streamingfast/logging v0.0.0-20230608130331-f22c91403091
 	github.com/stretchr/testify v1.9.0
@@ -59,6 +61,8 @@ require (
 	github.com/mitchellh/go-testing-interface v1.14.1 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/montanaflynn/stats v0.7.1 // indirect
+	github.com/nats-io/nkeys v0.4.7 // indirect
+	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
