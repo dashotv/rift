@@ -28,6 +28,9 @@ func (m *AnimeXin) Read(url string) []string {
 	m.col.OnHTML("article", func(e *colly.HTMLElement) {
 		urls = append(urls, e.ChildAttr("a", "href"))
 	})
+	m.col.OnHTML("div.eplister ul li", func(e *colly.HTMLElement) {
+		urls = append(urls, e.ChildAttr("a", "href"))
+	})
 	m.col.OnError(func(r *colly.Response, err error) {
 		m.log.Errorf("scraping: %s\n", err)
 	})

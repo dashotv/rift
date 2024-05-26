@@ -15,7 +15,11 @@ type ScrapeAll struct {
 
 func (j *ScrapeAll) Kind() string { return "scrape_all" }
 func (j *ScrapeAll) Work(ctx context.Context, job *minion.Job[*ScrapeAll]) error {
-	// l := app.Log.Named("scrape")
+	l := app.Log.Named("scrape")
+	if !app.Config.Production {
+		l.Warn("scrape_all: skipping")
+		return nil
+	}
 
 	pages, err := app.DB.Page.Query().Limit(-1).Where("enabled", true).Desc("name").Run()
 	if err != nil {
@@ -43,15 +47,16 @@ func (j *ScrapePage) Work(ctx context.Context, job *minion.Job[*ScrapePage]) err
 	p := job.Args.Page
 	l := app.Log.Named("scrape.page")
 
-	// l.Debugf("scrape: %s", p.Name)
-	// if app.Config.Production {
+	l.Debugf("scrape: %s", p.Name)
 	scr := scraper.New(p.Scraper, l)
 	if scr == nil {
 		return fae.Errorf("invalid scraper: %s", p.Scraper)
 	}
 
+	l.Debugf("parse: %s", p.URL)
 	results := scr.Parse(p.URL)
 
+	l.Debugf("results: %d", len(results))
 	for _, result := range results {
 		ok, err := app.DB.IsVisited(p, result.URL)
 		if err != nil {
@@ -72,6 +77,5 @@ func (j *ScrapePage) Work(ctx context.Context, job *minion.Job[*ScrapePage]) err
 	if err := app.DB.Page.Save(p); err != nil {
 		return fae.Wrap(err, "scrape_page: saving page")
 	}
-	// }
 	return nil
 }
