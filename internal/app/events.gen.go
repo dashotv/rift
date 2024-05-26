@@ -50,7 +50,7 @@ type Events struct {
 	App   *Application
 	Merc  *mercury.Mercury
 	Log   *zap.SugaredLogger
-	Video chan **Video
+	Video chan *Video
 }
 
 func NewEvents(app *Application) (*Events, error) {
@@ -63,7 +63,7 @@ func NewEvents(app *Application) (*Events, error) {
 		App:   app,
 		Merc:  m,
 		Log:   app.Log.Named("events"),
-		Video: make(chan **Video),
+		Video: make(chan *Video),
 	}
 
 	if err := e.Merc.Sender("rift.video", e.Video); err != nil {
@@ -96,10 +96,11 @@ func (e *Events) Send(topic EventsTopic, data any) error {
 func (e *Events) doSend(topic EventsTopic, data any) error {
 	switch topic {
 	case "rift.video":
-		m, ok := data.(**Video)
+		m, ok := data.(*Video)
 		if !ok {
 			return fae.Errorf("events.send: wrong data type: %t", data)
 		}
+		e.Log.Debugf("sending: %s: %+v", topic, m)
 		e.Video <- m
 	default:
 		e.Log.Warnf("events.send: unknown topic: %s", topic)

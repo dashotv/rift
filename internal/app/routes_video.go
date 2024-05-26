@@ -2,6 +2,7 @@ package app
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 
@@ -55,14 +56,18 @@ func (a *Application) VideoShow(c echo.Context, id string) error {
 
 // PUT /video/:id
 func (a *Application) VideoUpdate(c echo.Context, id string, video *Video) error {
-	// subject, err := a.DB.Video.Get(id)
-	// if err != nil {
-	//     return c.JSON(http.StatusNotFound, H{"error": true, "message": "not found"})
-	// }
+	subject, err := a.DB.VideoGet(id)
+	if err != nil {
+		return fae.Errorf("video not found: %s", id)
+	}
 
-	// TODO: implement the route
-	return c.JSON(http.StatusNotImplemented, H{"error": "not implmented"})
-	// return c.JSON(http.StatusOK, H{"error": false})
+	subject.UpdatedAt = time.Now()
+
+	if err := a.DB.Video.Save(subject); err != nil {
+		return fae.Wrap(err, "save")
+	}
+
+	return c.JSON(http.StatusOK, H{"error": false, "result": subject})
 }
 
 // PATCH /video/:id

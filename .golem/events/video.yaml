@@ -1,4 +1,4 @@
 name: video
 channel: rift.video
 receiver: false
-existing_payload: '*Video'
+existing_payload: Video
