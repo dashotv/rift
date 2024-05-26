@@ -2,7 +2,7 @@ version: "0.14.2"
 name: rift
 repo: github.com/dashotv/rift
 package: app
-output: app
+output: internal/app
 plugins:
   models: true
   routes: true
