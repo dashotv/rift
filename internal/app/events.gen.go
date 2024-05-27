@@ -100,7 +100,6 @@ func (e *Events) doSend(topic EventsTopic, data any) error {
 		if !ok {
 			return fae.Errorf("events.send: wrong data type: %t", data)
 		}
-		e.Log.Debugf("sending: %s: %+v", topic, m)
 		e.Video <- m
 	default:
 		e.Log.Warnf("events.send: unknown topic: %s", topic)
