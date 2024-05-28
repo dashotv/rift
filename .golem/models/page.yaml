@@ -3,12 +3,15 @@ type: model
 fields:
   - name: name
     type: string
+    index: true
   - name: url
     type: string
   - name: scraper
     type: string
+    index: true
   - name: downloader
     type: string
+    index: true
   - name: enabled
     type: bool
   - name: processed_at

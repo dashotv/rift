@@ -3,8 +3,10 @@ type: model
 fields:
   - name: page_id
     type: primitive.ObjectID
+    index: true
   - name: title
     type: string
+    index: true
   - name: season
     type: int
   - name: episode
@@ -25,3 +27,4 @@ fields:
     type: string
   - name: source
     type: string
+    index: true
