@@ -12,7 +12,7 @@ func TestAnimeKhor_Read(t *testing.T) {
 	client := NewAnimeKhor(zap.NewExample().Sugar())
 	list := client.Read(url)
 	for _, l := range list {
-		fmt.Printf("animexin: %s\n", l)
+		fmt.Printf("animekhor: %s\n", l)
 	}
 }
 
@@ -21,6 +21,6 @@ func TestAnimeKhor_Parse(t *testing.T) {
 	client := NewAnimeKhor(zap.NewExample().Sugar())
 	list := client.Parse(url)
 	for _, l := range list {
-		fmt.Printf("animexin: %+v\n", l)
+		fmt.Printf("animekhor: %+v\n", l)
 	}
 }

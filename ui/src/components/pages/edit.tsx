@@ -17,6 +17,7 @@ const scraperOptions: Option[] = [
   { value: 'jhdanime', label: 'JHDAnime.live' },
   { value: 'animexin', label: 'AnimeXin.vip' },
   { value: 'animekhor', label: 'AnimeKhor.xyz' },
+  { value: 'naruldonghua', label: 'NarulDonghua.com' },
 ];
 const downloaderOptions: Option[] = [{ value: 'metube', label: 'MeTube' }];
 
