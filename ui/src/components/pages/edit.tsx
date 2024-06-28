@@ -18,6 +18,7 @@ const scraperOptions: Option[] = [
   { value: 'animexin', label: 'AnimeXin.vip' },
   { value: 'animekhor', label: 'AnimeKhor.xyz' },
   { value: 'naruldonghua', label: 'NarulDonghua.com' },
+  { value: 'donghuastream', label: 'DonghuaStream.org' },
 ];
 const downloaderOptions: Option[] = [{ value: 'metube', label: 'MeTube' }];
 

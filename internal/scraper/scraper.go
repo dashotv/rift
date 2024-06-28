@@ -19,6 +19,8 @@ func New(name string, log *zap.SugaredLogger) Scraper {
 		return NewAnimeKhor(log)
 	case "naruldonghua":
 		return NewNarulDonghua(log)
+	case "donghuastream":
+		return NewDonghuaStream(log)
 	default:
 		return nil
 	}
