@@ -56,21 +56,21 @@ func NewConnector(app *Application) (*Connector, error) {
 		return nil, err
 	}
 
-	grimoire.Indexes[*Page](page, &Page{})
+	grimoire.CreateIndexesFromTags[*Page](page, &Page{})
 
 	video, err := connection[*Video]("video")
 	if err != nil {
 		return nil, err
 	}
 
-	grimoire.Indexes[*Video](video, &Video{})
+	grimoire.CreateIndexesFromTags[*Video](video, &Video{})
 
 	visit, err := connection[*Visit]("visit")
 	if err != nil {
 		return nil, err
 	}
 
-	grimoire.Indexes[*Visit](visit, &Visit{})
+	grimoire.CreateIndexesFromTags[*Visit](visit, &Visit{})
 
 	c := &Connector{
 		Log:   app.Log.Named("db"),
