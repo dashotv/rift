@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
@@ -93,26 +94,32 @@ func (j *YtdlpParse) Work(ctx context.Context, job *minion.Job[*YtdlpParse]) err
 	// 	return nil
 	// }
 
-	video, err := app.DB.VideoFindOrCreate(info.DisplayID)
-	if err != nil {
-		return fae.Wrap(err, "finding or creating")
-	}
+	for _, format := range info.Formats {
+		if format.Height < 720 || format.FilesizeApprox == 0 {
+			continue
+		}
 
-	video.PageID = pid
-	video.Title = name
-	video.Season = season
-	video.Episode = episode
-	video.Raw = info.Fulltitle
-	video.Resolution = int(info.Height)
-	video.Extension = info.EXT
-	video.DisplayID = info.DisplayID
-	video.Download = info.WebpageURL
-	video.View = url
-	video.Size = info.FilesizeApprox
-	video.Source = page.Name
+		video, err := app.DB.VideoFindOrCreate(fmt.Sprintf("%s-%d", info.DisplayID, format.Height))
+		if err != nil {
+			return fae.Wrap(err, "finding or creating")
+		}
 
-	if err := app.DB.Video.Save(video); err != nil {
-		return fae.Wrap(err, "saving")
+		video.PageID = pid
+		video.Title = name
+		video.Season = season
+		video.Episode = episode
+		video.Raw = info.Fulltitle
+		video.Resolution = int(format.Height)
+		video.Extension = format.EXT
+		video.DisplayID = info.DisplayID
+		video.Download = format.URL
+		video.View = url
+		video.Size = format.FilesizeApprox
+		video.Source = page.Name
+
+		if err := app.DB.Video.Save(video); err != nil {
+			return fae.Wrap(err, "saving")
+		}
 	}
 
 	return nil
