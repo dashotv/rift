@@ -47,16 +47,16 @@ func (j *ScrapePage) Work(ctx context.Context, job *minion.Job[*ScrapePage]) err
 	p := job.Args.Page
 	l := app.Log.Named("scrape.page")
 
-	l.Debugf("scrape: %s", p.Name)
+	// l.Debugf("scrape: %s", p.Name)
 	scr := scraper.New(p.Scraper, l)
 	if scr == nil {
 		return fae.Errorf("invalid scraper: %s", p.Scraper)
 	}
 
-	l.Debugf("parse: %s", p.URL)
+	// l.Debugf("parse: %s", p.URL)
 	results := scr.Parse(p.URL)
 
-	l.Debugf("results: %d", len(results))
+	// l.Debugf("results: %d", len(results))
 	for _, result := range results {
 		ok, err := app.DB.IsVisited(p, result.URL)
 		if err != nil {
