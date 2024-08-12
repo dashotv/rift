@@ -1,6 +1,7 @@
 package scraper
 
 import (
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -10,7 +11,7 @@ import (
 )
 
 // https://donghuastream.org/
-var donghuaStreamRegex = regexp.MustCompile(`(?i)^http(?:s)*://donghuastream.org/([\w-]+?)(?:-season-(\d+))*-episode(?:s)*-(\d+)`)
+var donghuaStreamRegex = regexp.MustCompile(`(?i)^http(?:s)*://donghuastream.org/([\w-]+?)(?:-season-(\d+))*-episode(?:s)*-(\d+)(?:-(\d+))*`)
 
 func NewDonghuaStream(log *zap.SugaredLogger) *DonghuaStream {
 	return &DonghuaStream{
@@ -61,9 +62,13 @@ func (m *DonghuaStream) Parse(url string) []*Result {
 			if len(videos) == 0 {
 				continue
 			}
+			fmt.Printf("match: %+v\n", match[0])
 			title := strings.Replace(match[0][1], "-", " ", -1)
 			season, _ := strconv.Atoi(match[0][2])
 			episode, _ := strconv.Atoi(match[0][3])
+			if len(match[0]) > 4 && match[0][4] != "" {
+				episode, _ = strconv.Atoi(match[0][4])
+			}
 			results = append(results, &Result{
 				Title:   title,
 				Season:  season,
