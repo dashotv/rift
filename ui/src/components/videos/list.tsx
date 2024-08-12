@@ -2,16 +2,40 @@ import Truncate from 'react-truncate-inside';
 
 import { Video } from 'client';
 
+import DeleteIcon from '@mui/icons-material/Delete';
+import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-import { Chrono, Group, Megabytes, Resolution, Row } from '@dashotv/components';
+import { ButtonMap, ButtonMapButton, Chrono, Group, Megabytes, Resolution, Row } from '@dashotv/components';
+
+import { useVideosDeleteMutation } from './query';
 
 export const VideosList = ({ data }: { data: Video[] }) => {
+  const remove = useVideosDeleteMutation();
   const view = (row: Video) => {
     console.log(row);
+  };
+  const deleteVideo = (row: Video) => {
+    if (!row.id) return;
+    remove.mutate(row.id);
+  };
+
+  const actions = (row: Video) => {
+    const buttons: ButtonMapButton[] = [
+      {
+        title: 'Delete',
+        Icon: DeleteIcon,
+        color: 'error',
+        click: ev => {
+          ev.preventDefault();
+          deleteVideo(row);
+        },
+      },
+    ];
+    return <ButtonMap buttons={buttons} size="small" />;
   };
 
   return (
@@ -69,7 +93,7 @@ export const VideosList = ({ data }: { data: Video[] }) => {
                 <Typography noWrap variant="subtitle2" color="gray" pl="3px" width="100%">
                   {row.created_at && <Chrono fromNow>{row.created_at}</Chrono>}
                 </Typography>
-                {/* <Box>{actions && actions(row)}</Box> */}
+                <Box>{actions(row)}</Box>
               </Stack>
             </Stack>
           </Stack>

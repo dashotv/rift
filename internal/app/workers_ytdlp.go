@@ -19,7 +19,8 @@ type YtdlpList struct {
 
 func (j *YtdlpList) Kind() string { return "ytdlp_list" }
 func (j *YtdlpList) Work(ctx context.Context, job *minion.Job[*YtdlpList]) (err error) {
-	// l := s.Logger.Named("ytdlp.list")
+	a := ContextApp(ctx)
+	l := a.Log.Named("ytdlp.list")
 	name := job.Args.Name
 	url := job.Args.URL
 	pid := job.Args.PageID
@@ -40,7 +41,7 @@ func (j *YtdlpList) Work(ctx context.Context, job *minion.Job[*YtdlpList]) (err 
 	}
 
 	for _, e := range list {
-		// l.Warnf("ytdlp-list: %s", e.WebpageURL)
+		l.Warnf("ytdlp-list: %s", e.WebpageURL)
 		if err := app.Workers.Enqueue(&YtdlpParse{Name: name, PageID: pid, URL: url, Info: e}); err != nil {
 			return fae.Wrapf(err, "ytdlp-list: info: %s", e.WebpageURL)
 		}
@@ -60,24 +61,17 @@ type YtdlpParse struct {
 
 func (j *YtdlpParse) Kind() string { return "ytdlp_parse" }
 func (j *YtdlpParse) Work(ctx context.Context, job *minion.Job[*YtdlpParse]) error {
-	// l := s.Logger.Named("ytdlp.parse")
+	a := ContextApp(ctx)
+	l := a.Log.Named("ytdlp.parse")
 	name := job.Args.Name
 	url := job.Args.URL
 	info := job.Args.Info
 	pid := job.Args.PageID
 
-	// l.Warnf("%s %d %s [%s] URL:%s", info.Fulltitle, info.Height, info.EXT, info.DisplayID, info.WebpageURL)
-
-	count, err := app.DB.Video.Query().Where("display_id", info.DisplayID).Count()
-	if err != nil {
-		return fae.Wrap(err, "couting")
-	}
-	if count > 0 {
-		return nil
-	}
+	l.Warnf("%s %d %s [%s] URL:%s", info.Fulltitle, info.Height, info.EXT, info.DisplayID, info.WebpageURL)
 
 	page := &Page{}
-	err = app.DB.Page.FindByID(pid, page)
+	err := app.DB.Page.FindByID(pid, page)
 	if err != nil {
 		return fae.Wrap(err, "finding page")
 	}
@@ -87,7 +81,23 @@ func (j *YtdlpParse) Work(ctx context.Context, job *minion.Job[*YtdlpParse]) err
 		season, episode = ParseURL(url)
 	}
 
-	video := &Video{}
+	if season == 0 || episode == 0 {
+		name = info.Fulltitle
+	}
+
+	// count, err := app.DB.Video.Query().Where("display_id", info.DisplayID).Count()
+	// if err != nil {
+	// 	return fae.Wrap(err, "couting")
+	// }
+	// if count > 0 {
+	// 	return nil
+	// }
+
+	video, err := app.DB.VideoFindOrCreate(info.DisplayID)
+	if err != nil {
+		return fae.Wrap(err, "finding or creating")
+	}
+
 	video.PageID = pid
 	video.Title = name
 	video.Season = season

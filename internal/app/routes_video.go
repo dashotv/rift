@@ -11,17 +11,10 @@ import (
 
 // GET /video/
 func (a *Application) VideoIndex(c echo.Context, page int, limit int) error {
-	if page < 1 {
-		page = 1
-	}
-	if limit < 1 {
-		limit = 25
-	}
 	skip := (page - 1) * limit
 	if skip < 0 {
 		skip = 0
 	}
-	a.Log.Debugf("VideoIndex: page=%d limit=%d skip=%d", page, limit, skip)
 	count, err := a.DB.Video.Query().Count()
 	if err != nil {
 		return fae.Wrap(err, "count")
@@ -84,12 +77,14 @@ func (a *Application) VideoSettings(c echo.Context, id string, setting *Setting)
 
 // DELETE /video/:id
 func (a *Application) VideoDelete(c echo.Context, id string) error {
-	// subject, err := a.DB.Video.Get(id)
-	// if err != nil {
-	//     return c.JSON(http.StatusNotFound, H{"error": true, "message": "not found"})
-	// }
+	subject, err := a.DB.VideoGet(id)
+	if err != nil {
+		return fae.Errorf("video not found: %s", id)
+	}
 
-	// TODO: implement the route
-	return c.JSON(http.StatusNotImplemented, H{"error": "not implmented"})
-	// return c.JSON(http.StatusOK, H{"error": false})
+	if err := a.DB.Video.Delete(subject); err != nil {
+		return fae.Wrap(err, "delete")
+	}
+
+	return c.JSON(http.StatusOK, H{"error": false})
 }

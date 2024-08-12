@@ -1,5 +1,7 @@
 package app
 
+import "github.com/dashotv/fae"
+
 func (c *Connector) VideoGet(id string) (*Video, error) {
 	m := &Video{}
 	err := c.Video.Find(id, m)
@@ -19,4 +21,19 @@ func (c *Connector) VideoList() ([]*Video, error) {
 	}
 
 	return list, nil
+}
+
+func (c *Connector) VideoFindOrCreate(displayID string) (*Video, error) {
+	list, err := app.DB.Video.Query().Where("display_id", displayID).Run()
+	if err != nil {
+		return nil, fae.Wrap(err, "finding video")
+	}
+	if len(list) > 0 {
+		return list[0], nil
+	}
+
+	v := &Video{}
+	v.DisplayID = displayID
+
+	return v, nil
 }

@@ -69,6 +69,8 @@ func Start() error {
 		}
 	}
 
+	ctx = ContextSet(ctx, "app", app)
+
 	for _, f := range starters {
 		if err := f(ctx, app); err != nil {
 			return err

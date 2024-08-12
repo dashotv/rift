@@ -8,7 +8,7 @@ import (
 )
 
 func TestDonghuaStream_Read(t *testing.T) {
-	url := "https://donghuastream.org/anime/nirvana-of-storm-rider/"
+	url := "https://donghuastream.org/"
 	client := NewDonghuaStream(zap.NewExample().Sugar())
 	list := client.Read(url)
 	for _, l := range list {
@@ -17,7 +17,7 @@ func TestDonghuaStream_Read(t *testing.T) {
 }
 
 func TestDonghuaStream_Parse(t *testing.T) {
-	url := "https://donghuastream.org/anime/nirvana-of-storm-rider/"
+	url := "https://donghuastream.org/"
 	client := NewDonghuaStream(zap.NewExample().Sugar())
 	list := client.Parse(url)
 	for _, l := range list {

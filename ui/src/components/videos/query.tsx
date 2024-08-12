@@ -1,6 +1,6 @@
-import { VideoIndex } from 'client';
+import { VideoDelete, VideoIndex } from 'client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 export const useVideosQuery = (page: number, limit = 25) =>
   useQuery({
@@ -9,3 +9,13 @@ export const useVideosQuery = (page: number, limit = 25) =>
     placeholderData: previousData => previousData,
     retry: false,
   });
+
+export const useVideosDeleteMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    onMutate: async (id: string) => VideoDelete({ id }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['videos'] });
+    },
+  });
+};
