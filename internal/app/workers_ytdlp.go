@@ -13,18 +13,22 @@ import (
 
 type YtdlpList struct {
 	minion.WorkerDefaults[*YtdlpList]
-	Name   string
-	PageID primitive.ObjectID
-	URL    string
+	PageID  primitive.ObjectID
+	Name    string
+	Season  int
+	Episode int
+	URL     string
 }
 
 func (j *YtdlpList) Kind() string { return "ytdlp_list" }
 func (j *YtdlpList) Work(ctx context.Context, job *minion.Job[*YtdlpList]) (err error) {
 	a := ContextApp(ctx)
 	l := a.Log.Named("ytdlp.list")
-	name := job.Args.Name
-	url := job.Args.URL
 	pid := job.Args.PageID
+	name := job.Args.Name
+	season := job.Args.Season
+	episode := job.Args.Episode
+	url := job.Args.URL
 
 	// defer func() {
 	// 	if err != nil {
@@ -43,7 +47,7 @@ func (j *YtdlpList) Work(ctx context.Context, job *minion.Job[*YtdlpList]) (err 
 
 	for _, e := range list {
 		l.Warnf("ytdlp-list: %s", e.WebpageURL)
-		if err := app.Workers.Enqueue(&YtdlpParse{Name: name, PageID: pid, URL: url, Info: e}); err != nil {
+		if err := app.Workers.Enqueue(&YtdlpParse{Name: name, PageID: pid, URL: url, Info: e, Season: season, Episode: episode}); err != nil {
 			return fae.Wrapf(err, "ytdlp-list: info: %s", e.WebpageURL)
 		}
 	}
@@ -53,11 +57,13 @@ func (j *YtdlpList) Work(ctx context.Context, job *minion.Job[*YtdlpList]) (err 
 
 type YtdlpParse struct {
 	minion.WorkerDefaults[*YtdlpParse]
-	Name   string
-	PageID primitive.ObjectID
-	Source string
-	URL    string
-	Info   *ytdlp.Info
+	PageID  primitive.ObjectID
+	Source  string
+	URL     string
+	Info    *ytdlp.Info
+	Name    string
+	Season  int
+	Episode int
 }
 
 func (j *YtdlpParse) Kind() string { return "ytdlp_parse" }
@@ -65,6 +71,8 @@ func (j *YtdlpParse) Work(ctx context.Context, job *minion.Job[*YtdlpParse]) err
 	a := ContextApp(ctx)
 	l := a.Log.Named("ytdlp.parse")
 	name := job.Args.Name
+	season := job.Args.Season
+	episode := job.Args.Episode
 	url := job.Args.URL
 	info := job.Args.Info
 	pid := job.Args.PageID
@@ -77,13 +85,15 @@ func (j *YtdlpParse) Work(ctx context.Context, job *minion.Job[*YtdlpParse]) err
 		return fae.Wrap(err, "finding page")
 	}
 
-	season, episode := ParseFulltitle(info.Fulltitle)
-	if episode == 0 {
-		season, episode = ParseURL(url)
-	}
-
 	if season == 0 || episode == 0 {
-		name = info.Fulltitle
+		season, episode = ParseFulltitle(info.Fulltitle)
+		if episode == 0 {
+			season, episode = ParseURL(url)
+		}
+
+		if season == 0 || episode == 0 {
+			name = info.Fulltitle
+		}
 	}
 
 	// count, err := app.DB.Video.Query().Where("display_id", info.DisplayID).Count()

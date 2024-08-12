@@ -68,7 +68,7 @@ func (j *ScrapePage) Work(ctx context.Context, job *minion.Job[*ScrapePage]) err
 		}
 
 		// l.Debugf("'%s' %s", p.Name, url)
-		if err := app.Workers.Enqueue(&YtdlpList{Name: result.Title, PageID: p.ID, URL: result.URL}); err != nil {
+		if err := app.Workers.Enqueue(&YtdlpList{PageID: p.ID, Name: result.Title, URL: result.URL, Season: result.Season, Episode: result.Episode}); err != nil {
 			return fae.Wrap(err, "scrape_page_url: enqueuing ytdlp_list")
 		}
 	}
