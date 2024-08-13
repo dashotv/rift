@@ -85,13 +85,13 @@ func (j *YtdlpParse) Work(ctx context.Context, job *minion.Job[*YtdlpParse]) err
 		return fae.Wrap(err, "finding page")
 	}
 
-	if season == 0 || episode == 0 {
+	if episode == 0 {
 		season, episode = ParseFulltitle(info.Fulltitle)
 		if episode == 0 {
 			season, episode = ParseURL(url)
 		}
 
-		if season == 0 || episode == 0 {
+		if episode == 0 {
 			name = info.Fulltitle
 		}
 	}
