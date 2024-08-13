@@ -17,12 +17,10 @@ func setupLogger(app *Application) (err error) {
 		verbosity := 1
 		logStdoutWriter := zapcore.Lock(os.Stderr)
 		log := zap.New(zapcore.NewCore(logging.NewEncoder(verbosity, isTTY), logStdoutWriter, zapcore.DebugLevel))
-		app.Log = log.Sugar().Named("rift")
+		app.Log = log.Sugar().Named("app")
 	case "release":
-		zapcfg := zap.NewProductionConfig()
-		zapcfg.Level = zap.NewAtomicLevelAt(zap.InfoLevel)
 		log, err := zap.NewProduction()
-		app.Log = log.Sugar().Named("rift")
+		app.Log = log.Sugar().Named("app")
 		if err != nil {
 			return err
 		}
