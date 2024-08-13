@@ -109,7 +109,8 @@ func (j *YtdlpParse) Work(ctx context.Context, job *minion.Job[*YtdlpParse]) err
 			continue
 		}
 
-		video, err := app.DB.VideoFindOrCreate(fmt.Sprintf("%s-%d", info.DisplayID, format.Height))
+		checksum := fmt.Sprintf("%s-%d", info.DisplayID, format.Height)
+		video, err := app.DB.VideoFindOrCreate(checksum)
 		if err != nil {
 			return fae.Wrap(err, "finding or creating")
 		}
@@ -121,7 +122,7 @@ func (j *YtdlpParse) Work(ctx context.Context, job *minion.Job[*YtdlpParse]) err
 		video.Raw = info.Fulltitle
 		video.Resolution = int(format.Height)
 		video.Extension = format.EXT
-		video.DisplayID = info.DisplayID
+		video.DisplayID = checksum
 		video.Download = format.URL
 		video.View = url
 		video.Size = format.FilesizeApprox
