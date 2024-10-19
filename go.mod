@@ -3,6 +3,7 @@ module github.com/dashotv/rift
 go 1.22.1
 
 require (
+	github.com/PuerkitoBio/goquery v1.9.1
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/dashotv/fae v0.1.9
 	github.com/dashotv/golem v0.14.30
@@ -26,7 +27,6 @@ require (
 require (
 	github.com/MicahParks/jwkset v0.5.17 // indirect
 	github.com/MicahParks/keyfunc/v3 v3.3.2 // indirect
-	github.com/PuerkitoBio/goquery v1.9.1 // indirect
 	github.com/andybalholm/cascadia v1.3.2 // indirect
 	github.com/antchfx/htmlquery v1.3.1 // indirect
 	github.com/antchfx/xmlquery v1.4.0 // indirect
