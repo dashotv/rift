@@ -1,16 +1,5 @@
-package scraper
+package config
 
-import (
-	"os"
-	"strings"
-)
-
-var version string
-
-func init() {
-	b, err := os.ReadFile("../../VERSION")
-	if err != nil {
-		panic(err)
-	}
-	version = strings.TrimSuffix(string(b), "\n")
-}
+// VERSION is the version of the application
+// automatically managed by pre-commit githook
+const VERSION = "v0.4.0"
