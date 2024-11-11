@@ -1,6 +1,9 @@
 package scraper
 
-import "go.uber.org/zap"
+import (
+	"github.com/gocolly/colly/v2"
+	"go.uber.org/zap"
+)
 
 type Scraper interface {
 	Read(url string) []string
@@ -8,19 +11,21 @@ type Scraper interface {
 }
 
 func New(name string, log *zap.SugaredLogger) Scraper {
+	ua := "Mozilla/5.0 colly/v2 rift/" + version + " " + name
+	col := colly.NewCollector(colly.UserAgent(ua))
 	switch name {
 	case "myanime":
-		return NewMyAnime(log)
+		return NewMyAnime(log, col)
 	case "jhdanime":
-		return NewJhdAnime(log)
+		return NewJhdAnime(log, col)
 	case "animexin":
-		return NewAnimeXin(log)
+		return NewAnimeXin(log, col)
 	case "animekhor":
-		return NewAnimeKhor(log)
+		return NewAnimeKhor(log, col)
 	case "naruldonghua":
-		return NewNarulDonghua(log)
+		return NewNarulDonghua(log, col)
 	case "donghuastream":
-		return NewDonghuaStream(log)
+		return NewDonghuaStream(log, col)
 	default:
 		return nil
 	}

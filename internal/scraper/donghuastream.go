@@ -14,9 +14,9 @@ import (
 // https://donghuastream.org/
 var donghuaStreamRegex = regexp.MustCompile(`(?i)^http(?:s)*://donghuastream.org/([\w-]+?)(?:-season-(\d+))*-episode(?:s)*-(\d+)(?:-(\d+))*`)
 
-func NewDonghuaStream(log *zap.SugaredLogger) *DonghuaStream {
+func NewDonghuaStream(log *zap.SugaredLogger, col *colly.Collector) *DonghuaStream {
 	return &DonghuaStream{
-		col: colly.NewCollector(),
+		col: col,
 		log: log.Named("donghuastream"),
 	}
 }

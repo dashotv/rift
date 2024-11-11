@@ -1,6 +1,7 @@
 package scraper
 
 import (
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -11,9 +12,9 @@ import (
 
 var myanimeRegex = regexp.MustCompile(`(?i)^http(?:s)*://myanime\.live/\d+/\d+/\d+/([\w-]+?)(?:-season-(\d+))*-episode-(\d+)`)
 
-func NewMyAnime(log *zap.SugaredLogger) *MyAnime {
+func NewMyAnime(log *zap.SugaredLogger, col *colly.Collector) *MyAnime {
 	return &MyAnime{
-		col: colly.NewCollector(),
+		col: col,
 		log: log.Named("myanime"),
 	}
 }
@@ -29,6 +30,7 @@ func (m *MyAnime) Read(url string) []string {
 		urls = append(urls, e.ChildAttr("a", "href"))
 	})
 	m.col.OnError(func(r *colly.Response, err error) {
+		fmt.Printf("error: %s\n", err)
 		m.log.Errorf("scraping: %s\n", err)
 	})
 	m.col.Visit(url)

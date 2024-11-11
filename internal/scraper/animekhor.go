@@ -11,9 +11,9 @@ import (
 
 var khorRegex = regexp.MustCompile(`(?i)^http(?:s)*://animekhor\.xyz/([\w-]+?)(?:-season-(\d+))*-episode(?:s)*-(\d+)`)
 
-func NewAnimeKhor(log *zap.SugaredLogger) *AnimeKhor {
+func NewAnimeKhor(log *zap.SugaredLogger, col *colly.Collector) *AnimeKhor {
 	return &AnimeKhor{
-		col: colly.NewCollector(),
+		col: col,
 		log: log.Named("animekhor"),
 	}
 }

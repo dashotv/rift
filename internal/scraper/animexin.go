@@ -9,11 +9,11 @@ import (
 	"go.uber.org/zap"
 )
 
-var xinRegex = regexp.MustCompile(`(?i)^http(?:s)*://animexin\.vip/([\w-]+?)(?:-season-(\d+))*-episode-(\d+)`)
+var xinRegex = regexp.MustCompile(`(?i)^http(?:s)*://animexin\.(vip|top)/([\w-]+?)(?:-season-(\d+))*-episode-(\d+)`)
 
-func NewAnimeXin(log *zap.SugaredLogger) *AnimeXin {
+func NewAnimeXin(log *zap.SugaredLogger, col *colly.Collector) *AnimeXin {
 	return &AnimeXin{
-		col: colly.NewCollector(),
+		col: col,
 		log: log.Named("animexin"),
 	}
 }
@@ -28,7 +28,7 @@ func (m *AnimeXin) Read(url string) []string {
 	m.col.OnHTML("article", func(e *colly.HTMLElement) {
 		urls = append(urls, e.ChildAttr("a", "href"))
 	})
-	m.col.OnHTML("div.eplister ul li", func(e *colly.HTMLElement) {
+	m.col.OnHTML("div.eplister li", func(e *colly.HTMLElement) {
 		urls = append(urls, e.ChildAttr("a", "href"))
 	})
 	m.col.OnError(func(r *colly.Response, err error) {

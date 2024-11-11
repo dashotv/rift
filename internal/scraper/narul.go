@@ -11,9 +11,9 @@ import (
 
 var narulRegex = regexp.MustCompile(`(?i)^http(?:s)*://naruldonghua\.(?:xyz|com)/([\w-]+?)(?:-season-(\d+))*-episode(?:s)*-(\d+)`)
 
-func NewNarulDonghua(log *zap.SugaredLogger) *NarulDonghua {
+func NewNarulDonghua(log *zap.SugaredLogger, col *colly.Collector) *NarulDonghua {
 	return &NarulDonghua{
-		col: colly.NewCollector(),
+		col: col,
 		log: log.Named("naruldonghua"),
 	}
 }

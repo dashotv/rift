@@ -11,9 +11,9 @@ import (
 
 var jhdRegex = regexp.MustCompile(`(?i)^http(?:s)*://jhdanime\.live/\d+/\d+/\d+/([\w-]+?)(?:-season-(\d+))*-episode-(\d+)`)
 
-func NewJhdAnime(log *zap.SugaredLogger) *JhdAnime {
+func NewJhdAnime(log *zap.SugaredLogger, col *colly.Collector) *JhdAnime {
 	return &JhdAnime{
-		col: colly.NewCollector(),
+		col: col,
 		log: log.Named("jhdanime"),
 	}
 }

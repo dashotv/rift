@@ -10,8 +10,8 @@ import (
 
 func TestGetVideos(t *testing.T) {
 	l := zap.NewNop().Sugar()
-	m := NewMyAnime(l)
-	urls := m.Read("https://jhdanime.live/?s=ancient+lords")
+	m := New("myanime", l)
+	urls := m.Read("https://myanime.live/")
 	assert.NotEmpty(t, urls, "expected results")
 	for _, u := range urls {
 		fmt.Printf("url: %s\n", u)
@@ -20,7 +20,7 @@ func TestGetVideos(t *testing.T) {
 
 func TestMyAnime_Parse(t *testing.T) {
 	url := "https://myanime.live/"
-	client := NewMyAnime(zap.NewExample().Sugar())
+	client := New("myanime", zap.NewExample().Sugar())
 	list := client.Parse(url)
 	for _, l := range list {
 		fmt.Printf("myanime: %+v\n", l)
