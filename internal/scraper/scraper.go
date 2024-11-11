@@ -11,7 +11,7 @@ type Scraper interface {
 }
 
 func New(name string, log *zap.SugaredLogger) Scraper {
-	ua := "Mozilla/5.0 colly/v2 rift/" + version + " " + name
+	ua := "Mozilla/5.0 colly/v2 rift/" + VERSION + " " + name
 	col := colly.NewCollector(colly.UserAgent(ua))
 	switch name {
 	case "myanime":
