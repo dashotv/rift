@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var xinRegex = regexp.MustCompile(`(?i)^http(?:s)*://animexin\.(?:vip|top)/([\w-]+?)(?:-season-(\d+))*-episode-(\d+)`)
+var xinRegex = regexp.MustCompile(`(?i)^http(?:s)*://animexin\..*/([\w-]+?)(?:-season-(\d+))*-episode-(\d+)`)
 
 func NewAnimeXin(log *zap.SugaredLogger, col *colly.Collector) *AnimeXin {
 	return &AnimeXin{
