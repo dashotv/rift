@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var khorRegex = regexp.MustCompile(`(?i)^http(?:s)*://animekhor\.xyz/([\w-]+?)(?:-season-(\d+))*-episode(?:s)*-(\d+)`)
+var khorRegex = regexp.MustCompile(`(?i)^http(?:s)*://animekhor\..*/([\w-]+?)(?:-season-(\d+))*-episode(?:s)*-(\d+)`)
 
 func NewAnimeKhor(log *zap.SugaredLogger, col *colly.Collector) *AnimeKhor {
 	return &AnimeKhor{
