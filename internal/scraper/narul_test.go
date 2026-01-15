@@ -8,7 +8,7 @@ import (
 )
 
 func TestNarulDonghua_Read(t *testing.T) {
-	url := "https://naruldonghua.xyz/"
+	url := "https://naruldonghua.com/"
 	client := New("naruldonghua", zap.NewExample().Sugar())
 	list := client.Read(url)
 	for _, l := range list {
@@ -17,7 +17,7 @@ func TestNarulDonghua_Read(t *testing.T) {
 }
 
 func TestNarulDonghua_Parse(t *testing.T) {
-	url := "https://naruldonghua.xyz/"
+	url := "https://naruldonghua.com/"
 	client := New("naruldonghua", zap.NewExample().Sugar())
 	list := client.Parse(url)
 	for _, l := range list {
