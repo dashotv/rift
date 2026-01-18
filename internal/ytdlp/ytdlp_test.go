@@ -8,7 +8,7 @@ import (
 )
 
 func TestYtdlpList(t *testing.T) {
-	list, err := ProcessURL("https://myanime.live/2024/10/24/shixiong-a-shixiong-big-brother-episode-60-english-sub/")
+	list, err := ProcessURL("https://geo.dailymotion.com/player/x9mpt.html?video=k6iaxyaxLPkIRyEEzYE")
 	require.NoError(t, err)
 	require.NotNil(t, list)
 	require.NotEmpty(t, list)

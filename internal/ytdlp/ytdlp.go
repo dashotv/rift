@@ -42,9 +42,12 @@ func ProcessURL(url string) ([]*Info, error) {
 }
 
 func ytdlp_get_list(url string) (*List, error) {
-	args := []string{"--skip-download", "--no-warning", "--flat-playlist", "--dump-single-json", url}
+	// args := []string{"--skip-download", "--no-warning", "--flat-playlist", "--dump-single-json", url}
+	// cmd := exec.Command("yt-dlp", args...)
 
-	cmd := exec.Command("yt-dlp", args...)
+	sh := "yt-dlp --skip-download --no-warning --flat-playlist --dump-single-json " + url
+	cmd := exec.Command("sh", "-c", sh)
+
 	out, err := cmd.Output()
 	if err != nil {
 		return nil, fae.Wrap(err, "running command")
@@ -59,9 +62,12 @@ func ytdlp_get_list(url string) (*List, error) {
 }
 
 func ytdlp_get_info(url string) (*Info, error) {
-	args := []string{"--skip-download", "--no-warning", "--dump-single-json", url}
+	// args := []string{"--skip-download", "--no-warning", "--dump-single-json", url}
+	// cmd := exec.Command("yt-dlp", args...)
 
-	cmd := exec.Command("yt-dlp", args...)
+	sh := "yt-dlp --skip-download --no-warning --dump-single-json " + url
+	cmd := exec.Command("sh", "-c", sh)
+
 	out, err := cmd.Output()
 	if err != nil {
 		// fmt.Printf("ytdlp_get_info: %s\n", out)
