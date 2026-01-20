@@ -8,7 +8,7 @@ import (
 )
 
 func TestYtdlpList(t *testing.T) {
-	list, err := ProcessURL("https://geo.dailymotion.com/player/x9mpt.html?video=k6iaxyaxLPkIRyEEzYE")
+	list, err := ProcessURL("https://www.dailymotion.com/embed/video/k4ccR3m9o97Va3DchRQ")
 	require.NoError(t, err)
 	require.NotNil(t, list)
 	require.NotEmpty(t, list)

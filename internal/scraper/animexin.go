@@ -1,15 +1,20 @@
 package scraper
 
 import (
+	"encoding/base64"
 	"regexp"
 	"strconv"
 	"strings"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly/v2"
 	"go.uber.org/zap"
 )
 
+var xinPagesNum = 25
+var xinUrlsNum = 1
 var xinRegex = regexp.MustCompile(`(?i)^http(?:s)*://animexin\..*/([\w-]+?)(?:-season-(\d+))*-episode-(\d+)`)
+var xinDomains = regexp.MustCompile(`(?i)^http(?:s)*://.*\.(?:dailymotion|ok\.ru)`)
 
 func NewAnimeXin(log *zap.SugaredLogger, col *colly.Collector) *AnimeXin {
 	return &AnimeXin{
@@ -28,26 +33,76 @@ func (m *AnimeXin) Read(url string) []string {
 	m.col.OnHTML("article", func(e *colly.HTMLElement) {
 		urls = append(urls, e.ChildAttr("a", "href"))
 	})
-	m.col.OnHTML("div.eplister li", func(e *colly.HTMLElement) {
+	m.col.OnHTML(".eplister li", func(e *colly.HTMLElement) {
 		urls = append(urls, e.ChildAttr("a", "href"))
 	})
 	m.col.OnError(func(r *colly.Response, err error) {
 		m.log.Errorf("scraping: %s\n", err)
 	})
 	m.col.Visit(url)
+	if len(urls) > xinPagesNum {
+		return urls[:xinPagesNum]
+	}
+	return urls
+}
+
+func (m *AnimeXin) ReadPage(url string) []string {
+	urls := []string{}
+	m.col.OnHTML("select.mirror > option", func(e *colly.HTMLElement) {
+		s := e.Attr("value")
+		if s == "" {
+			return
+		}
+		data, err := base64.StdEncoding.DecodeString(s)
+		if err != nil {
+			m.log.Errorf("base64: %s", err)
+			return
+		}
+
+		doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(data)))
+		if err != nil {
+			m.log.Errorf("goquery: %s", err)
+			return
+		}
+
+		doc.Find("iframe").Each(func(i int, s *goquery.Selection) {
+			u, ok := s.Attr("src")
+			if ok {
+				urls = append(urls, u)
+			}
+		})
+	})
+	m.col.OnError(func(r *colly.Response, err error) {
+		m.log.Errorf("scraping: %s", err)
+	})
+	m.col.Visit(url)
+	if len(urls) > xinUrlsNum {
+		return urls[:xinUrlsNum]
+	}
 	return urls
 }
 
 func (m *AnimeXin) Parse(url string) []*Result {
 	results := []*Result{}
-	list := m.Read(url)
-	for _, l := range list {
-		match := xinRegex.FindAllStringSubmatch(l, -1)
-		if len(match) > 0 {
-			// m.log.Infof("match: %v\n", match[0])
-			title := strings.Replace(match[0][1], "-", " ", -1)
-			season, _ := strconv.Atoi(match[0][2])
-			episode, _ := strconv.Atoi(match[0][3])
+	pages := m.Read(url)
+	for _, p := range pages {
+		// m.log.Infof("readpage: %s", p)
+
+		match := xinRegex.FindAllStringSubmatch(p, -1)
+		if len(match) == 0 {
+			continue
+		}
+
+		title := strings.ReplaceAll(match[0][1], "-", " ")
+		season, _ := strconv.Atoi(match[0][2])
+		episode, _ := strconv.Atoi(match[0][3])
+
+		list := m.ReadPage(p)
+		for _, l := range list {
+			// m.log.Infof("list: %s", l)
+			if !xinDomains.MatchString(l) {
+				continue
+			}
 			results = append(results, &Result{
 				Title:   title,
 				Season:  season,
@@ -58,3 +113,40 @@ func (m *AnimeXin) Parse(url string) []*Result {
 	}
 	return results
 }
+
+//
+// func (m *AnimeXin) Read(url string) []string {
+// 	urls := []string{}
+// 	m.col.OnHTML("article", func(e *colly.HTMLElement) {
+// 		urls = append(urls, e.ChildAttr("a", "href"))
+// 	})
+// 	m.col.OnHTML("div.eplister li", func(e *colly.HTMLElement) {
+// 		urls = append(urls, e.ChildAttr("a", "href"))
+// 	})
+// 	m.col.OnError(func(r *colly.Response, err error) {
+// 		m.log.Errorf("scraping: %s\n", err)
+// 	})
+// 	m.col.Visit(url)
+// 	return urls
+// }
+//
+// func (m *AnimeXin) Parse(url string) []*Result {
+// 	results := []*Result{}
+// 	list := m.Read(url)
+// 	for _, l := range list {
+// 		match := xinRegex.FindAllStringSubmatch(l, -1)
+// 		if len(match) > 0 {
+// 			// m.log.Infof("match: %v\n", match[0])
+// 			title := strings.Replace(match[0][1], "-", " ", -1)
+// 			season, _ := strconv.Atoi(match[0][2])
+// 			episode, _ := strconv.Atoi(match[0][3])
+// 			results = append(results, &Result{
+// 				Title:   title,
+// 				Season:  season,
+// 				Episode: episode,
+// 				URL:     l,
+// 			})
+// 		}
+// 	}
+// 	return results
+// }
