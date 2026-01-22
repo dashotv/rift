@@ -7,6 +7,8 @@ import (
 	"github.com/dashotv/fae"
 )
 
+var YTDLP_OPTIONS = `--skip-download --no-warning --dump-single-json --cookies cookies.txt --add-header 'sec-ch-ua:"Not(A:Brand";v="8", "Chromium";v="144", "Brave";v="144"' --add-header 'sec-ch-ua-mobile:?0' --add-header 'sec-ch-ua-platform:macOS' --add-header 'User-Agent:Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36'`
+
 func ProcessURL(url string) ([]*Info, error) {
 	list, err := ytdlp_get_list(url)
 	if err != nil {
@@ -45,7 +47,7 @@ func ytdlp_get_list(url string) (*List, error) {
 	// args := []string{"--skip-download", "--no-warning", "--flat-playlist", "--dump-single-json", url}
 	// cmd := exec.Command("yt-dlp", args...)
 
-	sh := "yt-dlp --skip-download --no-warning --flat-playlist --dump-single-json " + url
+	sh := "yt-dlp " + YTDLP_OPTIONS + " --flat-playlist  " + url
 	cmd := exec.Command("sh", "-c", sh)
 
 	out, err := cmd.Output()
@@ -65,7 +67,7 @@ func ytdlp_get_info(url string) (*Info, error) {
 	// args := []string{"--skip-download", "--no-warning", "--dump-single-json", url}
 	// cmd := exec.Command("yt-dlp", args...)
 
-	sh := "yt-dlp --skip-download --no-warning --dump-single-json " + url
+	sh := "yt-dlp " + YTDLP_OPTIONS + " " + url
 	cmd := exec.Command("sh", "-c", sh)
 
 	out, err := cmd.Output()

@@ -11,3 +11,4 @@ rift
 ui/vite.config.js
 ui/vite.config.d.ts
 ui/tsconfig.node.tsbuildinfo
+cookies.txt
