@@ -8,7 +8,7 @@ import (
 )
 
 func TestAnimeKhor_Read(t *testing.T) {
-	url := "https://animekhor.org/anime/?type=ona&sub=&order=update"
+	url := "https://animekhor.org/"
 	client := New("animekhor", zap.NewExample().Sugar())
 	list := client.Read(url)
 	for _, l := range list {
@@ -17,7 +17,7 @@ func TestAnimeKhor_Read(t *testing.T) {
 }
 
 func TestAnimeKhor_Parse(t *testing.T) {
-	url := "https://animekhor.org/anime/?type=ona&sub=&order=update"
+	url := "https://animekhor.org/page/2/"
 	client := New("animekhor", zap.NewExample().Sugar())
 	list := client.Parse(url)
 	for _, l := range list {
