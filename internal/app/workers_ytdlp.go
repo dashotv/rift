@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
@@ -119,5 +120,18 @@ func (j *YtdlpParse) Work(ctx context.Context, job *minion.Job[*YtdlpParse]) err
 		return fae.Wrap(err, "saving")
 	}
 
+	return nil
+}
+
+type YtdlpCleanup struct {
+	minion.WorkerDefaults[*YtdlpCleanup]
+}
+
+func (j *YtdlpCleanup) Kind() string { return "ytdlp_cleanup" }
+func (j *YtdlpCleanup) Work(ctx context.Context, job *minion.Job[*YtdlpCleanup]) error {
+	//a := ContextApp(ctx)
+	if err := os.Remove("cookies.txt"); err != nil && !os.IsNotExist(err) {
+		return fae.Wrap(err, "removing cookies.txt")
+	}
 	return nil
 }

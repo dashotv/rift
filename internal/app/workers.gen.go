@@ -64,6 +64,13 @@ func setupWorkers(app *Application) error {
 		return fae.Wrap(err, "registering worker: scrape_page (ScrapePage)")
 	}
 
+	if err := minion.Register[*YtdlpCleanup](m, &YtdlpCleanup{}); err != nil {
+		return fae.Wrap(err, "registering worker: ytdlp_cleanup (YtdlpCleanup)")
+	}
+	if _, err := m.Schedule("0 5 * * * *", &YtdlpCleanup{}); err != nil {
+		return fae.Wrap(err, "scheduling worker: ytdlp_cleanup (YtdlpCleanup)")
+	}
+
 	if err := minion.RegisterWithQueue[*YtdlpList](m, &YtdlpList{}, "scraper"); err != nil {
 		return fae.Wrap(err, "registering worker: ytdlp_list (YtdlpList)")
 	}
